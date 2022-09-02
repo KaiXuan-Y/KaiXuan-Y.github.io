@@ -21,25 +21,39 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"ykxzyp0517.cn","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.12.3","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"default"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":true,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":true,"preload":false}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="NO PAIN , NO GAIN">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Young&#39;s Land">
-<meta property="og:url" content="https://ykxzyp0517.cn/index.html">
+    <meta name="description" content="基础提升">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据结构与算法">
+<meta property="og:url" content="https://ykxzyp0517.cn/2022/09/02/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/index.html">
 <meta property="og:site_name" content="Young&#39;s Land">
-<meta property="og:description" content="NO PAIN , NO GAIN">
+<meta property="og:description" content="基础提升">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-9.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-10.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-11.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-12.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-13.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-14.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-15.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-16.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-17.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-20.png">
+<meta property="article:published_time" content="2022-09-02T13:35:00.000Z">
+<meta property="article:modified_time" content="2022-09-02T14:11:34.651Z">
 <meta property="article:author" content="KaiXuan Young">
+<meta property="article:tag" content="数据结构">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ykxzyp0517.cn/images/pasted-9.png">
 
 
-<link rel="canonical" href="https://ykxzyp0517.cn/">
+<link rel="canonical" href="https://ykxzyp0517.cn/2022/09/02/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":true,"isPost":false,"lang":"zh-CN","comments":"","permalink":"","path":"index.html","title":""}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ykxzyp0517.cn/2022/09/02/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/","path":"2022/09/02/数据结构与算法/","title":"数据结构与算法"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>Young's Land</title>
+<title>数据结构与算法 | Young's Land</title>
   
 
 
@@ -71,7 +85,7 @@
 
     <a href="/" class="brand" rel="start">
       <i class="logo-line"></i>
-      <h1 class="site-title">Young's Land</h1>
+      <p class="site-title">Young's Land</p>
       <i class="logo-line"></i>
     </a>
       <p class="site-subtitle" itemprop="description">记录学习和日常</p>
@@ -131,7 +145,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -144,6 +158,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E6%8F%90%E5%8D%87"><span class="nav-text">基础提升</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Manacher%E6%9C%80%E9%95%BF%E5%9B%9E%E6%96%87%E5%AD%90%E4%B8%B2%E9%97%AE%E9%A2%98"><span class="nav-text">1.Manacher最长回文子串问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#a-Manacher%E7%9A%84%E7%BB%8F%E5%85%B8%E8%A7%A3%E6%B3%95"><span class="nav-text">a.Manacher的经典解法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#b-Manacher%E6%A6%82%E5%BF%B5"><span class="nav-text">b.Manacher概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#c-Manacher%E6%83%85%E5%86%B5%E8%AF%A6%E8%A7%A3"><span class="nav-text">c.Manacher情况详解</span></a></li></ol></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -209,16 +224,17 @@
 </noscript>
 
 
-    <div class="main-inner index posts-expand">
+    <div class="main-inner post posts-expand">
 
-    
+
+  
 
 
 <div class="post-block">
   
   
 
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://ykxzyp0517.cn/2022/09/02/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -232,13 +248,13 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | Young's Land">
+      <meta itemprop="name" content="数据结构与算法 | Young's Land">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/09/02/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" class="post-title-link" itemprop="url">数据结构与算法</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          数据结构与算法
+        </h1>
 
         <div class="post-meta-container">
           <div class="post-meta">
@@ -262,6 +278,13 @@
     </span>
 
   
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
 </div>
 
         </div>
@@ -271,16 +294,23 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <h1 id="基础提升"><a href="#基础提升" class="headerlink" title="基础提升"></a>基础提升</h1>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/09/02/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
+        <h1 id="基础提升"><a href="#基础提升" class="headerlink" title="基础提升"></a>基础提升</h1><span id="more"></span>
+<h2 id="1-Manacher最长回文子串问题"><a href="#1-Manacher最长回文子串问题" class="headerlink" title="1.Manacher最长回文子串问题"></a>1.Manacher最长回文子串问题</h2><h3 id="a-Manacher的经典解法"><a href="#a-Manacher的经典解法" class="headerlink" title="a.Manacher的经典解法"></a>a.Manacher的经典解法</h3><p><img data-src="/images/pasted-9.png" alt="upload successful"><br>找到一个办法能以某个轴向左右两头扩获得最长回文子串<br>但是没有办法找到长度为偶数的回文</p>
+<p><img data-src="/images/pasted-10.png" alt="upload successful"><br>因此需要技巧让长度为奇数或偶数的回文都能找到</p>
+<p><img data-src="/images/pasted-11.png" alt="upload successful"><br>以生成的新字符串左右扩，可以找到最长回文子串  </p>
+<p><img data-src="/images/pasted-12.png" alt="upload successful"><br>通过这个方法奇偶回文都能找到<br><strong>加入的特殊字符要不要求原串中没有出现的字符？</strong><br><em>不需要</em></p>
+<hr>
+<h3 id="b-Manacher概念"><a href="#b-Manacher概念" class="headerlink" title="b.Manacher概念"></a>b.Manacher概念</h3><p>回文直径：左右两边扩总共的长度<br>回文半径数组：将回文半径记录</p>
+<hr>
+<p><strong>R有效范围最右侧的索引</strong><br><img data-src="/images/pasted-13.png" alt="upload successful"></p>
+<p><img data-src="/images/pasted-14.png" alt="upload successful"></p>
+<p><img data-src="/images/pasted-15.png" alt="upload successful"><br>无论什么时候开始扩充，只记录有没有将右侧的边界增大。增大就记录。</p>
+<hr>
+<p><strong>C：R更新是当前数的索引</strong><br><img data-src="/images/pasted-16.png" alt="upload successful"></p>
+<h3 id="c-Manacher情况详解"><a href="#c-Manacher情况详解" class="headerlink" title="c.Manacher情况详解"></a>c.Manacher情况详解</h3><p>1）当前位置没有在回文右边界内 ：没有优化，暴力扩</p>
+<p><img data-src="/images/pasted-17.png" alt="upload successful"><br>R一开始为-1，’0‘不在最大回文有边界内，暴力扩<br>R变为0，’1‘不在，暴力扩<br>R变为2，’2’在，不符合情况（1）<br>2）当前位置，在最右回文右边界内</p>
+<p><img data-src="/images/pasted-20.png" alt="upload successful"><br>根据中心点i在R内再细分情况</p>
+
     </div>
 
     
@@ -288,94 +318,56 @@
     
 
     <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
+          <div class="reward-container">
+  <div>拿来吧你🍗</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.JPG" alt="KaiXuan Young 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibabapay.PNG" alt="KaiXuan Young 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
 </div>
 
+          
 
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://ykxzyp0517.cn/2022/09/02/netty%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/headimage.jpg">
-      <meta itemprop="name" content="KaiXuan Young">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Young's Land">
-      <meta itemprop="description" content="NO PAIN , NO GAIN">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | Young's Land">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/09/02/netty%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" class="post-title-link" itemprop="url">netty网络编程</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-      
-
-      <time title="创建时间：2022-09-02 13:11:00 / 修改时间：21:35:13" itemprop="dateCreated datePublished" datetime="2022-09-02T13:11:00+08:00">2022-09-02</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E5%90%8E%E7%AB%AF%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">后端学习</span></a>
-        </span>
-    </span>
-
-  
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>原作者： </strong>KaiXuan Young
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://ykxzyp0517.cn/2022/09/02/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" title="数据结构与算法">https://ykxzyp0517.cn/2022/09/02/数据结构与算法/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
 </div>
 
-        </div>
-      </header>
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag"><i class="fa fa-tag"></i> 数据结构</a>
+          </div>
 
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="一-NIO基础"><a href="#一-NIO基础" class="headerlink" title="一.NIO基础"></a>一.NIO基础</h1>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/09/02/netty%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
-    </div>
 
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/09/02/netty%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" rel="prev" title="netty网络编程">
+                  <i class="fa fa-chevron-left"></i> netty网络编程
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
     </footer>
   </article>
 </div>
@@ -384,6 +376,8 @@
 
 
 
+
+    <div class="comments gitalk-container"></div>
 </div>
   </main>
 
@@ -451,7 +445,7 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.7.2/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
 
-<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"KaiXuan-Y# GitHub repo owner","repo":"comments# Repository name to store issues","client_id":"54e5333f9ff5623b13af# GitHub Application Client ID","client_secret":"ff6f684d7a27df62d564197b2f2907b7aef4cae1# GitHub Application Client Secret","admin_user":"KaiXuan-Y# GitHub repo owner and collaborators, only these guys can initialize gitHub issues","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.7.2/gitalk.min.js","integrity":"sha256-Pmj85ojLaPOWwRtlMJwmezB/Qg8BzvJp5eTzvXaYAfA="},"path_md5":"d1546d731a9f30cc80127d57142a482b"}</script>
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"KaiXuan-Y# GitHub repo owner","repo":"comments# Repository name to store issues","client_id":"54e5333f9ff5623b13af# GitHub Application Client ID","client_secret":"ff6f684d7a27df62d564197b2f2907b7aef4cae1# GitHub Application Client Secret","admin_user":"KaiXuan-Y# GitHub repo owner and collaborators, only these guys can initialize gitHub issues","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.7.2/gitalk.min.js","integrity":"sha256-Pmj85ojLaPOWwRtlMJwmezB/Qg8BzvJp5eTzvXaYAfA="},"path_md5":"4b497eaa2424224365ce7b45026f9b9d"}</script>
 <script src="/js/third-party/comments/gitalk.js"></script>
 
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>

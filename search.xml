@@ -77,13 +77,39 @@ get()会让position指针往后走，如果想重复读取数据</li>
 </ul>
 <p>mark &amp; reset<br>mark做一个标记，记录position位置<br>reset是将position重置到mark的位置</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//mark &amp; reset</span></span><br><span class="line">        <span class="comment">//mark做一个标记，记录position位置；reset是将position重置到mark的位置</span></span><br><span class="line">        System.out.println((<span class="type">char</span>)buffer.get());</span><br><span class="line">        System.out.println((<span class="type">char</span>)buffer.get());</span><br><span class="line">        buffer.mark();</span><br><span class="line">        System.out.println((<span class="type">char</span>)buffer.get());</span><br><span class="line">        System.out.println((<span class="type">char</span>)buffer.get());</span><br><span class="line">        buffer.reset();</span><br><span class="line">        System.out.println((<span class="type">char</span>)buffer.get());</span><br><span class="line">        System.out.println((<span class="type">char</span>)buffer.get());</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<h3 id="字符串和bytebuffer的相互转换"><a href="#字符串和bytebuffer的相互转换" class="headerlink" title="字符串和bytebuffer的相互转换"></a>字符串和bytebuffer的相互转换</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="comment">//1.字符串转为ByteBuffer</span></span><br><span class="line">        <span class="comment">//再次转换需要buffer.flip()</span></span><br><span class="line">        <span class="type">ByteBuffer</span> <span class="variable">buffer</span> <span class="operator">=</span> ByteBuffer.allocate(<span class="number">16</span>);</span><br><span class="line">        buffer.put(<span class="string">&quot;hello&quot;</span>.getBytes());</span><br><span class="line">        debugAll(buffer);</span><br><span class="line">        <span class="comment">//2.Charset</span></span><br><span class="line">        <span class="type">ByteBuffer</span> <span class="variable">buffer2</span> <span class="operator">=</span> StandardCharsets.UTF_8.encode(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line">        debugAll(buffer2);</span><br><span class="line">        <span class="comment">//3.wrap</span></span><br><span class="line">        <span class="type">ByteBuffer</span> <span class="variable">buffer3</span> <span class="operator">=</span> ByteBuffer.wrap(<span class="string">&quot;hello&quot;</span>.getBytes());</span><br><span class="line">        debugAll(buffer3);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//1.ByteBuffer字符串</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">string</span> <span class="operator">=</span> StandardCharsets.UTF_8.decode(buffer1).toString();</span><br><span class="line">        System.out.println(string);</span><br><span class="line">        </span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-]]></content>
+<h3 id="字符串和bytebuffer的相互转换"><a href="#字符串和bytebuffer的相互转换" class="headerlink" title="字符串和bytebuffer的相互转换"></a>字符串和bytebuffer的相互转换</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="comment">//1.字符串转为ByteBuffer</span></span><br><span class="line">        <span class="comment">//再次转换需要buffer.flip()</span></span><br><span class="line">        <span class="type">ByteBuffer</span> <span class="variable">buffer</span> <span class="operator">=</span> ByteBuffer.allocate(<span class="number">16</span>);</span><br><span class="line">        buffer.put(<span class="string">&quot;hello&quot;</span>.getBytes());</span><br><span class="line">        debugAll(buffer);</span><br><span class="line">        <span class="comment">//2.Charset</span></span><br><span class="line">        <span class="type">ByteBuffer</span> <span class="variable">buffer2</span> <span class="operator">=</span> StandardCharsets.UTF_8.encode(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line">        debugAll(buffer2);</span><br><span class="line">        <span class="comment">//3.wrap</span></span><br><span class="line">        <span class="type">ByteBuffer</span> <span class="variable">buffer3</span> <span class="operator">=</span> ByteBuffer.wrap(<span class="string">&quot;hello&quot;</span>.getBytes());</span><br><span class="line">        debugAll(buffer3);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//1.ByteBuffer字符串</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">string</span> <span class="operator">=</span> StandardCharsets.UTF_8.decode(buffer1).toString();</span><br><span class="line">        System.out.println(string);</span><br><span class="line">        </span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>后端学习</category>
       </categories>
       <tags>
         <tag>netty</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>数据结构与算法</title>
+    <url>/2022/09/02/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/</url>
+    <content><![CDATA[<h1 id="基础提升"><a href="#基础提升" class="headerlink" title="基础提升"></a>基础提升</h1><span id="more"></span>
+<h2 id="1-Manacher最长回文子串问题"><a href="#1-Manacher最长回文子串问题" class="headerlink" title="1.Manacher最长回文子串问题"></a>1.Manacher最长回文子串问题</h2><h3 id="a-Manacher的经典解法"><a href="#a-Manacher的经典解法" class="headerlink" title="a.Manacher的经典解法"></a>a.Manacher的经典解法</h3><p><img data-src="/images/pasted-9.png" alt="upload successful"><br>找到一个办法能以某个轴向左右两头扩获得最长回文子串<br>但是没有办法找到长度为偶数的回文</p>
+<p><img data-src="/images/pasted-10.png" alt="upload successful"><br>因此需要技巧让长度为奇数或偶数的回文都能找到</p>
+<p><img data-src="/images/pasted-11.png" alt="upload successful"><br>以生成的新字符串左右扩，可以找到最长回文子串  </p>
+<p><img data-src="/images/pasted-12.png" alt="upload successful"><br>通过这个方法奇偶回文都能找到<br><strong>加入的特殊字符要不要求原串中没有出现的字符？</strong><br><em>不需要</em></p>
+<hr>
+<h3 id="b-Manacher概念"><a href="#b-Manacher概念" class="headerlink" title="b.Manacher概念"></a>b.Manacher概念</h3><p>回文直径：左右两边扩总共的长度<br>回文半径数组：将回文半径记录</p>
+<hr>
+<p><strong>R有效范围最右侧的索引</strong><br><img data-src="/images/pasted-13.png" alt="upload successful"></p>
+<p><img data-src="/images/pasted-14.png" alt="upload successful"></p>
+<p><img data-src="/images/pasted-15.png" alt="upload successful"><br>无论什么时候开始扩充，只记录有没有将右侧的边界增大。增大就记录。</p>
+<hr>
+<p><strong>C：R更新是当前数的索引</strong><br><img data-src="/images/pasted-16.png" alt="upload successful"></p>
+<h3 id="c-Manacher情况详解"><a href="#c-Manacher情况详解" class="headerlink" title="c.Manacher情况详解"></a>c.Manacher情况详解</h3><p>1）当前位置没有在回文右边界内 ：没有优化，暴力扩</p>
+<p><img data-src="/images/pasted-17.png" alt="upload successful"><br>R一开始为-1，’0‘不在最大回文有边界内，暴力扩<br>R变为0，’1‘不在，暴力扩<br>R变为2，’2’在，不符合情况（1）<br>2）当前位置，在最右回文右边界内</p>
+<p><img data-src="/images/pasted-20.png" alt="upload successful"><br>根据中心点i在R内再细分情况</p>
+]]></content>
+      <categories>
+        <category>数据结构</category>
+      </categories>
+      <tags>
+        <tag>数据结构</tag>
       </tags>
   </entry>
 </search>
