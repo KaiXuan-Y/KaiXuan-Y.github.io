@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>categories</title>
-    <url>/2022/09/02/categories/</url>
-    <content><![CDATA[]]></content>
-      <tags>
-        <tag>categories</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>netty网络编程</title>
     <url>/2022/09/02/netty%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/</url>
     <content><![CDATA[<h1 id="1-NIO基础"><a href="#1-NIO基础" class="headerlink" title="1.NIO基础"></a>1.NIO基础</h1><span id="more"></span>
@@ -35,14 +27,6 @@
       </categories>
       <tags>
         <tag>netty</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>tags</title>
-    <url>/2022/09/02/tags/</url>
-    <content><![CDATA[]]></content>
-      <tags>
-        <tag>tags</tag>
       </tags>
   </entry>
 </search>

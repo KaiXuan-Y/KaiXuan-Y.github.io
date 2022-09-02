@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://ykxzyp0517.cn/2022/09/02/categories/</loc>
+    <loc>https://ykxzyp0517.cn/categories/index.html</loc>
     
     <lastmod>2022-09-02</lastmod>
     
@@ -11,7 +11,7 @@
   </url>
   
   <url>
-    <loc>https://ykxzyp0517.cn/2022/09/02/tags/</loc>
+    <loc>https://ykxzyp0517.cn/tags/index.html</loc>
     
     <lastmod>2022-09-02</lastmod>
     
@@ -47,21 +47,7 @@
 
   
   <url>
-    <loc>https://ykxzyp0517.cn/tags/categories/</loc>
-    <lastmod>2022-09-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://ykxzyp0517.cn/tags/netty/</loc>
-    <lastmod>2022-09-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://ykxzyp0517.cn/tags/tags/</loc>
     <lastmod>2022-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
