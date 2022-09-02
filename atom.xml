@@ -6,7 +6,7 @@
   <link href="https://ykxzyp0517.cn/atom.xml" rel="self"/>
   
   <link href="https://ykxzyp0517.cn/"/>
-  <updated>2022-09-02T04:52:46.169Z</updated>
+  <updated>2022-09-02T06:22:36.405Z</updated>
   <id>https://ykxzyp0517.cn/</id>
   
   <author>
@@ -17,45 +17,53 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>newpapername</title>
-    <link href="https://ykxzyp0517.cn/2022/09/01/newpapername/"/>
-    <id>https://ykxzyp0517.cn/2022/09/01/newpapername/</id>
-    <published>2022-09-01T11:26:00.000Z</published>
-    <updated>2022-09-02T04:52:46.169Z</updated>
-    
-    <content type="html"><![CDATA[<p>辅导费</p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;辅导费&lt;/p&gt;
-</summary>
-      
+    <title>tags</title>
+    <link href="https://ykxzyp0517.cn/2022/09/02/tags/"/>
+    <id>https://ykxzyp0517.cn/2022/09/02/tags/</id>
+    <published>2022-09-02T06:21:21.000Z</published>
+    <updated>2022-09-02T06:22:36.405Z</updated>
     
     
     
-    <category term="开始" scheme="https://ykxzyp0517.cn/categories/%E5%BC%80%E5%A7%8B/"/>
     
+    
+    <category term="tags" scheme="https://ykxzyp0517.cn/tags/tags/"/>
     
   </entry>
   
   <entry>
-    <title>Hello World</title>
-    <link href="https://ykxzyp0517.cn/2022/09/01/hello-world/"/>
-    <id>https://ykxzyp0517.cn/2022/09/01/hello-world/</id>
-    <published>2022-09-01T10:54:00.000Z</published>
-    <updated>2022-09-02T04:50:21.225Z</updated>
-    
-    <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.io/docs/&quot;&gt;documentation&lt;/a&gt; for</summary>
-      
+    <title>categories</title>
+    <link href="https://ykxzyp0517.cn/2022/09/02/categories/"/>
+    <id>https://ykxzyp0517.cn/2022/09/02/categories/</id>
+    <published>2022-09-02T06:19:29.000Z</published>
+    <updated>2022-09-02T06:23:23.970Z</updated>
     
     
     
+    
+    
+    <category term="categories" scheme="https://ykxzyp0517.cn/tags/categories/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>netty网络编程</title>
+    <link href="https://ykxzyp0517.cn/2022/09/02/netty%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/"/>
+    <id>https://ykxzyp0517.cn/2022/09/02/netty%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/</id>
+    <published>2022-09-02T05:11:00.000Z</published>
+    <updated>2022-09-02T06:16:17.128Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="1-NIO基础"><a href="#1-NIO基础" class="headerlink" title="1.NIO基础"></a>1.NIO基础</h1><span id="more"></span><h2 id="1-三大-组件"><a href="#1-三大-组件" class="headerlink" title="1.三大 组件"></a>1.三大 组件</h2><p>non-blocking io 非阻塞IO</p><h3 id="1-1-Channel-amp-amp-Buffer"><a href="#1-1-Channel-amp-amp-Buffer" class="headerlink" title="1.1 Channel &amp;&amp; Buffer"></a>1.1 Channel &amp;&amp; Buffer</h3><p>Channel:数据的传输通道，读写的双向同道.<br>可以从channel将数据读入buffer，也可以将buffer的数据写入channel。</p><h3 id="1-2-Selector-选择器"><a href="#1-2-Selector-选择器" class="headerlink" title="1.2 Selector 选择器"></a>1.2 Selector 选择器</h3><p><img data-src="/images/pasted-0.png" alt="upload successful"></p><p>传统多线程办的设计，一个socket对应一个thread处理</p><p><strong>缺点</strong></p><ul><li>内存占用高</li><li>线程上下文切换成本高</li><li>只适合连接数少的情况<br>一个客户端用一个线程处理，线程的本身就会占用内存。客户端的连接数越多，内存溢出<br>线程数多，cpu得跟得上性能。</li></ul><p><img data-src="/images/pasted-1.png" alt="upload successful"><br>改进成线程池的设计缺点：</p><ul><li>阻塞模式下，线程只能能处理一个socket操作，线程的利用率不高</li><li>适合短连接场景</li></ul><p><img data-src="/images/pasted-3.png" alt="upload successful"><br>一个selector配合一个线程管理多个channel<br>工作在非阻塞模式下，第一个channel没有事件后会转到第二个channel进行处理</p>]]></content>
+    
+    
+    <summary type="html">&lt;h1 id=&quot;1-NIO基础&quot;&gt;&lt;a href=&quot;#1-NIO基础&quot; class=&quot;headerlink&quot; title=&quot;1.NIO基础&quot;&gt;&lt;/a&gt;1.NIO基础&lt;/h1&gt;</summary>
+    
+    
+    
+    <category term="后端学习" scheme="https://ykxzyp0517.cn/categories/%E5%90%8E%E7%AB%AF%E5%AD%A6%E4%B9%A0/"/>
+    
+    
+    <category term="netty" scheme="https://ykxzyp0517.cn/tags/netty/"/>
     
   </entry>
   

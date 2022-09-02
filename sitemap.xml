@@ -2,7 +2,25 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://ykxzyp0517.cn/2022/09/01/newpapername/</loc>
+    <loc>https://ykxzyp0517.cn/2022/09/02/categories/</loc>
+    
+    <lastmod>2022-09-02</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://ykxzyp0517.cn/2022/09/02/tags/</loc>
+    
+    <lastmod>2022-09-02</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://ykxzyp0517.cn/2022/09/02/netty%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/</loc>
     
     <lastmod>2022-09-02</lastmod>
     
@@ -19,15 +37,6 @@
     <priority>0.6</priority>
   </url>
   
-  <url>
-    <loc>https://ykxzyp0517.cn/2022/09/01/hello-world/</loc>
-    
-    <lastmod>2022-09-02</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
 
   <url>
     <loc>https://ykxzyp0517.cn/</loc>
@@ -37,10 +46,31 @@
   </url>
 
   
+  <url>
+    <loc>https://ykxzyp0517.cn/tags/categories/</loc>
+    <lastmod>2022-09-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://ykxzyp0517.cn/tags/netty/</loc>
+    <lastmod>2022-09-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://ykxzyp0517.cn/tags/tags/</loc>
+    <lastmod>2022-09-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
 
   
   <url>
-    <loc>https://ykxzyp0517.cn/categories/%E5%BC%80%E5%A7%8B/</loc>
+    <loc>https://ykxzyp0517.cn/categories/%E5%90%8E%E7%AB%AF%E5%AD%A6%E4%B9%A0/</loc>
     <lastmod>2022-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
