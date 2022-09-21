@@ -10,5 +10,5 @@ https://ykxzyp0517.cn/
 https://ykxzyp0517.cn/tags/Data-structure-and-algorithm/
 https://ykxzyp0517.cn/tags/netty/
 https://ykxzyp0517.cn/categories/leetcode/
-https://ykxzyp0517.cn/categories/%E5%90%8E%E7%AB%AF%E5%AD%A6%E4%B9%A0/
 https://ykxzyp0517.cn/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/
+https://ykxzyp0517.cn/categories/%E5%90%8E%E7%AB%AF%E5%AD%A6%E4%B9%A0/
