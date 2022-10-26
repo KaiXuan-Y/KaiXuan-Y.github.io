@@ -21,12 +21,12 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"ykxzyp0517.cn","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.12.3","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"default"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":true,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":true,"preload":false}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="一、基础知识">
+    <meta name="description" content="Dubbo是阿里巴巴开源的基于 Java 的高性能RPC（一种远程调用） 分布式服务框架，致力于提供高性能和透明化的RPC远程服务调用方案，以及SOA服务治理方案。简单的说，Dubbo就是个服务框架，如果没有分布式的需求，其实是不需要用的，只有在分布式的时候，才有Dubbo这样的分布式服务框架的需求。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Dubbo">
 <meta property="og:url" content="https://ykxzyp0517.cn/2022/09/26/Take-Out-Software/index.html">
 <meta property="og:site_name" content="Young&#39;s Land">
-<meta property="og:description" content="一、基础知识">
+<meta property="og:description" content="Dubbo是阿里巴巴开源的基于 Java 的高性能RPC（一种远程调用） 分布式服务框架，致力于提供高性能和透明化的RPC远程服务调用方案，以及SOA服务治理方案。简单的说，Dubbo就是个服务框架，如果没有分布式的需求，其实是不需要用的，只有在分布式的时候，才有Dubbo这样的分布式服务框架的需求。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-116.png">
 <meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-117.png">
@@ -45,8 +45,17 @@
 <meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-130.png">
 <meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-131.png">
 <meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-132.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-191.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-192.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-193.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-194.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-195.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-196.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-197.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-198.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-199.png">
 <meta property="article:published_time" content="2022-09-26T04:34:00.000Z">
-<meta property="article:modified_time" content="2022-09-27T12:00:18.791Z">
+<meta property="article:modified_time" content="2022-10-26T06:28:20.565Z">
 <meta property="article:author" content="KaiXuan Young">
 <meta property="article:tag" content="微服务">
 <meta name="twitter:card" content="summary">
@@ -108,7 +117,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">6</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>分类<span class="badge">3</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签<span class="badge">3</span></a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">7</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>分类<span class="badge">2</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签<span class="badge">3</span></a></li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
         </a>
@@ -165,7 +174,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="nav-text">一、基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA"><span class="nav-text">分布式基础理论</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%BB%80%E4%B9%88%E6%98%AF%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%EF%BC%9F"><span class="nav-text">1 什么是分布式系统？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%8F%91%E5%B1%95%E6%BC%94%E5%8F%98"><span class="nav-text">2 发展演变</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Dubbo"><span class="nav-text">二、Dubbo</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E6%AD%A5%E8%AE%A4%E8%AF%86"><span class="nav-text">初步认识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%8F%90%E4%BE%9B%E7%9A%84%E6%9C%8D%E5%8A%A1"><span class="nav-text">1.提供的服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Dubbo%E8%AE%BE%E8%AE%A1%E6%9E%B6%E6%9E%84"><span class="nav-text">2.Dubbo设计架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Zookeeper-%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%EF%BC%89"><span class="nav-text">3.Zookeeper(注册中心）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Dubbo-Hello-world-Spring"><span class="nav-text">4.Dubbo Hello world (Spring)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Dubbo-Hello-world-Spring-Boot"><span class="nav-text">5.Dubbo Hello world (Spring Boot)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1Provider"><span class="nav-text">4.1Provider</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2Consumer"><span class="nav-text">4.2Consumer</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-Dubbo%E7%9A%84%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-text">6.Dubbo的配置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E5%90%AF%E5%8A%A8%E6%97%B6%E6%A3%80%E6%9F%A5"><span class="nav-text">7.启动时检查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E8%B6%85%E6%97%B6-amp-%E8%A6%86%E7%9B%96%E9%85%8D%E7%BD%AE%E5%85%B3%E7%B3%BB-timeout"><span class="nav-text">8.超时&amp;覆盖配置关系-timeout</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-%E9%87%8D%E8%AF%95%E6%AC%A1%E6%95%B0"><span class="nav-text">9.重试次数</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="nav-text">一、基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA"><span class="nav-text">分布式基础理论</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%BB%80%E4%B9%88%E6%98%AF%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%EF%BC%9F"><span class="nav-text">1 什么是分布式系统？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%8F%91%E5%B1%95%E6%BC%94%E5%8F%98"><span class="nav-text">2 发展演变</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Dubbo"><span class="nav-text">二、Dubbo</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E6%AD%A5%E8%AE%A4%E8%AF%86"><span class="nav-text">初步认识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%8F%90%E4%BE%9B%E7%9A%84%E6%9C%8D%E5%8A%A1"><span class="nav-text">1.提供的服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Dubbo%E8%AE%BE%E8%AE%A1%E6%9E%B6%E6%9E%84"><span class="nav-text">2.Dubbo设计架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Zookeeper-%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%EF%BC%89"><span class="nav-text">3.Zookeeper(注册中心）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Dubbo-Hello-world-Spring"><span class="nav-text">4.Dubbo Hello world (Spring)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Dubbo-Hello-world-Spring-Boot"><span class="nav-text">5.Dubbo Hello world (Spring Boot)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1Provider"><span class="nav-text">4.1Provider</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2Consumer"><span class="nav-text">4.2Consumer</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-Dubbo%E7%9A%84%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-text">6.Dubbo的配置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E5%90%AF%E5%8A%A8%E6%97%B6%E6%A3%80%E6%9F%A5"><span class="nav-text">7.启动时检查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E8%B6%85%E6%97%B6-amp-%E8%A6%86%E7%9B%96%E9%85%8D%E7%BD%AE%E5%85%B3%E7%B3%BB-timeout"><span class="nav-text">8.超时&amp;覆盖配置关系-timeout</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-%E9%87%8D%E8%AF%95%E6%AC%A1%E6%95%B0"><span class="nav-text">9.重试次数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#10-%E6%9C%AC%E5%9C%B0%E5%AD%98%E6%A0%B9"><span class="nav-text">10.本地存根</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-Springboot-%E5%92%8C-Dubbo%E7%9A%84%E6%95%B4%E5%90%88"><span class="nav-text">11.Springboot 和 Dubbo的整合</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F1%EF%BC%9Adubbo-starter"><span class="nav-text">方式1：dubbo-starter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F2%EF%BC%9Adubbo-xml"><span class="nav-text">方式2：dubbo xml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F3%EF%BC%9A%E6%B3%A8%E8%A7%A3api"><span class="nav-text">方式3：注解api</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E9%AB%98%E5%8F%AF%E7%94%A8"><span class="nav-text">三、高可用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-zookeeper%E5%AE%95%E6%9C%BA%E4%B8%8Edubbo%E7%9B%B4%E8%BF%9E"><span class="nav-text">1.zookeeper宕机与dubbo直连</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AD%96%E7%95%A5"><span class="nav-text">四、负载均衡策略</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Random-LoadBalance"><span class="nav-text">Random LoadBalance</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RandomRobin-LoadBalance"><span class="nav-text">RandomRobin LoadBalance</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LeastActive-LoadBalance"><span class="nav-text">LeastActive LoadBalance</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ConsistentHash-LoadBalance"><span class="nav-text">ConsistentHash LoadBalance</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%9C%8D%E5%8A%A1%E9%99%8D%E7%BA%A7-%E5%8A%A8%E6%80%81%E8%B0%83%E9%85%8D%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%B5%84%E6%BA%90"><span class="nav-text">五、服务降级(动态调配服务器资源)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="nav-text">定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99"><span class="nav-text">集群容错</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%AD%E3%80%81Dubbo%E5%8E%9F%E7%90%86"><span class="nav-text">六、Dubbo原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Dubbo%E6%A1%86%E6%9E%B6%E8%AE%BE%E8%AE%A1"><span class="nav-text">Dubbo框架设计</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -180,13 +189,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">2</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -278,7 +287,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-09-27 20:00:18" itemprop="dateModified" datetime="2022-09-27T20:00:18+08:00">2022-09-27</time>
+      <time title="修改时间：2022-10-26 14:28:20" itemprop="dateModified" datetime="2022-10-26T14:28:20+08:00">2022-10-26</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -307,8 +316,9 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h1 id="一、基础知识"><a href="#一、基础知识" class="headerlink" title="一、基础知识"></a>一、基础知识</h1><span id="more"></span>
-<h2 id="分布式基础理论"><a href="#分布式基础理论" class="headerlink" title="分布式基础理论"></a>分布式基础理论</h2><h3 id="1-什么是分布式系统？"><a href="#1-什么是分布式系统？" class="headerlink" title="1 什么是分布式系统？"></a>1 什么是分布式系统？</h3><p>将一个大系统分布成多个小功能的模块，数量庞大的小模块组成一个分布式系统。<br>分布式系统是若干独立计算机的集合， 这些计算机对于用户来说就是一个系统  </p>
+        <p>Dubbo是阿里巴巴开源的基于 Java 的高性能RPC（一种远程调用） 分布式服务框架，致力于提供高性能和透明化的RPC远程服务调用方案，以及SOA服务治理方案。简单的说，Dubbo就是个服务框架，如果没有分布式的需求，其实是不需要用的，只有在分布式的时候，才有Dubbo这样的分布式服务框架的需求。</p>
+<span id="more"></span>
+<h1 id="一、基础知识"><a href="#一、基础知识" class="headerlink" title="一、基础知识"></a>一、基础知识</h1><h2 id="分布式基础理论"><a href="#分布式基础理论" class="headerlink" title="分布式基础理论"></a>分布式基础理论</h2><h3 id="1-什么是分布式系统？"><a href="#1-什么是分布式系统？" class="headerlink" title="1 什么是分布式系统？"></a>1 什么是分布式系统？</h3><p>将一个大系统分布成多个小功能的模块，数量庞大的小模块组成一个分布式系统。<br>分布式系统是若干独立计算机的集合， 这些计算机对于用户来说就是一个系统  </p>
 <h3 id="2-发展演变"><a href="#2-发展演变" class="headerlink" title="2 发展演变"></a>2 发展演变</h3><p><img data-src="/images/pasted-116.png" alt="upload successful">    </p>
 <p>单一应用架构：<br><img data-src="/images/pasted-117.png" alt="upload successful"><br><strong>不易扩展，不易协同开发</strong><br>垂直应用架构：<br>将大的单体的应用修改为多个<br><img data-src="/images/pasted-118.png" alt="upload successful"><br><strong>容易扩展，协同开发方便。<br>1.界面+业务逻辑的实现分离 2.应用不可能完全独立，大量的应用之间需要交互</strong><br>分布式服务架构：</p>
 <p><img data-src="/images/pasted-119.png" alt="upload successful"><br>不同服务器之间的业务调用采用rpc（远程过程调用）<br>流动计算框架：  </p>
@@ -357,7 +367,46 @@
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dubbo:reference</span> <span class="attr">interface</span>=<span class="string">&quot;com.ykx.gmall.service.UserService&quot;</span> <span class="attr">id</span>=<span class="string">&quot;userService&quot;</span> <span class="attr">timeout</span>=<span class="string">&quot;3000&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">dubbo:reference</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p><img data-src="/images/pasted-131.png" alt="upload successful"><br>配置的覆盖关系：</p>
 <p><img data-src="/images/pasted-132.png" alt="upload successful">  </p>
-<h2 id="9-重试次数"><a href="#9-重试次数" class="headerlink" title="9.重试次数"></a>9.重试次数</h2>
+<h2 id="9-重试次数"><a href="#9-重试次数" class="headerlink" title="9.重试次数"></a>9.重试次数</h2><p>重试次数不包括第一次执行<br>只能在幂等操作上执行：查询、删除、修改<br>不能再非幂等操作上执行：新增  0 代表不重试</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dubbo:reference</span> <span class="attr">interface</span>=<span class="string">&quot;com.ykx.gmall.service.UserService&quot;</span> <span class="attr">id</span>=<span class="string">&quot;userService&quot;</span> <span class="attr">timeout</span>=<span class="string">&quot;3000&quot;</span> <span class="attr">retries</span>=<span class="string">&quot;&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">dubbo:reference</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h2 id="10-本地存根"><a href="#10-本地存根" class="headerlink" title="10.本地存根"></a>10.本地存根</h2><h2 id="11-Springboot-和-Dubbo的整合"><a href="#11-Springboot-和-Dubbo的整合" class="headerlink" title="11.Springboot 和 Dubbo的整合"></a>11.Springboot 和 Dubbo的整合</h2><p>为了达到方法的精确进度，传统方法的整合配置怕是不太行</p>
+<h3 id="方式1：dubbo-starter"><a href="#方式1：dubbo-starter" class="headerlink" title="方式1：dubbo-starter"></a>方式1：dubbo-starter</h3><p>导入dubbo-starter,在application.properties配置属性，使用@Service暴露服务，@Reference引用服务<br>在启动类使用@EnableDubbo</p>
+<h3 id="方式2：dubbo-xml"><a href="#方式2：dubbo-xml" class="headerlink" title="方式2：dubbo xml"></a>方式2：dubbo xml</h3><p>保留dubbo xml配置文件<br>在启动类使用@ImportResource(“classpath:provider.xml”)</p>
+<h3 id="方式3：注解api"><a href="#方式3：注解api" class="headerlink" title="方式3：注解api"></a>方式3：注解api</h3><p>将每一个组件手动创建在文件中  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyDubboConfig</span> &#123;</span><br><span class="line"><span class="comment">//    &lt;dubbo:application name=&quot;consumer-client-consum&quot;&gt;&lt;/dubbo:application&gt;</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> ApplicationConfig <span class="title function_">applicationConfig</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">ApplicationConfig</span> <span class="variable">applicationConfig</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ApplicationConfig</span>();</span><br><span class="line">        applicationConfig.setName(<span class="string">&quot;boot-consum-consumer&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> applicationConfig;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">//    &lt;dubbo:registry address=&quot;zookeeper://127.0.0.1:2181&quot;&gt;&lt;/dubbo:registry&gt;</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> RegistryConfig <span class="title function_">registryConfig</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">RegistryConfig</span> <span class="variable">registryConfig</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RegistryConfig</span>();</span><br><span class="line">        registryConfig.setProtocol(<span class="string">&quot;zookeeper&quot;</span>);</span><br><span class="line">        registryConfig.setAddress(<span class="string">&quot;127.0.0.1:2181&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> registryConfig;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">//    &lt;dubbo:protocol name=&quot;dubbo&quot; port=&quot;20880&quot;&gt;&lt;/dubbo:protocol&gt;</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> ProtocolConfig <span class="title function_">protocolConfig</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">ProtocolConfig</span> <span class="variable">protocolConfig</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ProtocolConfig</span>();</span><br><span class="line">        protocolConfig.setName(<span class="string">&quot;dubbo&quot;</span>);</span><br><span class="line">        protocolConfig.setPort(<span class="number">20882</span>);</span><br><span class="line">        <span class="keyword">return</span> protocolConfig;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>其中每一个xml配置类的配置都可以用一个JavaConfig类配对。<br>最后在启动类上添加 @EnableDubbo注解  </p>
+<h1 id="三、高可用"><a href="#三、高可用" class="headerlink" title="三、高可用"></a>三、高可用</h1><h2 id="1-zookeeper宕机与dubbo直连"><a href="#1-zookeeper宕机与dubbo直连" class="headerlink" title="1.zookeeper宕机与dubbo直连"></a>1.zookeeper宕机与dubbo直连</h2><p>当没有zookeeper注册中心可以使用dubbo直连的方式直接调用提供服务者的服务。因为注册中心只是保存了服务提供者的地址而已。<br><img data-src="/images/pasted-191.png" alt="upload successful"><br>当zookeeper注册中心宕机后可以使用本地缓存通讯继续使用服务。<br><img data-src="/images/pasted-192.png" alt="upload successful">  </p>
+<h1 id="四、负载均衡策略"><a href="#四、负载均衡策略" class="headerlink" title="四、负载均衡策略"></a>四、负载均衡策略</h1><h2 id="Random-LoadBalance"><a href="#Random-LoadBalance" class="headerlink" title="Random LoadBalance"></a>Random LoadBalance</h2><p><img data-src="/images/pasted-193.png" alt="upload successful"><br>请求发送后根据权重调用随机一台服务器  </p>
+<h2 id="RandomRobin-LoadBalance"><a href="#RandomRobin-LoadBalance" class="headerlink" title="RandomRobin LoadBalance"></a>RandomRobin LoadBalance</h2><p><img data-src="/images/pasted-194.png" alt="upload successful"><br>根据轮询方式的同时考虑权重  </p>
+<h2 id="LeastActive-LoadBalance"><a href="#LeastActive-LoadBalance" class="headerlink" title="LeastActive LoadBalance"></a>LeastActive LoadBalance</h2><p><img data-src="/images/pasted-195.png" alt="upload successful"><br>在每次调用服务器前会查看上一次使用该服务器所用时间，总是选择处理最快的服务器  </p>
+<h2 id="ConsistentHash-LoadBalance"><a href="#ConsistentHash-LoadBalance" class="headerlink" title="ConsistentHash LoadBalance"></a>ConsistentHash LoadBalance</h2><p><img data-src="/images/pasted-196.png" alt="upload successful"><br>如图，根据getUserId的一致性hash，相同的hash落在相同的服务器</p>
+<h1 id="五、服务降级-动态调配服务器资源"><a href="#五、服务降级-动态调配服务器资源" class="headerlink" title="五、服务降级(动态调配服务器资源)"></a>五、服务降级(动态调配服务器资源)</h1><h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>当服务器压力剧增的情况下，根据实际业务情况及流量，对一些服务和页面有策略的不处理或换种方式处理，从而释放服务器资源以保证核心交易正常运作或者高效运作。<br>可以通过服务降级功能临时屏蔽某个出错的非关键服务，并定义降级后的返回策略。  </p>
+<ul>
+<li>mock&#x3D;force:return+null 表示消费方对该服务的方法调用都直接返回null，不发起远程调用。<br><strong>屏蔽</strong><br><img data-src="/images/pasted-197.png" alt="upload successful"></li>
+<li>mock&#x3D;fail:return+null 表示消费方对服务的方法调用失败(超时，调用失败)后，在返回null，不抛异常。<br><strong>容错</strong></li>
+</ul>
+<p><img data-src="/images/pasted-198.png" alt="upload successful">  </p>
+<h2 id="集群容错"><a href="#集群容错" class="headerlink" title="集群容错"></a>集群容错</h2><ul>
+<li>Failover Custer（默认）:失败自动切换，当出现失败，重试其他服务器。常用来读操作，但是重试会带来更长延迟，可通过retries&#x3D;”2”来设置重试次数  </li>
+<li>Failfast Cluster：快速失败，只发起一次调用没失败立即报错。常用于非幂等性的写操作，如新增记录  </li>
+<li>Failsafe Cluster：失败安全，出现异常时直接忽略。通常用于写入审计日志的操作  </li>
+<li>Failback Cluster:失败自动回复，后台记录失败请求，定时重发。通常用于消息通知操作  </li>
+<li>Forking Cluster:并行调用多个服务器，只要一个成功即返回。通常用于实时性要求较高的读操作，但是很浪费资源。</li>
+<li>Broadcast Cluster: 广播调用所有提供者，逐个调用，任意一台报错则报错。</li>
+</ul>
+<h1 id="六、Dubbo原理"><a href="#六、Dubbo原理" class="headerlink" title="六、Dubbo原理"></a>六、Dubbo原理</h1><h2 id="Dubbo框架设计"><a href="#Dubbo框架设计" class="headerlink" title="Dubbo框架设计"></a>Dubbo框架设计</h2><p><img data-src="/images/pasted-199.png" alt="upload successful">  </p>
+<ul>
+<li>config 配置层：对外配置接口，以 ServiceConfig, ReferenceConfig 为中心，可以直接初始化配置类，也可以通过 spring 解析配置生成配置类</li>
+<li>proxy 服务代理层：服务接口透明代理，生成服务的客户端 Stub 和服务器端 Skeleton, 以 ServiceProxy 为中心，扩展接口为 ProxyFactory</li>
+<li>registry 注册中心层：封装服务地址的注册与发现，以服务 URL 为中心，扩展接口为 RegistryFactory, Registry, RegistryService</li>
+<li>cluster 路由层：封装多个提供者的路由及负载均衡，并桥接注册中心，以 Invoker 为中心，扩展接口为 Cluster, Directory, Router, LoadBalance</li>
+<li>monitor 监控层：RPC 调用次数和调用时间监控，以 Statistics 为中心，扩展接口为 MonitorFactory, Monitor, MonitorService</li>
+<li>protocol 远程调用层：封装 RPC 调用，以 Invocation, Result 为中心，扩展接口为 Protocol, Invoker, Exporter</li>
+<li>exchange 信息交换层：封装请求响应模式，同步转异步，以 Request, Response 为中心，扩展接口为 Exchanger, ExchangeChannel, ExchangeClient, ExchangeServer</li>
+<li>transport 网络传输层：抽象 mina 和 netty 为统一接口，以 Message 为中心，扩展接口为 Channel, Transporter, Client, Server, Codec</li>
+<li>serialize 数据序列化层：可复用的一些工具，扩展接口为 Serialization, ObjectInput, ObjectOutput, ThreadPool</li>
+</ul>
+
     </div>
 
     
@@ -408,8 +457,8 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2022/09/22/Redis-Review/" rel="prev" title="Redis(Review)对Redis的重新理解">
-                  <i class="fa fa-chevron-left"></i> Redis(Review)对Redis的重新理解
+                <a href="/2022/01/26/MybatisPlus%E9%87%8D%E5%BA%A6%E6%82%A3%E8%80%85%E9%87%8D%E6%B8%A9Mybatis/" rel="prev" title="MybatisPlus重度患者重温Mybatis">
+                  <i class="fa fa-chevron-left"></i> MybatisPlus重度患者重温Mybatis
                 </a>
             </div>
             <div class="post-nav-item">
