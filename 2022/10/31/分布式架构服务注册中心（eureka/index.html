@@ -29,15 +29,24 @@
 <meta property="og:description" content="Spring Cloud 封装了Netflix公司开发的Eureka模块来实现服务治理。在传统的rpc远程调用框架中，管理每个服务于服务之间依赖关系比较复杂，管理比较复杂，所以需要使用服务治理，管理服务与服务之间依赖关系，可以实现服务调用、负载均衡、容错等，实现服务发现与注册。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-214.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-215.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-216.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-217.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-218.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-219.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-220.png">
 <meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-221.png">
 <meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-222.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-223.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-224.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-225.png">
 <meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-226.png">
 <meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-227.png">
 <meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-228.png">
 <meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-229.png">
 <meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-230.png">
 <meta property="article:published_time" content="2022-10-31T05:48:51.000Z">
-<meta property="article:modified_time" content="2022-11-01T13:45:14.314Z">
+<meta property="article:modified_time" content="2022-11-01T14:17:42.128Z">
 <meta property="article:author" content="KaiXuan Young">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://ykxzyp0517.cn/images/pasted-214.png">
@@ -155,7 +164,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%8E%E5%8F%91%E7%8E%B0%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="nav-text">服务注册与发现的概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Eureka-Eureka-Server%E5%92%8CEureka-Client"><span class="nav-text">Eureka:Eureka Server和Eureka Client</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Eureka-Server%E6%8F%90%E4%BE%9B%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E6%9C%8D%E5%8A%A1"><span class="nav-text">Eureka Server提供服务注册服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Eureka-Client%E9%80%9A%E8%BF%87%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E8%BF%9B%E8%A1%8C%E8%AE%BF%E9%97%AE"><span class="nav-text">Eureka Client通过注册中心进行访问</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Eureka%E5%8D%95%E6%9C%BA%E6%90%AD%E5%BB%BA"><span class="nav-text">Eureka单机搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Eureka-Server%E6%90%AD%E5%BB%BA"><span class="nav-text">Eureka Server搭建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%86%E6%94%AF%E4%BB%98%E6%9C%8D%E5%8A%A18001-%E6%B6%88%E8%B4%B980%E5%8A%A0%E5%85%A5%E5%88%B0%E9%9B%86%E7%BE%A4"><span class="nav-text">将支付服务8001,消费80加入到集群</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0"><span class="nav-text">服务发现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E6%88%91%E4%BF%9D%E6%8A%A4"><span class="nav-text">自我保护</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E4%BA%A7%E7%94%9FEureka%E8%87%AA%E6%88%91%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6"><span class="nav-text">为什么会产生Eureka自我保护机制?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E8%87%AA%E6%88%91%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F"><span class="nav-text">什么是自我保护模式?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A6%81%E7%94%A8%E8%87%AA%E6%88%91%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F"><span class="nav-text">禁用自我保护模式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Zookeeper"><span class="nav-text">Zookeeper</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%86%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8F%90%E4%BE%9B%E8%80%858004%E6%B3%A8%E5%86%8C%E8%BF%9BZookeeper"><span class="nav-text">将微服务提供者8004注册进Zookeeper</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8Eeuruka%E8%8A%82%E7%82%B9%E7%9A%84%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6%E5%8C%BA%E5%88%AB"><span class="nav-text">与euruka节点的保护机制区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%86%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%B6%88%E8%B4%B9%E8%80%8580%E6%B3%A8%E5%86%8C%E8%BF%9BZookeeper"><span class="nav-text">将微服务消费者80注册进Zookeeper</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%8E%E5%8F%91%E7%8E%B0%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="nav-text">服务注册与发现的概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Eureka-Eureka-Server%E5%92%8CEureka-Client"><span class="nav-text">Eureka:Eureka Server和Eureka Client</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Eureka-Server%E6%8F%90%E4%BE%9B%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E6%9C%8D%E5%8A%A1"><span class="nav-text">Eureka Server提供服务注册服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Eureka-Client%E9%80%9A%E8%BF%87%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E8%BF%9B%E8%A1%8C%E8%AE%BF%E9%97%AE"><span class="nav-text">Eureka Client通过注册中心进行访问</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Eureka%E5%8D%95%E6%9C%BA%E6%90%AD%E5%BB%BA"><span class="nav-text">Eureka单机搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Eureka-Server%E6%90%AD%E5%BB%BA"><span class="nav-text">Eureka Server搭建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%86provider%E6%9C%8D%E5%8A%A1Client%E7%AB%AF%E6%B3%A8%E5%86%8C%E8%BF%9BServer"><span class="nav-text">将provider服务Client端注册进Server</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%86consumer%E6%9C%8D%E5%8A%A1Client%E7%AB%AF%E6%B3%A8%E5%86%8C%E8%BF%9BServer"><span class="nav-text">将consumer服务Client端注册进Server</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Eureka%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="nav-text">Eureka执行流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A%E5%BE%AE%E6%9C%8D%E5%8A%A1RPC%E8%BF%9C%E7%A8%8B%E6%9C%8D%E5%8A%A1%E8%B0%83%E7%94%A8%E6%9C%80%E6%A0%B8%E5%BF%83%E7%9A%84%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-text">问题：微服务RPC远程服务调用最核心的是什么</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Eureka%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA"><span class="nav-text">Eureka集群搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%86%E6%94%AF%E4%BB%98%E6%9C%8D%E5%8A%A18001-%E6%B6%88%E8%B4%B980%E5%8A%A0%E5%85%A5%E5%88%B0%E9%9B%86%E7%BE%A4"><span class="nav-text">将支付服务8001,消费80加入到集群</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#provider%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA"><span class="nav-text">provider集群搭建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%86%E8%8A%82%E9%85%8D%E7%BD%AE"><span class="nav-text">细节配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0"><span class="nav-text">服务发现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E6%88%91%E4%BF%9D%E6%8A%A4"><span class="nav-text">自我保护</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E4%BA%A7%E7%94%9FEureka%E8%87%AA%E6%88%91%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6"><span class="nav-text">为什么会产生Eureka自我保护机制?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E8%87%AA%E6%88%91%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F"><span class="nav-text">什么是自我保护模式?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A6%81%E7%94%A8%E8%87%AA%E6%88%91%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F"><span class="nav-text">禁用自我保护模式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Zookeeper"><span class="nav-text">Zookeeper</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%86%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8F%90%E4%BE%9B%E8%80%858004%E6%B3%A8%E5%86%8C%E8%BF%9BZookeeper"><span class="nav-text">将微服务提供者8004注册进Zookeeper</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8Eeuruka%E8%8A%82%E7%82%B9%E7%9A%84%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6%E5%8C%BA%E5%88%AB"><span class="nav-text">与euruka节点的保护机制区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%86%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%B6%88%E8%B4%B9%E8%80%8580%E6%B3%A8%E5%86%8C%E8%BF%9BZookeeper"><span class="nav-text">将微服务消费者80注册进Zookeeper</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -268,7 +277,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-11-01 21:45:14" itemprop="dateModified" datetime="2022-11-01T21:45:14+08:00">2022-11-01</time>
+      <time title="修改时间：2022-11-01 22:17:42" itemprop="dateModified" datetime="2022-11-01T22:17:42+08:00">2022-11-01</time>
     </span>
 
   
@@ -295,79 +304,228 @@
 <p><img data-src="/images/pasted-214.png" alt="upload successful">    </p>
 <h2 id="Eureka-Eureka-Server和Eureka-Client"><a href="#Eureka-Eureka-Server和Eureka-Client" class="headerlink" title="Eureka:Eureka Server和Eureka Client"></a>Eureka:Eureka Server和Eureka Client</h2><h3 id="Eureka-Server提供服务注册服务"><a href="#Eureka-Server提供服务注册服务" class="headerlink" title="Eureka Server提供服务注册服务"></a>Eureka Server提供服务注册服务</h3><p>各个微服务节点通过配置启动后，会在<code>EurekaServer</code>中进行注册，这样<code>EurekaServer</code>中的服务注册表中将会存储所有<code>可用服务节点的信息</code>，服务节点的信息可以在界面中直观看到。</p>
 <h3 id="Eureka-Client通过注册中心进行访问"><a href="#Eureka-Client通过注册中心进行访问" class="headerlink" title="Eureka Client通过注册中心进行访问"></a>Eureka Client通过注册中心进行访问</h3><p>它是一个Java客户端，用于简化Eureka Server的交互，客户端同时也具备一个内置的、使用轮询(round-robin)负载算法的负载均衡器。在应用启动后，将会向Eureka Server<code>发送心跳</code>(默认周期为30秒)。如果Eureka Server在<code>多个心跳周期</code>内<code>没有接收</code>到某个节点的心跳，EurekaServer将会从服务注册表中把这个服务节点移除（默认90秒)</p>
-<h1 id="Eureka单机搭建"><a href="#Eureka单机搭建" class="headerlink" title="Eureka单机搭建"></a>Eureka单机搭建</h1><h2 id="Eureka-Server搭建"><a href="#Eureka-Server搭建" class="headerlink" title="Eureka Server搭建"></a>Eureka Server搭建</h2><p>创建工程引入pom依赖  </p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-netflix-eureka-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span>  </span><br><span class="line">```  </span><br><span class="line"></span><br><span class="line">yml进行编写  </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">```yaml</span><br><span class="line">server:</span><br><span class="line">  port: 7001</span><br><span class="line"></span><br><span class="line">eureka:</span><br><span class="line">  instance:</span><br><span class="line">    hostname: localhost # eureka服务器的实例名称</span><br><span class="line">  client:</span><br><span class="line">    register-with-eureka: false # false表示不向注册中心注册自己</span><br><span class="line">    fetch-registry: false # false表示自己就是注册中心，职责就是维护服务实例，并不需要检索服务</span><br><span class="line">    service-url:</span><br><span class="line">      defaultZone: http://$&#123;eureka.instance.hostname&#125;:$&#123;server.port&#125;/eureka/</span><br><span class="line">      </span><br><span class="line">```  </span><br><span class="line">主启动类进行编写  </span><br><span class="line"></span><br><span class="line">```java</span><br><span class="line">@SpringBootApplication</span><br><span class="line">@EnableEurekaServer</span><br><span class="line">public class EurekaMain7001 &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        SpringApplication.run(EurekaMain7001.class , args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">```  </span><br><span class="line">注意的是`@EnableEurekaServer`注解，代表这个java工程为EurekaServer组件。并且注册中心不需要提供服务  </span><br><span class="line"></span><br><span class="line">访问 localhost：7001 进入注册中心页面  </span><br><span class="line"></span><br><span class="line">![upload successful](/images/pasted-215.png)  </span><br><span class="line"></span><br><span class="line">## 将provider服务Client端注册进Server</span><br><span class="line">引入pom  </span><br><span class="line">```xml</span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-netflix-eureka-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">```  </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">需要注意的是H版本需要加入starter的这个依赖  </span><br><span class="line">&gt;修改yml，在YMl添加相应的注册中心地址  </span><br><span class="line"></span><br><span class="line">```yml  </span><br><span class="line">eureka:</span><br><span class="line">  client:</span><br><span class="line">    register-with-eureka: true # 表示是否将自己注册进注册中心，默认为true</span><br><span class="line">    fetch-registry: true # 是都从EurekaServer抓去已有的注册信息，默认为true</span><br><span class="line">    service-url:</span><br><span class="line">      defaultZone: http://localhost:7001/eureka</span><br><span class="line">```  </span><br><span class="line">在主启动类上添加@EnableEurekaClient  </span><br><span class="line">```java </span><br><span class="line">@SpringBootApplication</span><br><span class="line">@EnableEurekaClient</span><br><span class="line">public class PaymentMain8001 &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        SpringApplication.run(PaymentMain8001.class , args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">```  </span><br><span class="line"></span><br><span class="line">![upload successful](/images/pasted-216.png)  </span><br><span class="line"></span><br><span class="line">## 将consumer服务Client端注册进Server  </span><br><span class="line">方法同上  </span><br><span class="line"></span><br><span class="line">![upload successful](/images/pasted-217.png)  </span><br><span class="line"></span><br><span class="line"># Eureka执行流程  </span><br><span class="line"></span><br><span class="line">![upload successful](/images/pasted-218.png)  </span><br><span class="line"></span><br><span class="line">## 问题：微服务RPC远程服务调用最核心的是什么  </span><br><span class="line">高可用，试想你的注册中心只有一个only one，万一它出故障了，会导致整个为服务环境不可用。</span><br><span class="line"></span><br><span class="line">&gt;解决办法：搭建Eureka注册中心集群，实现`负载均衡+故障容错`。    </span><br><span class="line"></span><br><span class="line">*互相注册，相互守望。  *  </span><br><span class="line"></span><br><span class="line">![upload successful](/images/pasted-219.png)   </span><br><span class="line"></span><br><span class="line"># Eureka集群搭建  </span><br><span class="line">* 在linux服务器下修改域名映射，让两台eureka服务器拥有不同的服务名称</span><br><span class="line"></span><br><span class="line">![upload successful](/images/pasted-220.png)  </span><br><span class="line"></span><br><span class="line">* 按照相互注册的原则，将每台服务器的defaultZone设置为对方的url</span><br><span class="line"></span><br><span class="line">&gt;7001</span><br><span class="line"></span><br><span class="line">```yml</span><br><span class="line">server:</span><br><span class="line">  port: 7001</span><br><span class="line"></span><br><span class="line">eureka:</span><br><span class="line">  instance:</span><br><span class="line">    hostname: eureka7001.com # eureka服务器的实例名称</span><br><span class="line">  client:</span><br><span class="line">    register-with-eureka: false # false表示不向注册中心注册自己</span><br><span class="line">    fetch-registry: false # false表示自己就是注册中心，职责就是维护服务实例，并不需要检索服务</span><br><span class="line">    service-url:</span><br><span class="line">      defaultZone: http://eureka7002.com:7002/eureka/</span><br></pre></td></tr></table></figure>
+<h1 id="Eureka单机搭建"><a href="#Eureka单机搭建" class="headerlink" title="Eureka单机搭建"></a>Eureka单机搭建</h1><h2 id="Eureka-Server搭建"><a href="#Eureka-Server搭建" class="headerlink" title="Eureka Server搭建"></a>Eureka Server搭建</h2><p>创建工程引入pom依赖    </p>
+<pre><code>&lt;dependency&gt;
+&lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+&lt;artifactId&gt;spring-cloud-starter-netflix-eureka-server&lt;/artifactId&gt;
+&lt;/dependency&gt;  
+</code></pre>
+<p>yml进行编写  </p>
+<pre><code>    server:
+      port: 7001
 
+    eureka:
+      instance:
+        hostname: localhost # eureka服务器的实例名称
+      client:
+        register-with-eureka: false # false表示不向注册中心注册自己
+        fetch-registry: false # false表示自己就是注册中心，职责就是维护服务实例，并不需要检索服务
+        service-url:
+          defaultZone: http://$&#123;eureka.instance.hostname&#125;:$&#123;server.port&#125;/eureka/
+</code></pre>
+<p>主启动类进行编写  </p>
+<pre><code>@SpringBootApplication
+@EnableEurekaServer
+public class EurekaMain7001 &#123;
+    public static void main(String[] args) &#123;
+        SpringApplication.run(EurekaMain7001.class , args);
+    &#125;
+&#125;
+</code></pre>
+<p>注意的是`@EnableEurekaServer`注解，代表这个java工程为EurekaServer组件。并且注册中心不需要提供服务  </p>
+<p>访问 localhost：7001 进入注册中心页面  </p>
+<p><img data-src="/images/pasted-215.png" alt="upload successful">  </p>
+<h2 id="将provider服务Client端注册进Server"><a href="#将provider服务Client端注册进Server" class="headerlink" title="将provider服务Client端注册进Server"></a>将provider服务Client端注册进Server</h2><p>引入pom  </p>
+<pre><code>&lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+<p>需要注意的是H版本需要加入starter的这个依赖  </p>
+<blockquote>
+<p>修改yml，在YMl添加相应的注册中心地址  </p>
+</blockquote>
+<pre><code>eureka:
+  client:
+    register-with-eureka: true # 表示是否将自己注册进注册中心，默认为true
+    fetch-registry: true # 是都从EurekaServer抓去已有的注册信息，默认为true
+    service-url:
+      defaultZone: http://localhost:7001/eureka
+</code></pre>
+<p>在主启动类上添加@EnableEurekaClient  </p>
+<pre><code>@SpringBootApplication
+@EnableEurekaClient
+public class PaymentMain8001 &#123;
+    public static void main(String[] args) &#123;
+        SpringApplication.run(PaymentMain8001.class , args);
+    &#125;
+&#125;
+</code></pre>
+<p><img data-src="/images/pasted-216.png" alt="upload successful">  </p>
+<h2 id="将consumer服务Client端注册进Server"><a href="#将consumer服务Client端注册进Server" class="headerlink" title="将consumer服务Client端注册进Server"></a>将consumer服务Client端注册进Server</h2><p>方法同上  </p>
+<p><img data-src="/images/pasted-217.png" alt="upload successful">  </p>
+<h1 id="Eureka执行流程"><a href="#Eureka执行流程" class="headerlink" title="Eureka执行流程"></a>Eureka执行流程</h1><p><img data-src="/images/pasted-218.png" alt="upload successful">  </p>
+<h2 id="问题：微服务RPC远程服务调用最核心的是什么"><a href="#问题：微服务RPC远程服务调用最核心的是什么" class="headerlink" title="问题：微服务RPC远程服务调用最核心的是什么"></a>问题：微服务RPC远程服务调用最核心的是什么</h2><p>高可用，试想你的注册中心只有一个only one，万一它出故障了，会导致整个为服务环境不可用。</p>
+<blockquote>
+<p>解决办法：搭建Eureka注册中心集群，实现<code>负载均衡+故障容错</code>。    </p>
+</blockquote>
+<p>*互相注册，相互守望。  *  </p>
+<p><img data-src="/images/pasted-219.png" alt="upload successful">   </p>
+<h1 id="Eureka集群搭建"><a href="#Eureka集群搭建" class="headerlink" title="Eureka集群搭建"></a>Eureka集群搭建</h1><ul>
+<li>在linux服务器下修改域名映射，让两台eureka服务器拥有不同的服务名称</li>
+</ul>
+<p><img data-src="/images/pasted-220.png" alt="upload successful">  </p>
+<ul>
+<li>按照相互注册的原则，将每台服务器的defaultZone设置为对方的url</li>
+</ul>
+<blockquote>
+<p>7001</p>
+</blockquote>
+<pre><code>server:
+  port: 7001
+
+eureka:
+  instance:
+    hostname: eureka7001.com # eureka服务器的实例名称
+  client:
+    register-with-eureka: false # false表示不向注册中心注册自己
+    fetch-registry: false # false表示自己就是注册中心，职责就是维护服务实例，并不需要检索服务
+    service-url:
+      defaultZone: http://eureka7002.com:7002/eureka/
+</code></pre>
 <blockquote>
 <p>7002</p>
 </blockquote>
-<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">7002</span></span><br><span class="line"></span><br><span class="line"><span class="attr">eureka:</span></span><br><span class="line">  <span class="attr">instance:</span></span><br><span class="line">    <span class="attr">hostname:</span> <span class="string">eureka7002.com</span> <span class="comment"># eureka服务器的实例名称</span></span><br><span class="line">  <span class="attr">client:</span></span><br><span class="line">    <span class="attr">register-with-eureka:</span> <span class="literal">false</span> <span class="comment"># false表示不向注册中心注册自己</span></span><br><span class="line">    <span class="attr">fetch-registry:</span> <span class="literal">false</span> <span class="comment"># false表示自己就是注册中心，职责就是维护服务实例，并不需要检索服务</span></span><br><span class="line">    <span class="attr">service-url:</span></span><br><span class="line">      <span class="attr">defaultZone:</span> <span class="string">http://eureka7001.com:7001/eureka/</span></span><br></pre></td></tr></table></figure>
+<pre><code>server:
+  port: 7002
+
+eureka:
+  instance:
+    hostname: eureka7002.com # eureka服务器的实例名称
+  client:
+    register-with-eureka: false # false表示不向注册中心注册自己
+    fetch-registry: false # false表示自己就是注册中心，职责就是维护服务实例，并不需要检索服务
+    service-url:
+      defaultZone: http://eureka7001.com:7001/eureka/
+</code></pre>
 <ul>
 <li>这样集群就能够搭建成功</li>
 </ul>
 <p><img data-src="/images/pasted-221.png" alt="upload successful">  </p>
 <p><img data-src="/images/pasted-222.png" alt="upload successful">  </p>
-<h2 id="将支付服务8001-消费80加入到集群"><a href="#将支付服务8001-消费80加入到集群" class="headerlink" title="将支付服务8001,消费80加入到集群"></a>将支付服务8001,消费80加入到集群</h2><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">eureka:</span></span><br><span class="line">  <span class="attr">client:</span></span><br><span class="line">    <span class="attr">register-with-eureka:</span> <span class="literal">true</span> <span class="comment"># 表示是否将自己注册进注册中心，默认为true</span></span><br><span class="line">    <span class="attr">fetch-registry:</span> <span class="literal">true</span> <span class="comment"># 是都从EurekaServer抓去已有的注册信息，默认为true</span></span><br><span class="line">    <span class="attr">service-url:</span></span><br><span class="line">      <span class="attr">defaultZone:</span> <span class="string">http://localhost:7001/eureka,http://eureka7002.com:7002/eureka</span></span><br><span class="line"> <span class="string">```</span>  </span><br><span class="line"></span><br><span class="line"><span class="type">![upload</span> <span class="string">successful](/images/pasted-223.png)</span>  </span><br><span class="line"></span><br><span class="line"><span class="type">![upload</span> <span class="string">successful](/images/pasted-224.png)</span>  </span><br><span class="line"><span class="string">成功注册</span></span><br><span class="line"><span class="comment">## provider集群搭建  </span></span><br><span class="line"><span class="string">只需要将每个Provider的端口号进行修改即可</span>  </span><br><span class="line"></span><br><span class="line"><span class="type">![upload</span> <span class="string">successful](/images/pasted-225.png)</span>  </span><br><span class="line"><span class="string">`cloud-payment-service`</span>  <span class="string">不需要修改，默认使用轮询的方式提供服务</span>  </span><br><span class="line"></span><br><span class="line"><span class="string">但是发现问题，多次访问的时候每次使用的都是8001端口，这是因为在消费者的`Controller`中`PAYMENT_URL`写死了。消费者只关心服务，不再关心地址和端口号</span>    </span><br><span class="line"></span><br><span class="line"><span class="string">```java</span></span><br><span class="line"><span class="string">public</span> <span class="string">static</span> <span class="string">final</span> <span class="string">String</span> <span class="string">PAYMENT_URL</span> <span class="string">=</span> <span class="string">&quot;http://CLOUD-PAYMENT-SERVICE&quot;</span><span class="string">;</span></span><br><span class="line"><span class="string">```</span>  </span><br><span class="line"><span class="string">但是问题又来了，发现页面直接报错了。这是因为没有给consumer定义负载均衡的方式，即使发现了服务但是不知道使用哪一台服务器。</span></span><br><span class="line"><span class="string">```java</span></span><br><span class="line"><span class="string">@Configuration</span></span><br><span class="line"><span class="string">public</span> <span class="string">class</span> <span class="string">ApplicationContextConfig</span> &#123;</span><br><span class="line">    <span class="string">@Bean</span></span><br><span class="line">    <span class="string">@LoadBalanced</span></span><br><span class="line">    <span class="string">public</span> <span class="string">RestTemplate</span> <span class="string">getRestTemplate()</span>&#123;</span><br><span class="line">        <span class="string">return</span> <span class="string">new</span> <span class="string">RestTemplate();</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="string">```</span>  </span><br><span class="line"><span class="string">需要配置`@LoadBalanced`注解</span>  </span><br><span class="line"></span><br><span class="line"><span class="comment">## 细节配置  </span></span><br><span class="line"><span class="string">```yml</span></span><br><span class="line"><span class="attr">eureka:</span></span><br><span class="line">  <span class="attr">client:</span></span><br><span class="line">    <span class="attr">register-with-eureka:</span> <span class="literal">true</span> <span class="comment"># 表示是否将自己注册进注册中心，默认为true</span></span><br><span class="line">    <span class="attr">fetch-registry:</span> <span class="literal">true</span> <span class="comment"># 是都从EurekaServer抓去已有的注册信息，默认为true</span></span><br><span class="line">    <span class="attr">service-url:</span></span><br><span class="line">      <span class="attr">defaultZone:</span> <span class="string">http://localhost:7001/eureka,http://eureka7002.com:7002/eureka</span></span><br><span class="line">  <span class="attr">instance:</span></span><br><span class="line">    <span class="attr">instance-id:</span> <span class="string">payment8002</span></span><br><span class="line">    <span class="attr">prefer-ip-address:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<h2 id="将支付服务8001-消费80加入到集群"><a href="#将支付服务8001-消费80加入到集群" class="headerlink" title="将支付服务8001,消费80加入到集群"></a>将支付服务8001,消费80加入到集群</h2><pre><code>eureka:
+  client:
+    register-with-eureka: true # 表示是否将自己注册进注册中心，默认为true
+    fetch-registry: true # 是都从EurekaServer抓去已有的注册信息，默认为true
+    service-url:
+      defaultZone: 											http://localhost:7001/eureka,http://eureka7002.com:7002/eureka
+</code></pre>
+<p><img data-src="/images/pasted-223.png" alt="upload successful">  </p>
+<p><img data-src="/images/pasted-224.png" alt="upload successful"><br>成功注册</p>
+<h2 id="provider集群搭建"><a href="#provider集群搭建" class="headerlink" title="provider集群搭建"></a>provider集群搭建</h2><p>只需要将每个Provider的端口号进行修改即可  </p>
+<p><img data-src="/images/pasted-225.png" alt="upload successful"><br><code>cloud-payment-service</code>  不需要修改，默认使用轮询的方式提供服务  </p>
+<p>但是发现问题，多次访问的时候每次使用的都是8001端口，这是因为在消费者的<em>Controller</em>中<em>PAYMENT_URL</em>写死了。消费者只关心服务，不再关心地址和端口号    </p>
+<pre><code>public static final String PAYMENT_URL = &quot;http://CLOUD-PAYMENT-SERVICE&quot;;
+</code></pre>
+<p>但是问题又来了，发现页面直接报错了。这是因为没有给consumer定义负载均衡的方式，即使发现了服务但是不知道使用哪一台服务器。</p>
+<pre><code>@Configuration
+public class ApplicationContextConfig &#123;
+    @Bean
+    @LoadBalanced
+    public RestTemplate getRestTemplate()&#123;
+        return new RestTemplate();
+    &#125;
+&#125;
+</code></pre>
+<p>需要配置<code>@LoadBalanced</code>注解  </p>
+<h2 id="细节配置"><a href="#细节配置" class="headerlink" title="细节配置"></a>细节配置</h2><pre><code>eureka:
+  client:
+    register-with-eureka: true # 表示是否将自己注册进注册中心，默认为true
+    fetch-registry: true # 是都从EurekaServer抓去已有的注册信息，默认为true
+    service-url:
+      defaultZone: http://localhost:7001/eureka,http://eureka7002.com:7002/eureka
+  instance:
+    instance-id: payment8002
+    prefer-ip-address: true
+</code></pre>
 <p>这样就可以显式主机名和主机的ip地址  </p>
 <p><img data-src="/images/pasted-226.png" alt="upload successful">  </p>
 <h2 id="服务发现"><a href="#服务发现" class="headerlink" title="服务发现"></a>服务发现</h2><p>对于注册进eureka里面的微服务，可以通过服务发现来获得该服务的信息  </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Resource</span></span><br><span class="line"><span class="keyword">private</span> DiscoveryClient discoveryClient;</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line"><span class="meta">@GetMapping(value=&quot;/payment/discovery&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">discovery</span><span class="params">()</span>&#123;</span><br><span class="line">        List&lt;String&gt; services = discoveryClient.getServices();</span><br><span class="line">        <span class="keyword">for</span> (String element : services)&#123;</span><br><span class="line">            log.info(<span class="string">&quot;******element:&quot;</span>+element);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        List&lt;ServiceInstance&gt; instances = discoveryClient.getInstances(<span class="string">&quot;CLOUD-PAYMENT-SERVICE&quot;</span>);</span><br><span class="line">        <span class="keyword">for</span> (ServiceInstance instance : instances)&#123;</span><br><span class="line">            log.info(instance.getServiceId() + <span class="string">&quot;\t&quot;</span> + instance.getHost());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.discoveryClient;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<pre><code>@Resource
+private DiscoveryClient discoveryClient;
+...
+...
+@GetMapping(value=&quot;/payment/discovery&quot;)
+    public Object discovery()&#123;
+        List&lt;String&gt; services = discoveryClient.getServices();
+        for (String element : services)&#123;
+            log.info(&quot;******element:&quot;+element);
+        &#125;
+
+        List&lt;ServiceInstance&gt; instances = discoveryClient.getInstances(&quot;CLOUD-PAYMENT-SERVICE&quot;);
+        for (ServiceInstance instance : instances)&#123;
+            log.info(instance.getServiceId() + &quot;\t&quot; + instance.getHost());
+        &#125;
+        return this.discoveryClient;
+
+    &#125;
+</code></pre>
 <p>只需要暴露一个discovey接口既可以得到注册中心的所有服务信息。  </p>
 <h2 id="自我保护"><a href="#自我保护" class="headerlink" title="自我保护"></a>自我保护</h2><p>保护模式主要用于一组客户端和Eureka Server之间存在网络分区场景下的保护。一旦进入保护模式，Eureka Server将会尝试保护其服务注册表中的信息，不再删除服务注册表中的数据，也就是不会注销任何微服务。  </p>
 <h3 id="为什么会产生Eureka自我保护机制"><a href="#为什么会产生Eureka自我保护机制" class="headerlink" title="为什么会产生Eureka自我保护机制?"></a>为什么会产生Eureka自我保护机制?</h3><p>为了EurekaClient可以正常运行，防止与EurekaServer网络不通情况下，EurekaServer不会立刻将EurekaClient服务剔除</p>
 <h3 id="什么是自我保护模式"><a href="#什么是自我保护模式" class="headerlink" title="什么是自我保护模式?"></a>什么是自我保护模式?</h3><p>默认情况下，如果EurekaServer在一定时间内没有接收到某个微服务实例的心跳，EurekaServer将会注销该实例(默认90秒)。但是当网络分区故障发生(延时、卡顿、拥挤)时，微服务与EurekaServer之间无法正常通信，以上行为可能变得非常危险了——因为微服务本身其实是健康的，此时本不应该注销这个微服务。Eureka通过“自我保护模式”来解决这个问题——当EurekaServer节点在短时间内丢失过多客户端时(可能发生了网络分区故障)，那么这个节点就会进入自我保护模式。<br>在自我保护模式中，Eureka Server会保护服务注册表中的信息，不再注销任何服务实例。</p>
 <p>它的设计哲学就是宁可保留错误的服务注册信息，也不盲目注销任何可能健康的服务实例。一句话讲解：好死不如赖活着。</p>
 <p>综上，自我保护模式是一种应对网络异常的安全保护措施。它的架构哲学是宁可同时保留所有微服务（健康的微服务和不健康的微服务都会保留）也不盲目注销任何健康的微服务。使用自我保护模式，可以让Eureka集群更加的健壮、稳定。</p>
-<h3 id="禁用自我保护模式"><a href="#禁用自我保护模式" class="headerlink" title="禁用自我保护模式"></a>禁用自我保护模式</h3><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">eureka:</span></span><br><span class="line">  <span class="string">...</span></span><br><span class="line">  <span class="attr">server:</span></span><br><span class="line">    <span class="comment">#关闭自我保护机制，保证不可用服务被及时踢除</span></span><br><span class="line">    <span class="attr">enable-self-preservation:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">eviction-interval-timer-in-ms:</span> <span class="number">2000</span></span><br><span class="line"><span class="string">```</span>  </span><br><span class="line"><span class="string">关闭效果：</span></span><br><span class="line"></span><br><span class="line"><span class="string">spring-eureka主页会显示出一句：</span></span><br><span class="line"></span><br><span class="line"><span class="string">THE</span> <span class="string">SELF</span> <span class="string">PRESERVATION</span> <span class="string">MODE</span> <span class="string">IS</span> <span class="string">TURNED</span> <span class="string">OFF.</span> <span class="string">THIS</span> <span class="string">MAY</span> <span class="string">NOT</span> <span class="string">PROTECT</span> <span class="string">INSTANCE</span> <span class="string">EXPIRY</span> <span class="string">IN</span> <span class="string">CASE</span> <span class="string">OF</span> <span class="string">NETWORK/OTHER</span> <span class="string">PROBLEMS.</span></span><br><span class="line"></span><br><span class="line"><span class="string">&gt;8001配置</span>  </span><br><span class="line"><span class="string">```yml</span></span><br><span class="line"><span class="attr">eureka:</span></span><br><span class="line">  <span class="string">...</span></span><br><span class="line">  <span class="attr">instance:</span></span><br><span class="line">    <span class="attr">instance-id:</span> <span class="string">payment8001</span></span><br><span class="line">    <span class="attr">prefer-ip-address:</span> <span class="literal">true</span></span><br><span class="line">    <span class="comment">#心跳检测与续约时间</span></span><br><span class="line">    <span class="comment">#开发时没置小些，保证服务关闭后注册中心能即使剔除服务</span></span><br><span class="line">    <span class="comment">#Eureka客户端向服务端发送心跳的时间间隔，单位为秒(默认是30秒)</span></span><br><span class="line">    <span class="attr">lease-renewal-interval-in-seconds:</span> <span class="number">1</span></span><br><span class="line">    <span class="comment">#Eureka服务端在收到最后一次心跳后等待时间上限，单位为秒(默认是90秒)，超时将剔除服务</span></span><br><span class="line">    <span class="attr">lease-expiration-duration-in-seconds:</span> <span class="number">2</span></span><br></pre></td></tr></table></figure>
-
+<h3 id="禁用自我保护模式"><a href="#禁用自我保护模式" class="headerlink" title="禁用自我保护模式"></a>禁用自我保护模式</h3><pre><code>eureka:
+  ...
+  server:
+    #关闭自我保护机制，保证不可用服务被及时踢除
+    enable-self-preservation: false
+    eviction-interval-timer-in-ms: 2000
+</code></pre>
+<p>关闭效果：</p>
+<p>spring-eureka主页会显示出一句：</p>
+<p>THE SELF PRESERVATION MODE IS TURNED OFF. THIS MAY NOT PROTECT INSTANCE EXPIRY IN CASE OF NETWORK&#x2F;OTHER PROBLEMS.</p>
+<blockquote>
+<p>8001配置  </p>
+</blockquote>
+<pre><code>eureka:
+  ...
+  instance:
+    instance-id: payment8001
+    prefer-ip-address: true
+    #心跳检测与续约时间
+    #开发时没置小些，保证服务关闭后注册中心能即使剔除服务
+    #Eureka客户端向服务端发送心跳的时间间隔，单位为秒(默认是30秒)
+    lease-renewal-interval-in-seconds: 1
+    #Eureka服务端在收到最后一次心跳后等待时间上限，单位为秒(默认是90秒)，超时将剔除服务
+    lease-expiration-duration-in-seconds: 2
+</code></pre>
 <h1 id="Zookeeper"><a href="#Zookeeper" class="headerlink" title="Zookeeper"></a>Zookeeper</h1><h2 id="将微服务提供者8004注册进Zookeeper"><a href="#将微服务提供者8004注册进Zookeeper" class="headerlink" title="将微服务提供者8004注册进Zookeeper"></a>将微服务提供者8004注册进Zookeeper</h2><p>Linux开启zookeeper服务流程就不再赘述。直接上springcloud!  </p>
 <blockquote>
 <p>引入pom</p>
 </blockquote>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-zookeeper-discovery<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>修改yml文件</li>
-</ul>
-<pre><code class="xml">server:
-  port: 8004
-spring:
-  application:
-    name: cloud-provider-payment
-  cloud:
-    zookeeper:
-      connect-string: 192.168.200.160:2181
+<pre><code>&lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-zookeeper-discovery&lt;/artifactId&gt;
+&lt;/dependency&gt;
 </code></pre>
+<ul>
+<li><p>修改yml文件    </p>
+<p>  server:<br>port: 8004<br>  spring:<br>application:<br>  name: cloud-provider-payment<br>cloud:<br>  zookeeper:<br>    connect-string: 192.168.200.160:2181</p>
+</li>
+</ul>
 <blockquote>
 <p>其中<code>connect-string</code>为zookeeper服务器的ip地址    </p>
 </blockquote>
 <ul>
-<li>编写启动类</li>
+<li><p>编写启动类    </p>
+<p>  @SpringBootApplication<br>  @EnableDiscoveryClient<br>  public class PaymentMain8004 {<br>  public static void main(String[] args) {<br>      SpringApplication.run(PaymentMain8004.class , args);<br>  }<br>  }</p>
+</li>
+<li><p>编写provider提供的服务-业务类  </p>
+<p>  @RestController<br>  @Slf4j<br>  public class PaymentController {<br>  @Value(“${server.port}”)<br>  private String serverPort;<br><br>  @RequestMapping(value &#x3D; “&#x2F;payment&#x2F;zk”)<br>  public String paymentZk(){<br>      return “springcloud with zookeeper” + serverPort + “\t” + UUID.randomUUID().toString();<br>  }<br>  }</p>
+</li>
 </ul>
-<pre><code class="java">
-@SpringBootApplication
-@EnableDiscoveryClient
-public class PaymentMain8004 &#123;
-    public static void main(String[] args) &#123;
-        SpringApplication.run(PaymentMain8004.class , args);
-    &#125;
-&#125;
-</code></pre>
-<ul>
-<li>编写provider提供的服务-业务类</li>
-</ul>
-<pre><code class="java">@RestController
-@Slf4j
-public class PaymentController &#123;
-    @Value(&quot;$&#123;server.port&#125;&quot;)
-    private String serverPort;
-
-    @RequestMapping(value = &quot;/payment/zk&quot;)
-    public String paymentZk()&#123;
-        return &quot;springcloud with zookeeper&quot; + serverPort + &quot;\t&quot; + UUID.randomUUID().toString();
-    &#125;
-
-&#125;
-</code></pre>
 <p>以上就完成了服务注册的大体步骤，无非就是编写业务类的时候在yml中标记zookeeper提供者的服务地址罢了。<br>那么进入linux检查是否成功注册服务。  </p>
 <p><img data-src="/images/pasted-227.png" alt="upload successful"><br>服务成功注册。  </p>
 <p>其中每个微服务做为一个节点放入在zookeeper中。    </p>
@@ -375,13 +533,13 @@ public class PaymentController &#123;
 <p><img data-src="/images/pasted-228.png" alt="upload successful"><br>重新开启8004服务后，服务的流水号uuid不同，为新的服务。  </p>
 <p><img data-src="/images/pasted-229.png" alt="upload successful">  </p>
 <h2 id="将微服务消费者80注册进Zookeeper"><a href="#将微服务消费者80注册进Zookeeper" class="headerlink" title="将微服务消费者80注册进Zookeeper"></a>将微服务消费者80注册进Zookeeper</h2><p> 首先引入pom文件</p>
-<pre><code class="xml">&lt;dependency&gt;
+<pre><code>&lt;dependency&gt;
             &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
             &lt;artifactId&gt;spring-cloud-starter-zookeeper-discovery&lt;/artifactId&gt;
 &lt;/dependency&gt;
 </code></pre>
 <p>修改yml文件  </p>
-<pre><code class="yml">server:
+<pre><code>server:
   port: 80
 spring:
   application:
