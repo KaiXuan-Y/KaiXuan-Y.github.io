@@ -1,8 +1,211 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>CAS+自旋锁的理解</title>
+    <url>/2022/11/02/CAS-%E8%87%AA%E6%97%8B%E9%94%81%E7%9A%84%E7%90%86%E8%A7%A3/</url>
+    <content><![CDATA[<p>CAS+自旋锁在什么地方用到呢？比方说会在Eureka的Ribbon负载均衡算法中采用，如果采用轮询的负载均衡方法，那么获取下一个服务器ServerIndex的方法就是通过CAS和自旋锁的方式实现的。同时对AtomicInteger为什么使用CAS而不采用synchronized来解决多线程环境下的安全问题进行彻底的了解<span id="more"></span></p>
+<h1 id="CAS"><a href="#CAS" class="headerlink" title="CAS"></a>CAS</h1><h2 id="CAS是什么？"><a href="#CAS是什么？" class="headerlink" title="CAS是什么？"></a>CAS是什么？</h2><p>比较和交换，是一条CPU的并发原语<br>CAS并发原语体现在JAVA语言中的Unsafe类中的各个方法。调用CAS方法后，JVM会帮我们实现出CAS汇编指令。它实现了原子操作。原语的执行必须是连续的，在执行过程中不允许被中断。因此不会造成所谓的数据不一致性  </p>
+<pre><code>public void addPlusPlus()&#123;
+        number ++;
+    &#125;
+
+ AtomicInteger atomicInteger = new AtomicInteger();
+  public void addMyAtomic()&#123;
+      atomicInteger.getAndIncrement();
+ &#125;
+</code></pre>
+<p>上面的方式显然在多线程的情况下，number++的方式会丢失值,但是使用<code>synchronized</code>又太过厚重。如何解决这个问题？那个就可以采用<code>getAndIncrement()</code>方法,那么你对CAS就需要有很深刻的了解，你需要彻底了解为什么用CAS而不用<code>synchronized</code>    </p>
+<p>下面是CAS的源代码，parameter1代表希望的值，parameter2表示修改的目标值</p>
+<pre><code>    /**
+     * Atomically sets the value to the given updated value
+     * if the current value &#123;@code ==&#125; the expected value.
+     *
+     * @param expect the expected value
+     * @param update the new value
+     * @return &#123;@code true&#125; if successful. False return indicates that
+     * the actual value was not equal to the expected value.
+     */
+    public final boolean compareAndSet(int expect, int update) &#123;
+        return unsafe.compareAndSwapInt(this, valueOffset, expect, update);
+    &#125;
+</code></pre>
+<p>我又编写了一个测试类加深理解  </p>
+<pre><code>public class CASDemo &#123;
+    public static void main(String[] args) &#123;
+        AtomicInteger atomicInteger = new AtomicInteger(5);
+        System.out.println(atomicInteger.compareAndSet(5, 2019)  + &quot;current data: &quot;+atomicInteger);
+
+        /**
+         * 假设此时又有一个进程进入想要进行修改
+         */
+        System.out.println(atomicInteger.compareAndSet(5,1024) + &quot;current data: &quot;+atomicInteger);
+    &#125;
+&#125;  
+</code></pre>
+<p><img data-src="/images/pasted-245.png" alt="upload successful">    </p>
+<blockquote>
+<p>如果得到的系统的实际值和期望值相同，将内容进行修改。如果和期望值不同，就不进行修改。    </p>
+</blockquote>
+<h2 id="CAS底层原理"><a href="#CAS底层原理" class="headerlink" title="CAS底层原理"></a>CAS底层原理</h2><pre><code>/**
+     * Atomically increments by one the current value.
+     *
+     * @return the previous value
+     */
+    public final int getAndIncrement() &#123;
+        return unsafe.getAndAddInt(this, valueOffset, 1);
+    &#125;
+</code></pre>
+<blockquote>
+<p>this和valueOffset的含义是什么？  </p>
+</blockquote>
+<ul>
+<li><p>this代表当前对象</p>
+</li>
+<li><p>valueOffset：内存偏移量  </p>
+<p>  public final int getAndAddInt(Object var1, long var2, int var4) {<br>      int var5;<br>      do {<br>          var5 &#x3D; this.getIntVolatile(var1, var2);<br>      } while(!this.compareAndSwapInt(var1, var2, var5, var5 + var4));<br><br>      return var5;<br>  }</p>
+</li>
+</ul>
+<p>观察这个方法的来源，发现他竟然是unsafe类的方法，那么我们继续下推  </p>
+<pre><code>public final native boolean compareAndSwapInt(Object var1, long var2, int var4, int var5);  
+</code></pre>
+<p>我们看到这个方法用native修饰<br>private static final long serialVersionUID &#x3D; 6214790243416807050L;</p>
+<pre><code>    // setup to use Unsafe.compareAndSwapInt for updates
+    private static final Unsafe unsafe = Unsafe.getUnsafe();
+    private static final long valueOffset;
+
+    static &#123;
+        try &#123;
+            valueOffset = unsafe.objectFieldOffset
+                (AtomicInteger.class.getDeclaredField(&quot;value&quot;));
+        &#125; catch (Exception ex) &#123; throw new Error(ex); &#125;
+    &#125;
+
+    private volatile int value;  
+</code></pre>
+<p>可以看到value用volatile修饰，每次的修改每个线程都可见  </p>
+<p><img data-src="/images/pasted-246.png" alt="upload successful"><br>同时我们可以看到<code>AtomicInterger</code>使用了unsafe类。这是CAS的核心类，由于java方法无法直接访问底层系统，需要通过本地<code>native</code>方法访问，Unsafe相当于一个后门，基于该类可以直接操作特定内存的数据。其内部的操作可以像C的指针一样直接操作内存。<br>变量valueOffest表示该变量值在内存中的偏移地址，因为Unsafe就是根据内存偏移地址获取数据的  </p>
+<ul>
+<li><p>（1）<br><img data-src="/images/pasted-247.png" alt="upload successful">  </p>
+</li>
+<li><p>（2）<br><img data-src="/images/pasted-248.png" alt="upload successful">  </p>
+</li>
+<li><p>（3）首先获取Offset地址的值赋值给var5,随后判断当前对象这个地址的值是不是5，如果比较成功返回true，取反后跳出循环，return var5;如果真实值和期望着不一致，比较失败重新获取var5的值。</p>
+</li>
+</ul>
+<p><img data-src="/images/pasted-249.png" alt="upload successful">  </p>
+<p><img data-src="/images/pasted-250.png" alt="upload successful"><br>为何CAS能够保持原语操作的原子性？</p>
+<p><img data-src="/images/pasted-251.png" alt="upload successful">  </p>
+<h2 id="CAS的缺点"><a href="#CAS的缺点" class="headerlink" title="CAS的缺点"></a>CAS的缺点</h2><ul>
+<li>1.循环时间长，开销大：底层使用do{}while()如果一直比较失败，会一直自旋。如过CAS一直不成功，CPU开销很大  </li>
+<li>2.只能保证一个共享变量的原子操作  </li>
+<li>3.会引出ABA问题</li>
+</ul>
+<h1 id="ABA问题"><a href="#ABA问题" class="headerlink" title="ABA问题"></a>ABA问题</h1><p>CAS算法实现了一个重要前提需要取出内存中<code>某时刻</code>的数据并在<code>当下时刻</code>进行比较并且替换，那么在这个时间差类会导致数据的变换。<br>比如说一个线程one从内存位置V中取出A,这时候另一个线程two也从内存中取出A，并且线程two进行了一些操作将值变成B，然后线程two又将V位置的数据变成A，这时线程one进行CAS操作时发现内存中仍然是A，然后线程one操作成功。<br><strong>但是这个时间差内的过程会产生很多的问题</strong>  </p>
+<h2 id="AtomicReference"><a href="#AtomicReference" class="headerlink" title="AtomicReference"></a>AtomicReference</h2><pre><code>public class CASDemo &#123;
+    public static void main(String[] args) &#123;
+
+        AtomicReference&lt;User&gt; atomicReference = new AtomicReference&lt;&gt;();
+        User z3 = new User(&quot;z3&quot;, 22);
+        User li4 = new User(&quot;li4&quot;, 25);
+        atomicReference.set(z3);
+        System.out.println(atomicReference.compareAndSet(z3, li4) + &quot;\t&quot; + atomicReference.get().userName);
+        System.out.println(atomicReference.compareAndSet(z3, li4) + &quot;\t&quot; + atomicReference.get().userName);
+    &#125;
+&#125;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+class User&#123;
+    String userName;
+    int age;
+
+&#125;  
+</code></pre>
+<h2 id="时间戳的原子引用AtomicStampedReference"><a href="#时间戳的原子引用AtomicStampedReference" class="headerlink" title="时间戳的原子引用AtomicStampedReference"></a>时间戳的原子引用AtomicStampedReference</h2><p>解决ABA问题：新增一种机制，那就是修改版本号（类似于时间戳 ）    </p>
+<pre><code>public class CASDemo &#123;
+    static AtomicStampedReference&lt;Integer&gt; atomicStampedReference = new AtomicStampedReference&lt;&gt;(100, 1);
+
+    public static void main(String[] args) &#123;
+        new Thread(() -&gt; &#123;
+            int stamp = atomicStampedReference.getStamp();
+            System.out.println(Thread.currentThread().getName() + &quot;\t第1次版本号&quot; + stamp);
+            try &#123;
+                TimeUnit.SECONDS.sleep(1);
+            &#125; catch (InterruptedException e) &#123;
+                e.printStackTrace();
+            &#125;
+            atomicStampedReference.compareAndSet(100 , 101 , atomicStampedReference.getStamp(),atomicStampedReference.getStamp() + 1);
+            System.out.println(Thread.currentThread().getName() + &quot;\t第2次版本号&quot; + atomicStampedReference.getStamp());
+            atomicStampedReference.compareAndSet(101 , 100 , atomicStampedReference.getStamp() , atomicStampedReference.getStamp() + 1);
+            System.out.println(Thread.currentThread().getName() + &quot;\t第3次版本号&quot; + atomicStampedReference.getStamp());
+        &#125;,&quot;t1&quot;).start();
+
+        new Thread(() -&gt; &#123;
+            int stamp = atomicStampedReference.getStamp();
+            System.out.println(Thread.currentThread().getName() + &quot;\t第一次版本号&quot; + stamp);
+            try &#123;
+                TimeUnit.SECONDS.sleep(3);
+            &#125; catch (InterruptedException e) &#123;
+                e.printStackTrace();
+            &#125;
+            boolean result = atomicStampedReference.compareAndSet(100, 2022, stamp, stamp + 1);
+            System.out.println(&quot;是否修改成 &quot; + result + &quot;\t 当前版本号&quot; + atomicStampedReference.getStamp());
+
+
+        &#125;,&quot;t2&quot;).start();
+    &#125;
+&#125;
+</code></pre>
+<h1 id="自旋锁"><a href="#自旋锁" class="headerlink" title="自旋锁"></a>自旋锁</h1><p>是指尝试获取锁的线程不会立即<code>阻塞</code>，而是采用循环的方式去尝试获取锁，这样的好处是减少线程的上下文切换的消耗，缺点是循环会消耗CPU<br><img data-src="/images/pasted-249.png" alt="upload successful"><br>上图是CAS的代码，如果while中每次比较都失败取反后一直未true，while一直无法跳出来。  </p>
+<pre><code>public class SpinLockDemo &#123;
+    AtomicReference&lt;Thread&gt; atomicReference = new AtomicReference&lt;&gt;();
+    public static void main(String[] args) &#123;
+
+        SpinLockDemo spinLockDemo = new SpinLockDemo();
+        new Thread(() -&gt; &#123;
+            spinLockDemo.myLock();
+            try &#123;
+                TimeUnit.SECONDS.sleep(5);
+            &#125; catch (InterruptedException e) &#123;
+                e.printStackTrace();
+            &#125;
+            spinLockDemo.myUnLock();
+        &#125;,&quot;AA&quot;).start();
+
+        try &#123;
+            TimeUnit.SECONDS.sleep(1);
+        &#125; catch (InterruptedException e) &#123;
+            e.printStackTrace();
+        &#125;
+
+        new Thread(() -&gt; &#123;
+            spinLockDemo.myLock();
+            spinLockDemo.myUnLock();
+        &#125;,&quot;BB&quot;).start();
+
+
+    &#125;
+    public void myLock()&#123;
+        Thread thread = Thread.currentThread();
+        System.out.println(Thread.currentThread().getName() + &quot;\t come in &quot;);
+        while (!atomicReference.compareAndSet(null , thread))&#123;
+
+        &#125;
+    &#125;
+
+    public void myUnLock()&#123;
+        Thread thread = Thread.currentThread();
+        atomicReference.compareAndSet(thread , null);
+        System.out.println(Thread.currentThread().getName() + &quot; \t invoked myUnlock()&quot;);
+    &#125;
+&#125;
+</code></pre>
+]]></content>
+  </entry>
+  <entry>
     <title>LambdaQueryWrapper的理解</title>
-    <url>/2022/10/04/LambdaQueryWrapper%E7%9A%84%E7%90%86%E8%A7%A3/</url>
+    <url>/2021/10/04/LambdaQueryWrapper%E7%9A%84%E7%90%86%E8%A7%A3/</url>
     <content><![CDATA[<p>MyBatis-Plus QueryWrapper及LambdaQueryWrapper的使用。从使用的实际情况来解释为什么使用LambdaQueryWrapper而不使用QueryWrapper。</p>
 <span id="more"></span>
 <h1 id="QueryWrapper的弊端"><a href="#QueryWrapper的弊端" class="headerlink" title="QueryWrapper的弊端"></a>QueryWrapper的弊端</h1><p>假设数据库中存在user1表</p>
@@ -266,6 +469,86 @@
 &#125;
 </code></pre>
 <p>需要记住的是String是不可变的 不能直接在上面操作，而是需要重新开辟一个字符串  </p>
+<h3 id="nums58-最后一个单词的长度"><a href="#nums58-最后一个单词的长度" class="headerlink" title="nums58 最后一个单词的长度"></a>nums58 最后一个单词的长度</h3><p>给你一个字符串 s，由若干单词组成，单词前后用一些空格字符隔开。返回字符串中 最后一个 单词的长度。</p>
+<p>单词 是指仅由字母组成、不包含任何空格字符的最大子字符串。 </p>
+<pre><code>class Solution &#123;
+    public int lengthOfLastWord(String s) &#123;
+        int end = s.length() - 1;
+        while(end &gt;= 0 &amp;&amp; s.charAt(end) == &#39; &#39;)&#123;
+            end -- ;
+        &#125;
+        if(end &lt; 0)&#123;
+            return 0;
+        &#125;
+        int start = end;
+        while(start &gt;= 0 &amp;&amp; s.charAt(start) != &#39; &#39;)&#123;
+            start --;
+        &#125;
+        return end - start;
+    &#125;
+&#125;
+</code></pre>
+<p>我用的方法还是循规蹈矩的从前往后找最后一个单词的位置，然后再统计长度。但是往往可以采用的是逆向思维，我从后往前找，那么找到的第一个单词必然就是最后一个单词了。然后就能更快的得到结果。  </p>
+<h3 id="nums344-反转字符串"><a href="#nums344-反转字符串" class="headerlink" title="nums344 反转字符串"></a>nums344 反转字符串</h3><p>编写一个函数，其作用是将输入的字符串反转过来。输入字符串以字符数组 s 的形式给出。</p>
+<p>不要给另外的数组分配额外的空间，你必须原地修改输入数组、使用 O(1) 的额外空间解决这一问题。</p>
+<p>so easy  </p>
+<pre><code>class Solution &#123;
+    public void reverseString(char[] s) &#123;
+        int left = 0 , right = s.length - 1;
+        while(left &lt; right)&#123;
+            char tem = s[left];
+            s[left] = s[right];
+            s[right] = tem;
+            left ++;
+            right --;
+        &#125;
+    &#125;
+&#125;
+</code></pre>
+<h3 id="剑指Offer06-从尾到头输出链表"><a href="#剑指Offer06-从尾到头输出链表" class="headerlink" title="剑指Offer06 从尾到头输出链表"></a>剑指Offer06 从尾到头输出链表</h3><p>输入一个链表的头节点，从尾到头反过来返回每个节点的值（用数组返回）。  </p>
+<blockquote>
+<p>方法1：采用递归的方式，依次放入值  </p>
+</blockquote>
+<pre><code>class Solution &#123;
+    ArrayList&lt;Integer&gt; tmp = new ArrayList&lt;&gt;();
+    public int[] reversePrint(ListNode head) &#123;
+        recur(head);
+        int[] res = new int[tmp.size()];
+        for(int i = 0 ; i &lt; res.length ; i ++)&#123;
+            res[i] = tmp.get(i);
+        &#125;
+        return res;
+    &#125;
+    void recur(ListNode head)&#123;
+        if(head == null)&#123;
+            return;
+        &#125;
+        int var = head.val;
+        recur(head.next);
+        tmp.add(var);
+    &#125;
+&#125;  
+</code></pre>
+<blockquote>
+<p>方法2：使用栈空间  </p>
+</blockquote>
+<pre><code>class Solution &#123;
+    LinkedList&lt;Integer&gt; stack = new LinkedList&lt;&gt;();
+    public int[] reversePrint(ListNode head) &#123;
+        while(head != null)&#123;
+            stack.addLast(head.val);
+            head = head.next;
+        &#125;
+        int[] res = new int[stack.size()];
+        for(int i = 0 ; i &lt; res.length ; i ++)&#123;
+            res[i] = stack.removeLast();
+
+        &#125;
+        return res;
+    &#125;
+
+&#125;
+</code></pre>
 ]]></content>
       <categories>
         <category>leetcode</category>
@@ -964,14 +1247,14 @@
       </tags>
   </entry>
   <entry>
-    <title>微服务分布式架构-Eureka、Zookeeper服务注册中心</title>
+    <title>微服务分布式架构-Eureka、Zookeeper、Consul服务注册中心</title>
     <url>/2022/10/31/%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%EF%BC%88eureka/</url>
     <content><![CDATA[<p>Spring Cloud 封装了Netflix公司开发的Eureka模块来实现服务治理。<br>在传统的rpc远程调用框架中，管理每个服务于服务之间依赖关系比较复杂，管理比较复杂，所以需要使用服务治理，管理服务与服务之间依赖关系，可以实现服务调用、负载均衡、容错等，实现服务发现与注册。<span id="more"></span>  </p>
 <h1 id="服务注册与发现的概念"><a href="#服务注册与发现的概念" class="headerlink" title="服务注册与发现的概念"></a>服务注册与发现的概念</h1><p>什么是服务注册与发现?  </p>
 <p>Eureka采用了CS的设计架构，Eureka Sever作为服务注册功能的服务器，它是服务注册中心。而系统中的其他微服务，使用Eureka的客户端连接到 Eureka Server并维持<code>心跳连接</code>。这样系统的维护人员就可以通过Eureka Server来监控系统中各个微服务是否正常运行。</p>
 <p>在服务注册与发现中，有一个注册中心。当服务器启动的时候，会把当前自己服务器的信息比如服务地址通讯地址等以别名方式注册到注册中心上。另一方(消费者服务提供者)，以该别名的方式去注册中心上获取到实际的服务通讯地址，然后再实现本地RPC调用RPC远程调用框架核心设计思想:在于注册中心，因为使用注册中心管理每个服务与服务之间的一个依赖关系(服务治理概念)。在任何RPC远程框架中，都会有一个注册中心存放服务地址相关信息(接口地址)</p>
 <p><img data-src="/images/pasted-214.png" alt="upload successful">    </p>
-<h2 id="Eureka-Eureka-Server和Eureka-Client"><a href="#Eureka-Eureka-Server和Eureka-Client" class="headerlink" title="Eureka:Eureka Server和Eureka Client"></a>Eureka:Eureka Server和Eureka Client</h2><h3 id="Eureka-Server提供服务注册服务"><a href="#Eureka-Server提供服务注册服务" class="headerlink" title="Eureka Server提供服务注册服务"></a>Eureka Server提供服务注册服务</h3><p>各个微服务节点通过配置启动后，会在<code>EurekaServer</code>中进行注册，这样<code>EurekaServer</code>中的服务注册表中将会存储所有<code>可用服务节点的信息</code>，服务节点的信息可以在界面中直观看到。</p>
+<h1 id="Eureka"><a href="#Eureka" class="headerlink" title="Eureka"></a>Eureka</h1><h2 id="Eureka-Eureka-Server和Eureka-Client"><a href="#Eureka-Eureka-Server和Eureka-Client" class="headerlink" title="Eureka:Eureka Server和Eureka Client"></a>Eureka:Eureka Server和Eureka Client</h2><h3 id="Eureka-Server提供服务注册服务"><a href="#Eureka-Server提供服务注册服务" class="headerlink" title="Eureka Server提供服务注册服务"></a>Eureka Server提供服务注册服务</h3><p>各个微服务节点通过配置启动后，会在<code>EurekaServer</code>中进行注册，这样<code>EurekaServer</code>中的服务注册表中将会存储所有<code>可用服务节点的信息</code>，服务节点的信息可以在界面中直观看到。</p>
 <h3 id="Eureka-Client通过注册中心进行访问"><a href="#Eureka-Client通过注册中心进行访问" class="headerlink" title="Eureka Client通过注册中心进行访问"></a>Eureka Client通过注册中心进行访问</h3><p>它是一个Java客户端，用于简化Eureka Server的交互，客户端同时也具备一个内置的、使用轮询(round-robin)负载算法的负载均衡器。在应用启动后，将会向Eureka Server<code>发送心跳</code>(默认周期为30秒)。如果Eureka Server在<code>多个心跳周期</code>内<code>没有接收</code>到某个节点的心跳，EurekaServer将会从服务注册表中把这个服务节点移除（默认90秒)</p>
 <h1 id="Eureka单机搭建"><a href="#Eureka单机搭建" class="headerlink" title="Eureka单机搭建"></a>Eureka单机搭建</h1><h2 id="Eureka-Server搭建"><a href="#Eureka-Server搭建" class="headerlink" title="Eureka Server搭建"></a>Eureka Server搭建</h2><p>创建工程引入pom依赖    </p>
 <pre><code>&lt;dependency&gt;
@@ -1219,6 +1502,87 @@ spring:
 </code></pre>
 <p>其中<code>connect-string</code>为zookeeper服务器的ip地址<br>编写启动类后注册<code>restTemplete</code>即可进行远程服务的调用  </p>
 <p><img data-src="/images/pasted-230.png" alt="upload successful"><br>完成服务的注册和发现。</p>
+<h1 id="Consul"><a href="#Consul" class="headerlink" title="Consul"></a>Consul</h1><p>What is Consul?<br>Consul is a service mesh solution providing a full featured control plane with service discovery, configuration, and segmentation functionality. Each of these features can be used individually as needed, or they can be used together to build a full service mesh. Consul requires a data plane and supports both a proxy and native integration model. Consul ships with a simple built-in proxy so that everything works out of the box, but also supports 3rd party proxy integrations such as Envoy. <!--more-->  </p>
+<p>Consul是一个服务网格解决方案，它提供了一个功能齐全的控制平面，具有服务发现、配置和分段功能。这些特性中的每一个都可以根据需要单独使用，也可以一起用于构建全服务网格。Consul需要一个数据平面，并支持代理和本机集成模型。Consul船与一个简单的内置代理，使一切工作的开箱即用，但也支持第三方代理集成，如Envoy。<br>提供了微服务系统中的服务治理、配置中心、控制总线等功能。这些功能中的每一个都可以根据需要单独使用，也可以一起使用以构建全方位的服务网格，总之Consul提供了一种完整的服务网格解决方案。  </p>
+<h2 id="Linux安装concul"><a href="#Linux安装concul" class="headerlink" title="Linux安装concul"></a>Linux安装concul</h2><p>网上很多人就是在windows本机上安装的consul进行测试，但是实际肯定是用linux啊。<br><code> wget https://releases.hashicorp.com/consul/0.7.5/consul_0.7.5_linux_amd64.zip</code><br>命令下载consul的安装包  </p>
+<p><code> unzip consul_0.7.5_linux_amd64.zip</code>进行安装包解压  </p>
+<p> 使用<code> ./consul</code>命令测试consul是否安装成功  </p>
+<p><img data-src="/images/pasted-231.png" alt="upload successful"><br>这就意味着consul安装完毕啦  </p>
+<p><code> ./consul agent -dev -ui -node=consul-dev -client=192.168.200.160</code>启动你的consul吧！ 192.168.200.160是楼主的ip地址   </p>
+<p><img data-src="/images/pasted-232.png" alt="upload successful">  </p>
+<h2 id="SpringCloud集成consul"><a href="#SpringCloud集成consul" class="headerlink" title="SpringCloud集成consul"></a>SpringCloud集成consul</h2><h3 id="服务提供者8006"><a href="#服务提供者8006" class="headerlink" title="服务提供者8006"></a>服务提供者8006</h3><p>引入pom文件  </p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-consul-discovery<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>修改yml文件  </p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">      <span class="attr">port:</span> <span class="number">8006</span></span><br><span class="line">    <span class="attr">spring:</span></span><br><span class="line">      <span class="attr">application:</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">consul-provider-payment</span></span><br><span class="line"></span><br><span class="line">      <span class="attr">cloud:</span></span><br><span class="line">        <span class="attr">consul:</span></span><br><span class="line">          <span class="attr">host:</span> <span class="number">192.168</span><span class="number">.200</span><span class="number">.160</span></span><br><span class="line">          <span class="attr">port:</span> <span class="number">8500</span></span><br><span class="line">          <span class="attr">discovery:</span></span><br><span class="line">            <span class="attr">service-name:</span> <span class="string">$&#123;spring.application.name&#125;</span></span><br></pre></td></tr></table></figure>
+<p>主启动类</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line">    <span class="meta">@EnableDiscoveryClient</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PaymentMain8006</span> &#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">            SpringApplication.run(PaymentMain8006.class , args);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<p>业务类 </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PaymentController</span> &#123;</span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;server.port&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String serverPort;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping(value = &quot;/payment/consul&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">paymentZk</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;springcloud with consul&quot;</span> + serverPort + <span class="string">&quot;\t&quot;</span> + UUID.randomUUID().toString();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试访问<code>http://localhost:8006/payment/consul</code>成功  </p>
+<p><img data-src="/images/pasted-233.png" alt="upload successful"><br>服务成功注册进注册中心  </p>
+<p><img data-src="/images/pasted-234.png" alt="upload successful">  </p>
+<h3 id="服务消费者80"><a href="#服务消费者80" class="headerlink" title="服务消费者80"></a>服务消费者80</h3><p>pom文件和yml就不再赘述。  </p>
+<pre><code>server:
+  port: 80
+spring:
+  application:
+    name: cloud-consumer-order
+
+  cloud:
+    consul:
+      host: 192.168.200.160
+      port: 8500
+      discovery:
+        service-name: $&#123;spring.application.name&#125;
+</code></pre>
+<p>主要讲解config类的编写   </p>
+<pre><code>@Configuration
+public class ApplicationContextConfig &#123;
+    @Bean
+    @LoadBalanced
+    public RestTemplate getRestTemplate()&#123;
+        return new RestTemplate();
+    &#125;
+&#125;
+
+  
+</code></pre>
+<p>业务类  </p>
+<pre><code class="java">@RestController
+@Slf4j
+public class OrderConsulController &#123;
+        public static final String INVOKE_URL = &quot;http://consul-provider-payment&quot;;
+
+        @Resource
+        private RestTemplate restTemplate;
+
+        @GetMapping(&quot;/consumer/payment/consul&quot;)
+        public String paymentInfo()&#123;
+            String res = restTemplate.getForObject(INVOKE_URL + &quot;/payment/consul&quot;, String.class);
+            return res;
+
+        &#125;
+    &#125;
+</code></pre>
+<p><img data-src="/images/pasted-235.png" alt="upload successful"><br>成功注册  </p>
+<h1 id="三者的不同"><a href="#三者的不同" class="headerlink" title="三者的不同"></a>三者的不同</h1><p><img data-src="/images/pasted-236.png" alt="upload successful"><br>CAP：</p>
+<ul>
+<li><p>C：Consistency (强一致性)</p>
+</li>
+<li><p>A：Availability (可用性)</p>
+</li>
+<li><p>P：Partition tolerance （分区容错性)</p>
+</li>
+</ul>
+<p><img data-src="/images/pasted-237.png" alt="upload successful">  </p>
+<h2 id="AP架构（Eureka"><a href="#AP架构（Eureka" class="headerlink" title="AP架构（Eureka)"></a>AP架构（Eureka)</h2><p>AP架构（Eureka）</p>
+<p>当网络分区出现后，为了保证可用性，系统B可以返回旧值，保证系统的可用性。</p>
+<p>结论：违背了一致性C的要求，只满足可用性和分区容错，即AP  </p>
+<p><img data-src="/images/pasted-238.png" alt="upload successful">  </p>
+<h2 id="CP架构（Zookeeper、Consul）"><a href="#CP架构（Zookeeper、Consul）" class="headerlink" title="CP架构（Zookeeper、Consul）"></a>CP架构（Zookeeper、Consul）</h2><p>CP架构（ZooKeeper&#x2F;Consul）</p>
+<p>当网络分区出现后，为了保证一致性，就必须拒接请求，否则无法保证一致性。</p>
+<p>结论：违背了可用性A的要求，只满足一致性和分区容错，即CP。</p>
+<p><img data-src="/images/pasted-239.png" alt="upload successful">  </p>
 ]]></content>
   </entry>
   <entry>
@@ -1688,22 +2052,118 @@ new LengthFieldBasedFrameDecoder(1024,12,4,0,0)对处理粘包半包现象是否
       </tags>
   </entry>
   <entry>
-    <title>微服务分布式架构-Consul服务注册中心</title>
-    <url>/2022/11/01/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84-Consul%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/</url>
-    <content><![CDATA[<p>What is Consul?<br>Consul is a service mesh solution providing a full featured control plane with service discovery, configuration, and segmentation functionality. Each of these features can be used individually as needed, or they can be used together to build a full service mesh. Consul requires a data plane and supports both a proxy and native integration model. Consul ships with a simple built-in proxy so that everything works out of the box, but also supports 3rd party proxy integrations such as Envoy. <span id="more"></span>  </p>
-<p>Consul是一个服务网格解决方案，它提供了一个功能齐全的控制平面，具有服务发现、配置和分段功能。这些特性中的每一个都可以根据需要单独使用，也可以一起用于构建全服务网格。Consul需要一个数据平面，并支持代理和本机集成模型。Consul船与一个简单的内置代理，使一切工作的开箱即用，但也支持第三方代理集成，如Envoy。<br>提供了微服务系统中的服务治理、配置中心、控制总线等功能。这些功能中的每一个都可以根据需要单独使用，也可以一起使用以构建全方位的服务网格，总之Consul提供了一种完整的服务网格解决方案。  </p>
-<h1 id="Consul"><a href="#Consul" class="headerlink" title="Consul"></a>Consul</h1><h2 id="Linux安装concul"><a href="#Linux安装concul" class="headerlink" title="Linux安装concul"></a>Linux安装concul</h2><p>网上很多人就是在windows本机上安装的consul进行测试，但是实际肯定是用linux啊。<br><code> wget https://releases.hashicorp.com/consul/0.7.5/consul_0.7.5_linux_amd64.zip</code><br>命令下载consul的安装包  </p>
-<p><code> unzip consul_0.7.5_linux_amd64.zip</code>进行安装包解压  </p>
-<p> 使用<code> ./consul</code>命令测试consul是否安装成功  </p>
-<p><img data-src="/images/pasted-231.png" alt="upload successful"><br>这就意味着consul安装完毕啦  </p>
-<p><code> ./consul agent -dev -ui -node=consul-dev -client=192.168.200.160</code>启动你的consul吧！ 192.168.200.160是楼主的ip地址   </p>
-<p><img data-src="/images/pasted-232.png" alt="upload successful">  </p>
-<h2 id="SpringCloud集成consul"><a href="#SpringCloud集成consul" class="headerlink" title="SpringCloud集成consul"></a>SpringCloud集成consul</h2><p>引入pom文件  </p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-consul-discovery<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>修改yml文件  </p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">      <span class="attr">port:</span> <span class="number">8006</span></span><br><span class="line">    <span class="attr">spring:</span></span><br><span class="line">      <span class="attr">application:</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">consul-provider-payment</span></span><br><span class="line"></span><br><span class="line">      <span class="attr">cloud:</span></span><br><span class="line">        <span class="attr">consul:</span></span><br><span class="line">          <span class="attr">host:</span> <span class="number">192.168</span><span class="number">.200</span><span class="number">.160</span></span><br><span class="line">          <span class="attr">port:</span> <span class="number">8500</span></span><br><span class="line">          <span class="attr">discovery:</span></span><br><span class="line">            <span class="attr">service-name:</span> <span class="string">$&#123;spring.application.name&#125;</span></span><br></pre></td></tr></table></figure>
-<p>主启动类</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line">    <span class="meta">@EnableDiscoveryClient</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PaymentMain8006</span> &#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">            SpringApplication.run(PaymentMain8006.class , args);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+    <title>微服务分布式架构-服务调用</title>
+    <url>/2022/11/02/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84-%E6%9C%8D%E5%8A%A1%E8%B0%83%E7%94%A8/</url>
+    <content><![CDATA[<p>Spring Cloud Ribbon是基于Netflix Ribbon实现的一套客户端负载均衡的工具。</p>
+<p>简单的说，Ribbon是Netflix发布的开源项目，主要功能是提供客户端的软件负载均衡算法和服务调用。Ribbon客户端组件提供一系列完善的配置项如连接超时，重试等。</p>
+<p>简单的说，就是在配置文件中列出Load Balancer(简称LB)后面所有的机器，Ribbon会自动的帮助你基于某种规则(如简单轮询，随机连接等）去连接这些机器。我们很容易使用Ribbon实现自定义的负载均衡算法<span id="more"></span></p>
+<h1 id="Ribbon负载均衡"><a href="#Ribbon负载均衡" class="headerlink" title="Ribbon负载均衡"></a>Ribbon负载均衡</h1><h2 id="LB负载均衡-Load-Balance-是什么"><a href="#LB负载均衡-Load-Balance-是什么" class="headerlink" title="LB负载均衡(Load Balance)是什么"></a>LB负载均衡(Load Balance)是什么</h2><p>简单的说就是将用户的请求平摊的分配到多个服务上，从而达到系统的HA (高可用)。</p>
+<p>常见的负载均衡有软件Nginx，LVS，硬件F5等。</p>
+<h2 id="Ribbon本地负载均衡客户端VS-Nginx服务端负载均衡区别"><a href="#Ribbon本地负载均衡客户端VS-Nginx服务端负载均衡区别" class="headerlink" title="Ribbon本地负载均衡客户端VS Nginx服务端负载均衡区别"></a>Ribbon本地负载均衡客户端VS Nginx服务端负载均衡区别</h2><p>Nginx是服务器负载均衡，客户端所有请求都会交给nginx，然后由nginx实现转发请求。即负载均衡是由服务端实现的。<br>Ribbon本地负载均衡，在调用微服务接口时候，会在注册中心上获取注册信息服务列表之后缓存到JVM本地，从而在本地实现RPC远程服务调用技术。</p>
+<ul>
+<li>集中式LB</li>
+</ul>
+<p>即在服务的消费方和提供方之间使用独立的LB设施(可以是硬件，如F5, 也可以是软件，如nginx)，由该设施负责把访问请求通过某种策略转发至服务的提供方;</p>
+<ul>
+<li>进程内LB</li>
+</ul>
+<p>将LB逻辑集成到消费方，消费方从服务注册中心获知有哪些地址可用，然后自己再从这些地址中选择出一个合适的服务器。</p>
+<p>Ribbon就属于进程内LB，它只是一个类库，集成于消费方进程，消费方通过它来获取到服务提供方的地址。</p>
+<blockquote>
+<p>一句话</p>
+</blockquote>
+<blockquote>
+<p>负载均衡 + RestTemplate调用  </p>
+</blockquote>
+<h2 id="Ribbon的负载均衡和Rest调用"><a href="#Ribbon的负载均衡和Rest调用" class="headerlink" title="Ribbon的负载均衡和Rest调用"></a>Ribbon的负载均衡和Rest调用</h2><p>Ribbon其实就是一个<code>软负载均衡</code>的<code>客户端组件</code>，它可以和其他所需请求的客户端结合使用，和Eureka结合只是其中的一个实例。  </p>
+<p><img data-src="/images/pasted-240.png" alt="upload successful">  </p>
+<p>Ribbon在工作时分成两步：</p>
+<ul>
+<li><p>第一步先选择EurekaServer ,它优先选择在同一个区域内负载较少的server。</p>
+</li>
+<li><p>第二步再根据用户指定的策略，在从server取到的服务注册列表中选择一个地址。</p>
+</li>
+</ul>
+<p>无需额外引入依赖</p>
+<p><img data-src="/images/pasted-241.png" alt="upload successful"></p>
+<pre><code>这是因为spring-cloud-starter-netflix-eureka-client自带了spring-cloud-starter-ribbon引用。
+</code></pre>
+<h3 id="RestTemplete使用说明"><a href="#RestTemplete使用说明" class="headerlink" title="RestTemplete使用说明"></a>RestTemplete使用说明</h3><p><strong>getForObject() &#x2F; getForEntity() - GET请求方法</strong></p>
+<ul>
+<li><p>getForObject()：返回对象为响应体中数据转化成的对象，基本上可以理解为Json。</p>
+</li>
+<li><p>getForEntity()：返回对象为ResponseEntity对象，包含了响应中的一些重要信息，比如响应头、响应状态码、响应体等。</p>
+</li>
+</ul>
+<blockquote>
+<p>getForEntity()  </p>
+</blockquote>
+<pre><code>@GetMapping(&quot;/consumer/payment/getForEntity/&#123;id&#125;&quot;)
+    public Comparable&lt;Payment&gt; getPayment2(@PathVariable(&quot;id&quot;)Long id)&#123;
+        ResponseEntity&lt;CommonResult&gt; entity = restTemplate.getForEntity(PAYMENT_URL + &quot;/payment/get&quot; + id, CommonResult.class);
+        if (entity.getStatusCode().is2xxSuccessful())&#123;
+            return (Comparable&lt;Payment&gt;) entity.getBody();
+        &#125;else &#123;
+            return (Comparable&lt;Payment&gt;) new CommonResult&lt;Object&gt;(444,&quot;操作失败&quot;);
+        &#125;
+    &#125;
+</code></pre>
+<p><img data-src="/images/pasted-242.png" alt="upload successful"><br>测试成功  </p>
+<h3 id="Ribbon负载均衡算法"><a href="#Ribbon负载均衡算法" class="headerlink" title="Ribbon负载均衡算法"></a>Ribbon负载均衡算法</h3><p>轮询规则定义在IRule接口内</p>
+<pre><code>/**
+ * Interface that defines a &quot;Rule&quot; for a LoadBalancer. A Rule can be thought of
+ * as a Strategy for loadbalacing. Well known loadbalancing strategies include
+ * Round Robin, Response Time based etc.
+ * 
+ * @author stonse
+ * 
+ */
+public interface IRule&#123;
+    /*
+     * choose one alive server from lb.allServers or
+     * lb.upServers according to key
+     * 
+     * @return choosen Server object. NULL is returned if none
+     *  server is available 
+     */
+
+    public Server choose(Object key);
+
+    public void setLoadBalancer(ILoadBalancer lb);
+
+    public ILoadBalancer getLoadBalancer();    
+&#125;
+</code></pre>
+<p><img data-src="/images/pasted-243.png" alt="upload successful">  </p>
+<ul>
+<li>RoundRobinRule 轮询</li>
+<li>RandomRule 随机</li>
+<li>RetryRule 先按照RoundRobinRule的策略获取服务，如果获取服务失败则在指定时间内会进行重</li>
+<li>WeightedResponseTimeRule 对RoundRobinRule的扩展，响应速度越快的实例选择权重越大，越容易被选择</li>
+<li>BestAvailableRule 会先过滤掉由于多次访问故障而处于断路器跳闸状态的服务，然后选择一个并发量最小的服务</li>
+<li>AvailabilityFilteringRule 先过滤掉故障实例，再选择并发较小的实例</li>
+<li>ZoneAvoidanceRule 默认规则,复合判断server所在区域的性能和server的可用性选择服务器</li>
+</ul>
+<h3 id="Ribbon负载规则替换"><a href="#Ribbon负载规则替换" class="headerlink" title="Ribbon负载规则替换"></a>Ribbon负载规则替换</h3><p>官方文档明确给出了警告:</p>
+<p>这个自定义配置类不能放在@ComponentScan所扫描的当前包下以及子包下，</p>
+<p>否则我们自定义的这个配置类就会被所有的Ribbon客户端所共享，达不到特殊化定制的目的了。   </p>
+<p>启动类使用了<code>@SpringBootApplication</code>注解，他所在的包都会被扫描到，因此需要重新建立一个包进行设置  </p>
+<p><img data-src="/images/pasted-244.png" alt="upload successful"><br>建立一个单独的包来编写我们的负载均衡算法  </p>
+<pre><code>@Configuration
+public class MySelfRule &#123;
+    @Bean
+    public IRule myRule()&#123;
+        return new RandomRule(); // 定义为随机
+
+    &#125;
+&#125;
+</code></pre>
+<p>在主启动类上添加<code>@RibbonClient(name = &quot;CLOUD-PAYMENT-SERVICE&quot;, configuration = MySelfRule.class)</code>注解表明哪一个服务用哪一个ribbon的轮询算法。  </p>
+<h3 id="Ribbon默认负载轮询算法原理"><a href="#Ribbon默认负载轮询算法原理" class="headerlink" title="Ribbon默认负载轮询算法原理"></a>Ribbon默认负载轮询算法原理</h3><p>默认负载轮训算法: rest接口第几次请求数 % 服务器集群总数量 &#x3D; 实际调用服务器位置下标，每次服务重启动后rest接口计数从1开始。<br><code>List&lt;Servicelnstance&gt; instances = discoveryClient.getInstances(&quot;CLOUD-PAYMENT-SERVICE&quot;);</code><br>如:</p>
+<blockquote>
+<p>List [0] instances &#x3D; 127.0.0.1:8002<br>List [1] instances &#x3D; 127.0.0.1:8001<br>8001+ 8002组合成为集群，它们共计2台机器，集群总数为2，按照轮询算法原理：</p>
+</blockquote>
+<p>当总请求数为1时:1%2&#x3D;1对应下标位置为1，则获得服务地址为127.0.0.1:8001<br>当总请求数位2时:2%2&#x3D;О对应下标位置为0，则获得服务地址为127.0.0.1:8002<br>当总请求数位3时:3%2&#x3D;1对应下标位置为1，则获得服务地址为127.0.0.1:8001<br>当总请求数位4时:4%2&#x3D;О对应下标位置为0，则获得服务地址为127.0.0.1:8002<br>如此类推…</p>
 ]]></content>
   </entry>
 </search>
