@@ -1,6 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>LambdaQueryWrapper的理解</title>
+    <url>/2021/10/04/LambdaQueryWrapper%E7%9A%84%E7%90%86%E8%A7%A3/</url>
+    <content><![CDATA[<p>MyBatis-Plus QueryWrapper及LambdaQueryWrapper的使用。从使用的实际情况来解释为什么使用LambdaQueryWrapper而不使用QueryWrapper。</p>
+<span id="more"></span>
+<h1 id="QueryWrapper的弊端"><a href="#QueryWrapper的弊端" class="headerlink" title="QueryWrapper的弊端"></a>QueryWrapper的弊端</h1><p>假设数据库中存在user1表</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> user1</span><br><span class="line">(</span><br><span class="line">	id <span class="type">BIGINT</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;主键ID&#x27;</span>,</span><br><span class="line">	name <span class="type">VARCHAR</span>(<span class="number">30</span>) <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;姓名&#x27;</span>,</span><br><span class="line">	age <span class="type">INT</span>(<span class="number">11</span>) <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;年龄&#x27;</span>,</span><br><span class="line">	email <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;邮箱&#x27;</span>,</span><br><span class="line">	<span class="keyword">PRIMARY</span> KEY (id)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p>在使用mybatis-plus查询时，只需要编写pojo类，关联映射，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@TableName(value = &quot;user1&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User1</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@TableId(value = &quot;id&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@TableField(value = &quot;name&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String userName;</span><br><span class="line">    <span class="meta">@TableField(value = &quot;age&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Integer userAge;</span><br><span class="line">    <span class="meta">@TableField(value = &quot;email&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String userEmail;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>持久层的mapper借口：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">User1Mapper</span> <span class="keyword">extends</span> <span class="title class_">BaseMapper</span>&lt;User1&gt; &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>就能进行查询操作，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootTest</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LombokQueryTest</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> User1Mapper user1Mapper;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">test</span><span class="params">()</span>&#123;</span><br><span class="line">        QueryWrapper&lt;User1&gt; user1QueryWrapper = <span class="keyword">new</span> <span class="title class_">QueryWrapper</span>&lt;&gt;();</span><br><span class="line">        user1QueryWrapper.eq(<span class="string">&quot;age&quot;</span>,<span class="number">20</span>);</span><br><span class="line"></span><br><span class="line">        user1Mapper.selectOne(user1QueryWrapper);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>虽然很方便，但是这里需要注意一个问题：QueryWrapper中的eq、in等操作，第一个参数往往是列名！如果实际开发中表结构经常改变，岂不是涉及到变动的列名相关代码都需要改！！！！</p>
+<h1 id="LambdaQueryWrapper"><a href="#LambdaQueryWrapper" class="headerlink" title="LambdaQueryWrapper"></a>LambdaQueryWrapper</h1><p>那么现在就变更表的列名。表结构如下所示：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="keyword">user</span></span><br><span class="line">(</span><br><span class="line">	id <span class="type">BIGINT</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;主键ID&#x27;</span>,</span><br><span class="line">	user_name <span class="type">VARCHAR</span>(<span class="number">30</span>) <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;姓名&#x27;</span>,</span><br><span class="line">	user_age <span class="type">INT</span>(<span class="number">11</span>) <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;年龄&#x27;</span>,</span><br><span class="line">	user_email <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;邮箱&#x27;</span>,</span><br><span class="line">	<span class="keyword">PRIMARY</span> KEY (id)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="keyword">user</span> (id, user_name, user_age, user_email) <span class="keyword">VALUE</span></span><br><span class="line">(<span class="number">1</span>, <span class="string">&#x27;Jone&#x27;</span>, <span class="number">18</span>, <span class="string">&#x27;test1@baomidou.com&#x27;</span>),</span><br><span class="line">(<span class="number">2</span>, <span class="string">&#x27;Jack&#x27;</span>, <span class="number">20</span>, <span class="string">&#x27;test2@baomidou.com&#x27;</span>),</span><br><span class="line">(<span class="number">3</span>, <span class="string">&#x27;Tom&#x27;</span>, <span class="number">28</span>, <span class="string">&#x27;test3@baomidou.com&#x27;</span>),</span><br><span class="line">(<span class="number">4</span>, <span class="string">&#x27;Sandy&#x27;</span>, <span class="number">21</span>, <span class="string">&#x27;test4@baomidou.com&#x27;</span>),</span><br><span class="line">(<span class="number">5</span>, <span class="string">&#x27;Billie&#x27;</span>, <span class="number">24</span>, <span class="string">&#x27;test5@baomidou.com&#x27;</span>);</span><br></pre></td></tr></table></figure>
+<p>依旧还是编写pojo类，实现映射对应关系：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@TableName(value = &quot;user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User2</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@TableId(value = &quot;id&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@TableField(value = &quot;user_name&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String userName;</span><br><span class="line">    <span class="meta">@TableField(value = &quot;user_age&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Integer userAge;</span><br><span class="line">    <span class="meta">@TableField(value = &quot;user_email&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String userEmail;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编写测试类：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> User2Mapper user2Mapper;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">test1</span><span class="params">()</span>&#123;</span><br><span class="line">    LambdaQueryWrapper&lt;User2&gt; queryWrapper = <span class="keyword">new</span> <span class="title class_">LambdaQueryWrapper</span>();</span><br><span class="line">    queryWrapper.eq(User2::getUserName,<span class="string">&quot;Jack&quot;</span>);</span><br><span class="line">    <span class="type">User2</span> <span class="variable">users</span> <span class="operator">=</span> user2Mapper.selectOne(queryWrapper);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>从上面的QueryWrapper和LambdaQueryWrapper，传递参数信息很容易发现：<br><strong>LambdaQueryWrapper的传参支持User2::getUserName语法！当表结构发生改变时，如@TableField(value &#x3D; “user_name”) 更改为 @TableField(value &#x3D; “name”)只要类的成员变量别名不变，就不会影响到程序结果的获取！</strong></p>
+]]></content>
+  </entry>
+  <entry>
     <title>CAS+自旋锁的理解</title>
     <url>/2022/11/02/CAS-%E8%87%AA%E6%97%8B%E9%94%81%E7%9A%84%E7%90%86%E8%A7%A3/</url>
     <content><![CDATA[<p>CAS+自旋锁在什么地方用到呢？比方说会在Eureka的Ribbon负载均衡算法中采用，如果采用轮询的负载均衡方法，那么获取下一个服务器ServerIndex的方法就是通过CAS和自旋锁的方式实现的。同时对AtomicInteger为什么使用CAS而不采用synchronized来解决多线程环境下的安全问题进行彻底的了解<span id="more"></span></p>
@@ -201,29 +224,6 @@ class User&#123;
     &#125;
 &#125;
 </code></pre>
-]]></content>
-  </entry>
-  <entry>
-    <title>LambdaQueryWrapper的理解</title>
-    <url>/2021/10/04/LambdaQueryWrapper%E7%9A%84%E7%90%86%E8%A7%A3/</url>
-    <content><![CDATA[<p>MyBatis-Plus QueryWrapper及LambdaQueryWrapper的使用。从使用的实际情况来解释为什么使用LambdaQueryWrapper而不使用QueryWrapper。</p>
-<span id="more"></span>
-<h1 id="QueryWrapper的弊端"><a href="#QueryWrapper的弊端" class="headerlink" title="QueryWrapper的弊端"></a>QueryWrapper的弊端</h1><p>假设数据库中存在user1表</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> user1</span><br><span class="line">(</span><br><span class="line">	id <span class="type">BIGINT</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;主键ID&#x27;</span>,</span><br><span class="line">	name <span class="type">VARCHAR</span>(<span class="number">30</span>) <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;姓名&#x27;</span>,</span><br><span class="line">	age <span class="type">INT</span>(<span class="number">11</span>) <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;年龄&#x27;</span>,</span><br><span class="line">	email <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;邮箱&#x27;</span>,</span><br><span class="line">	<span class="keyword">PRIMARY</span> KEY (id)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
-<p>在使用mybatis-plus查询时，只需要编写pojo类，关联映射，如下所示：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@TableName(value = &quot;user1&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User1</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@TableId(value = &quot;id&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@TableField(value = &quot;name&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String userName;</span><br><span class="line">    <span class="meta">@TableField(value = &quot;age&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Integer userAge;</span><br><span class="line">    <span class="meta">@TableField(value = &quot;email&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String userEmail;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>持久层的mapper借口：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">User1Mapper</span> <span class="keyword">extends</span> <span class="title class_">BaseMapper</span>&lt;User1&gt; &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>就能进行查询操作，如下所示：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootTest</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LombokQueryTest</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> User1Mapper user1Mapper;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">test</span><span class="params">()</span>&#123;</span><br><span class="line">        QueryWrapper&lt;User1&gt; user1QueryWrapper = <span class="keyword">new</span> <span class="title class_">QueryWrapper</span>&lt;&gt;();</span><br><span class="line">        user1QueryWrapper.eq(<span class="string">&quot;age&quot;</span>,<span class="number">20</span>);</span><br><span class="line"></span><br><span class="line">        user1Mapper.selectOne(user1QueryWrapper);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>虽然很方便，但是这里需要注意一个问题：QueryWrapper中的eq、in等操作，第一个参数往往是列名！如果实际开发中表结构经常改变，岂不是涉及到变动的列名相关代码都需要改！！！！</p>
-<h1 id="LambdaQueryWrapper"><a href="#LambdaQueryWrapper" class="headerlink" title="LambdaQueryWrapper"></a>LambdaQueryWrapper</h1><p>那么现在就变更表的列名。表结构如下所示：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="keyword">user</span></span><br><span class="line">(</span><br><span class="line">	id <span class="type">BIGINT</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;主键ID&#x27;</span>,</span><br><span class="line">	user_name <span class="type">VARCHAR</span>(<span class="number">30</span>) <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;姓名&#x27;</span>,</span><br><span class="line">	user_age <span class="type">INT</span>(<span class="number">11</span>) <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;年龄&#x27;</span>,</span><br><span class="line">	user_email <span class="type">VARCHAR</span>(<span class="number">50</span>) <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;邮箱&#x27;</span>,</span><br><span class="line">	<span class="keyword">PRIMARY</span> KEY (id)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="keyword">user</span> (id, user_name, user_age, user_email) <span class="keyword">VALUE</span></span><br><span class="line">(<span class="number">1</span>, <span class="string">&#x27;Jone&#x27;</span>, <span class="number">18</span>, <span class="string">&#x27;test1@baomidou.com&#x27;</span>),</span><br><span class="line">(<span class="number">2</span>, <span class="string">&#x27;Jack&#x27;</span>, <span class="number">20</span>, <span class="string">&#x27;test2@baomidou.com&#x27;</span>),</span><br><span class="line">(<span class="number">3</span>, <span class="string">&#x27;Tom&#x27;</span>, <span class="number">28</span>, <span class="string">&#x27;test3@baomidou.com&#x27;</span>),</span><br><span class="line">(<span class="number">4</span>, <span class="string">&#x27;Sandy&#x27;</span>, <span class="number">21</span>, <span class="string">&#x27;test4@baomidou.com&#x27;</span>),</span><br><span class="line">(<span class="number">5</span>, <span class="string">&#x27;Billie&#x27;</span>, <span class="number">24</span>, <span class="string">&#x27;test5@baomidou.com&#x27;</span>);</span><br></pre></td></tr></table></figure>
-<p>依旧还是编写pojo类，实现映射对应关系：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@TableName(value = &quot;user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User2</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@TableId(value = &quot;id&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@TableField(value = &quot;user_name&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String userName;</span><br><span class="line">    <span class="meta">@TableField(value = &quot;user_age&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Integer userAge;</span><br><span class="line">    <span class="meta">@TableField(value = &quot;user_email&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String userEmail;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>编写测试类：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> User2Mapper user2Mapper;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">test1</span><span class="params">()</span>&#123;</span><br><span class="line">    LambdaQueryWrapper&lt;User2&gt; queryWrapper = <span class="keyword">new</span> <span class="title class_">LambdaQueryWrapper</span>();</span><br><span class="line">    queryWrapper.eq(User2::getUserName,<span class="string">&quot;Jack&quot;</span>);</span><br><span class="line">    <span class="type">User2</span> <span class="variable">users</span> <span class="operator">=</span> user2Mapper.selectOne(queryWrapper);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>从上面的QueryWrapper和LambdaQueryWrapper，传递参数信息很容易发现：<br><strong>LambdaQueryWrapper的传参支持User2::getUserName语法！当表结构发生改变时，如@TableField(value &#x3D; “user_name”) 更改为 @TableField(value &#x3D; “name”)只要类的成员变量别名不变，就不会影响到程序结果的获取！</strong></p>
 ]]></content>
   </entry>
   <entry>
@@ -549,6 +549,31 @@ class User&#123;
 
 &#125;
 </code></pre>
+<h3 id="nums541-反转字符串-II"><a href="#nums541-反转字符串-II" class="headerlink" title="nums541 反转字符串 II"></a>nums541 反转字符串 II</h3><p>给定一个字符串 s 和一个整数 k，从字符串开头算起，每计数至 2k 个字符，就反转这 2k 字符中的前 k 个字符。</p>
+<p>如果剩余字符少于 k 个，则将剩余字符全部反转。<br>如果剩余字符小于 2k 但大于或等于 k 个，则反转前 k 个字符，其余字符保持原样。</p>
+<pre><code>class Solution &#123;
+    public String reverseStr(String s, int k) &#123;
+        int len = s.length();
+        char[] word = s.toCharArray();
+        for(int l = 0 ; l &lt; len ; l = l + 2 * k)&#123;
+            int r = l + k -1;
+            reverse(word , l , Math.min(r , len - 1));
+
+        &#125;
+        return String.valueOf(word);
+    &#125;
+    void reverse(char[] res ,int  l , int r)&#123;
+            while(l &lt; r)&#123;
+                char tmp = res[l];
+                res[l] = res[r];
+                res[r] = tmp;
+                l ++ ; 
+                r -- ;
+
+            &#125;
+    &#125;
+&#125;
+</code></pre>
 ]]></content>
       <categories>
         <category>leetcode</category>
@@ -841,6 +866,91 @@ class User&#123;
       </categories>
   </entry>
   <entry>
+    <title>微服务架构和SpringCloud Alibaba的使用和理解</title>
+    <url>/2022/10/26/SpringCloud-Alibaba%E7%9A%84%E4%BD%BF%E7%94%A8%E5%92%8C%E7%90%86%E8%A7%A3/</url>
+    <content><![CDATA[<p>In short, the microservice architectural style is an approach to developing a single application as a suite of small services, each running in its own process and communicating with lightweight mechanisms, often an HTTP resource API. These services are built around business capabilities and independently deployable by fully automated deployment machinery. There is a bare minimum of centralized management of these services, which may be written in different programming languages and use different data storage technologies.——James Lewis and Martin Fowler (2014)</p>
+<span id="more"></span>
+<h1 id="Cloud组件停更和升级"><a href="#Cloud组件停更和升级" class="headerlink" title="Cloud组件停更和升级"></a>Cloud组件停更和升级</h1><p>停更引发的“升级惨案”</p>
+<p>停更不停用<br>被动修复bugs<br>不再接受合并请求<br>不再发布新版本<br>Cloud升级</p>
+<p>服务注册中心× Eureka√ Zookeeper√ Consul√ Nacos<br>服务调用√ Ribbon√ LoadBalancer<br>服务调用2× Feign√ OpenFeign<br>服务降级× Hystrix√ resilience4j√ sentienl<br>服务网关× Zuul! Zuul2√ gateway<br>服务配置× Config√ Nacos<br>服务总线× Bus√ Nacos<br>SpringCloud中文文档<br><a href="https://www.bookstack.cn/read/spring-cloud-docs/docs-index.md">https://www.bookstack.cn/read/spring-cloud-docs/docs-index.md</a><br>SpringCloud官方文档<br><a href="https://cloud.spring.io/spring-cloud-static/Hoxton.SR1/reference/htmlsingle/">https://cloud.spring.io/spring-cloud-static/Hoxton.SR1/reference/htmlsingle/</a></p>
+<h1 id="依赖引入"><a href="#依赖引入" class="headerlink" title="依赖引入"></a>依赖引入</h1><h2 id="父工程pom文件"><a href="#父工程pom文件" class="headerlink" title="父工程pom文件"></a>父工程pom文件</h2><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span> <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span>  </span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.lun<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>LearnCloud<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">packaging</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span><span class="comment">&lt;!-- 这里添加，注意不是jar或war --&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- 统一管理jar包版本 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">maven.compiler.source</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">maven.compiler.source</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">maven.compiler.target</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">maven.compiler.target</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">junit.version</span>&gt;</span>4.12<span class="tag">&lt;/<span class="name">junit.version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">log4j.version</span>&gt;</span>1.2.17<span class="tag">&lt;/<span class="name">log4j.version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">lombok.version</span>&gt;</span>1.16.18<span class="tag">&lt;/<span class="name">lombok.version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">mysql.version</span>&gt;</span>5.1.47<span class="tag">&lt;/<span class="name">mysql.version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">druid.version</span>&gt;</span>1.1.16<span class="tag">&lt;/<span class="name">druid.version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">mybatis.spring.boot.version</span>&gt;</span>1.3.0<span class="tag">&lt;/<span class="name">mybatis.spring.boot.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- 子模块继承之后，提供作用：</span></span><br><span class="line"><span class="comment">		锁定版本+子modlue不用写groupId和version --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!--spring boot 2.2.2--&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.2.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!--spring cloud Hoxton.SR1--&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>Hoxton.SR1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!--spring cloud alibaba 2.1.0.RELEASE--&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-alibaba-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1.0.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;mysql.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>druid<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;druid.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis.spring.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;mybatis.spring.boot.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;junit.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>log4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>log4j<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;log4j.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;lombok.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">fork</span>&gt;</span>true<span class="tag">&lt;/<span class="name">fork</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">addResources</span>&gt;</span>true<span class="tag">&lt;/<span class="name">addResources</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="DependencyManagement和Dependencies"><a href="#DependencyManagement和Dependencies" class="headerlink" title="DependencyManagement和Dependencies"></a>DependencyManagement和Dependencies</h2><p>Maven使用dependencyManagement元素来提供了一种管理依赖版本号的方式。  </p>
+<p>通常会在一个组织或者项目的最顶层的父POM中看到dependencyManagement元素。  </p>
+<p>使用pom.xml中的dependencyManagement元素能让所有在子项目中引用个依赖而不用显式的列出版本量。  </p>
+<p>Maven会沿着父子层次向上走，直到找到一个拥有dependencyManagement元素的项目，然后它就会使用这个<br>dependencyManagement元素中指定的版本号。  </p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysq1<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.1.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencyManagement</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>然后在子项目里就可以添加mysql-connector时可以不指定版本号，例如：  </p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysq1<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这样做的好处就是：如果有多个子项目都引用同一样依赖，则可以避免在每个使用的子项目里都声明一个版本号，这样当想升级或切换到另一个版本时，只需要在顶层父容器里更新，而不需要一个一个子项目的修改；另外如果某个子项目需要另外的一个版本，只需要声明version就可。<br>dependencyManagement里只是声明依赖，并不实现引入，因此子项目需要显示的声明需要用的依赖。</p>
+<ul>
+<li>如果不在子项目中声明依赖，是不会从父项目中继承下来的；</li>
+<li>只有在子项目中写了该依赖项,并且没有指定具体版本，才会从父项目中继承该项，并且version和scope都读取自父pom。</li>
+<li>如果子项目中指定了版本号，那么会使用子项目中指定的jar版本。</li>
+</ul>
+<h2 id="Maven跳过单元测试"><a href="#Maven跳过单元测试" class="headerlink" title="Maven跳过单元测试"></a>Maven跳过单元测试</h2><p>IDEA右侧旁的Maven插件有Toggle ‘ Skip Tests’ Mode按钮，这样maven可以跳过单元测试<br>父工程创建完成执行mvn : install将父工程发布到仓库方便子工程继承。  </p>
+<h1 id="支付模块构建"><a href="#支付模块构建" class="headerlink" title="支付模块构建"></a>支付模块构建</h1><h2 id="基本流程"><a href="#基本流程" class="headerlink" title="基本流程"></a>基本流程</h2><ul>
+<li>1.建module</li>
+<li>2.改POM</li>
+<li>3.写YML</li>
+<li>4.主启动</li>
+<li>5.业务类</li>
+</ul>
+<p><img data-src="/images/pasted-200.png" alt="upload successful">  </p>
+<ul>
+<li>1.建名为cloud-provider-payment8001的Maven工程  </li>
+<li>2.修改子项目的pom  <figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>cloudLearn<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.ykx.springcloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>cloud-provider-payment8001<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--spring boot 2.2.2--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.2.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--spring cloud Hoxton.SR1--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>Hoxton.SR1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--spring cloud alibaba 2.1.0.RELEASE--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-alibaba-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1.0.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>8.0.28<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>druid<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;druid.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis.spring.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;junit.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>log4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>log4j<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;log4j.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;lombok.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+<li>3.编写yml</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line">server:</span><br><span class="line">  port: 8001</span><br><span class="line"></span><br><span class="line">spring:</span><br><span class="line">  application:</span><br><span class="line">    name: cloud-payment-service</span><br><span class="line">  datasource:</span><br><span class="line">    type: com.alibaba.druid.pool.DruidDataSource</span><br><span class="line">    driver-class-name: com.mysql.cj.jdbc.Driver</span><br><span class="line">    url: jdbc:mysql://localhost:3306/takeout?serverTimezone=Asia/Shanghai&amp;useUnicode=true&amp;characterEncoding=utf-8&amp;zeroDateTimeBehavior=convertToNull&amp;useSSL=false&amp;allowPublicKeyRetrieval=true</span><br><span class="line">    username: root</span><br><span class="line">    password: abc123</span><br><span class="line">mybatis:</span><br><span class="line">  mapper-locations: classpath:mapper/*.xml</span><br><span class="line">  type-aliases-package: com.ykx.springcloud.entites</span><br></pre></td></tr></table></figure>
+<p>注意：一定要写项目的端口号和服务名   </p>
+<ul>
+<li>4.启动类<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PaymentMain8001</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        SpringApplication.run(PaymentMain8001.class , args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>5.业务类</li>
+</ul>
+<blockquote>
+<p>Entities:  </p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.AllArgsConstructor;</span><br><span class="line"><span class="keyword">import</span> lombok.Data;</span><br><span class="line"><span class="keyword">import</span> lombok.NoArgsConstructor;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.Serializable;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Payment</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line">    <span class="keyword">private</span> String serial;</span><br><span class="line">&#125;</span><br><span class="line">```  </span><br><span class="line"></span><br><span class="line">&gt;CommonResult:    </span><br><span class="line"></span><br><span class="line">```java</span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CommonResult</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="comment">//404 not found</span></span><br><span class="line">    <span class="keyword">private</span> Integer code;</span><br><span class="line">    <span class="keyword">private</span> String message;</span><br><span class="line">    <span class="keyword">private</span> T data;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">CommonResult</span><span class="params">(Integer code , String message)</span>&#123;</span><br><span class="line">        <span class="built_in">this</span>(code , message , <span class="literal">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">```  </span><br><span class="line"></span><br><span class="line">&gt;Dao    </span><br><span class="line"></span><br><span class="line">```java</span><br><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">PaymentDao</span> &#123;</span><br><span class="line">     <span class="type">int</span> <span class="title function_">create</span><span class="params">(Payment payment)</span>;</span><br><span class="line">     Payment <span class="title function_">getPaymentById</span><span class="params">(<span class="meta">@Param(&quot;id&quot;)</span> Long id)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">```  </span><br><span class="line"></span><br><span class="line">&gt;Service   </span><br><span class="line"></span><br><span class="line">```java</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">PaymentService</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="title function_">create</span><span class="params">(Payment payment)</span>;</span><br><span class="line">    Payment <span class="title function_">getPaymentById</span><span class="params">(Long id)</span>;</span><br><span class="line">&#125;</span><br><span class="line">```  </span><br><span class="line"></span><br><span class="line">&gt;ServiceImpl    </span><br><span class="line"></span><br><span class="line">```java</span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PaymentServiceImpl</span> <span class="keyword">implements</span> <span class="title class_">PaymentService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> PaymentDao paymentDao;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">create</span><span class="params">(Payment payment)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> paymentDao.create(payment);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Payment <span class="title function_">getPaymentById</span><span class="params">(Long id)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> paymentDao.getPaymentById(id);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">```  </span><br><span class="line"></span><br><span class="line">&gt;controller  </span><br><span class="line"></span><br><span class="line">```java</span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PaymentController</span> &#123;</span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> PaymentService paymentService;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(value = &quot;/payment/create&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> CommonResult <span class="title function_">create</span><span class="params">( Payment payment)</span>&#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">res</span> <span class="operator">=</span> paymentService.create(payment);</span><br><span class="line">        log.info(<span class="string">&quot;****插入结果：&quot;</span> + res);</span><br><span class="line">        <span class="keyword">if</span> (res &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">CommonResult</span>(<span class="number">200</span>,<span class="string">&quot;插入数据库成功&quot;</span>,res);</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">CommonResult</span>(<span class="number">404</span>,<span class="string">&quot;插入数据库失败&quot;</span>,<span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(value = &quot;payment/get/&#123;id&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> CommonResult <span class="title function_">getPaymentById</span><span class="params">(<span class="meta">@PathVariable(&quot;id&quot;)</span> Long id)</span>&#123;</span><br><span class="line">        <span class="type">Payment</span> <span class="variable">payment</span> <span class="operator">=</span> paymentService.getPaymentById(id);</span><br><span class="line">        log.info(<span class="string">&quot;*****插入结果：&quot;</span>+payment);</span><br><span class="line">        <span class="keyword">if</span> (payment != <span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">CommonResult</span>(<span class="number">200</span>,<span class="string">&quot;查询成功&quot;</span>,payment);</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">CommonResult</span>(<span class="number">404</span>,<span class="string">&quot;查询失败&quot;</span>,<span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p><img data-src="/images/pasted-207.png" alt="upload successful">  </p>
+<h1 id="Devtools热部署-只能在开发过程使用"><a href="#Devtools热部署-只能在开发过程使用" class="headerlink" title="Devtools热部署(只能在开发过程使用)"></a>Devtools热部署(只能在开发过程使用)</h1><blockquote>
+<p>添加依赖进pom.xml  </p>
+</blockquote>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-devtools<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">```    </span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">&gt;下段配置复制到聚合父类总工程的pom.xml    </span><br><span class="line"></span><br><span class="line">```xml  </span><br><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">	&lt;finalName&gt;你的工程名&lt;/finalName&gt;（单一工程时添加）</span></span><br><span class="line"><span class="comment">    --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">fork</span>&gt;</span>true<span class="tag">&lt;/<span class="name">fork</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">addResources</span>&gt;</span>true<span class="tag">&lt;/<span class="name">addResources</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>idea设置  </p>
+</blockquote>
+<p><img data-src="/images/pasted-208.png" alt="upload successful">  </p>
+<blockquote>
+<p>使用commond+opt+shift+&#x2F; 进行如下设置勾选后重启idea  </p>
+</blockquote>
+<p><img data-src="/images/pasted-209.png" alt="upload successful">  </p>
+<p><img data-src="/images/pasted-210.png" alt="upload successful">  </p>
+<h1 id="消费者模块构建"><a href="#消费者模块构建" class="headerlink" title="消费者模块构建"></a>消费者模块构建</h1><h2 id="基本流程-1"><a href="#基本流程-1" class="headerlink" title="基本流程"></a>基本流程</h2><ul>
+<li><p>1.建MODULE<br>创建名为cloud-consumer-order80的maven工程。</p>
+</li>
+<li><p>2.改POM</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span> <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>LearnCloud<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.lun<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>cloud-consumer-order80<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven.compiler.source</span>&gt;</span>1.7<span class="tag">&lt;/<span class="name">maven.compiler.source</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven.compiler.target</span>&gt;</span>1.7<span class="tag">&lt;/<span class="name">maven.compiler.target</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-actuator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-devtools<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+<li><p>3.写yml</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">80</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>4.主启动</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.boot.SpringApplication;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Hello world!</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OrderMain80</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">( String[] args )</span>&#123;</span><br><span class="line">        SpringApplication.run(OrderMain80.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+<li><p>5.业务类</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> com.lun.springcloud.entities.CommonResult;</span><br><span class="line"><span class="keyword">import</span> com.lun.springcloud.entities.Payment;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.GetMapping;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.PathVariable;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RestController;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.client.RestTemplate;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.annotation.Resource;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OrderController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">PAYMENT_URL</span> <span class="operator">=</span> <span class="string">&quot;http://localhost:8001&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> RestTemplate restTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/consumer/payment/create&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> CommonResult&lt;Payment&gt; <span class="title function_">create</span><span class="params">(Payment payment)</span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> restTemplate.postForObject(PAYMENT_URL+<span class="string">&quot;/payment/create&quot;</span>, payment, CommonResult.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/consumer/payment/get/&#123;id&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> CommonResult&lt;Payment&gt; <span class="title function_">getPayment</span><span class="params">(<span class="meta">@PathVariable(&quot;id&quot;)</span> Long id)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> restTemplate.getForObject(PAYMENT_URL+<span class="string">&quot;/payment/get/&quot;</span>+id, CommonResult.class);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>配置类  </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.client.RestTemplate;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ApplicationContextConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> RestTemplate <span class="title function_">getRestTemplate</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">RestTemplate</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a>测试</h2><p><img data-src="/images/pasted-211.png" alt="upload successful"><br>需要注意的是要在服务端的Controller采用<code>@RequestBody</code>注解，因为<code>restTemplate</code>使用<code>post</code>方式发送的<code>json</code>数据格式的请求    </p>
+<h1 id="系统重构"><a href="#系统重构" class="headerlink" title="系统重构"></a>系统重构</h1><h2 id="解决系统的重复部分"><a href="#解决系统的重复部分" class="headerlink" title="解决系统的重复部分"></a>解决系统的重复部分</h2><p><img data-src="/images/pasted-212.png" alt="upload successful"><br>红框中的内容重复了，这是很没有必要的<br>因此需要将相同相似的代码放在一块，给其他用户使用  </p>
+<p>将entity的实体类放进<code>cloud-api-commons</code>中  </p>
+<p><img data-src="/images/pasted-213.png" alt="upload successful">  </p>
+]]></content>
+      <categories>
+        <category>微服务</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Redis(Review)对Redis的重新理解</title>
     <url>/2021/09/22/Redis-Review/</url>
     <content><![CDATA[<p>简单来说 redis 就是一个数据库，不过与传统数据库不同的是 redis 的数据是存在内存中的，所以读写速度非常快，因此 redis 被广泛应用于缓存方向。另外，redis 也经常用来做分布式锁。</p>
@@ -1059,91 +1169,6 @@ class User&#123;
 <li>2.释放锁时候，首先判断当前uuid和要释放锁的uuid是否一样  <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testLock</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">uuid</span> <span class="operator">=</span> UUID.randomUUID().toString();</span><br><span class="line">        <span class="type">Boolean</span> <span class="variable">lock</span> <span class="operator">=</span> redisTemplate.opsForValue().setIfAbsent(<span class="string">&quot;lock&quot;</span>, uuid,<span class="number">3</span>, TimeUnit.SECONDS);</span><br><span class="line">        <span class="keyword">if</span> (lock)&#123;</span><br><span class="line">            <span class="type">Object</span> <span class="variable">value</span> <span class="operator">=</span> redisTemplate.opsForValue().get(<span class="string">&quot;num&quot;</span>);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (StringUtils.isEmpty(value))&#123;</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="type">int</span> <span class="variable">num</span> <span class="operator">=</span> Integer.parseInt(value + <span class="string">&quot;&quot;</span>);</span><br><span class="line">            redisTemplate.opsForValue().set(<span class="string">&quot;num&quot;</span> , ++num);</span><br><span class="line">            <span class="type">String</span> <span class="variable">lockUuid</span> <span class="operator">=</span> (String) redisTemplate.opsForValue().get(<span class="string">&quot;lock&quot;</span>);</span><br><span class="line">            <span class="keyword">if</span> (uuid.equals(lockUuid))&#123;</span><br><span class="line">                redisTemplate.delete(<span class="string">&quot;lock&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Thread.sleep(<span class="number">100</span>);</span><br><span class="line">                testLock();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></li>
 </ul>
 ]]></content>
-  </entry>
-  <entry>
-    <title>微服务架构和SpringCloud Alibaba的使用和理解</title>
-    <url>/2022/10/26/SpringCloud-Alibaba%E7%9A%84%E4%BD%BF%E7%94%A8%E5%92%8C%E7%90%86%E8%A7%A3/</url>
-    <content><![CDATA[<p>In short, the microservice architectural style is an approach to developing a single application as a suite of small services, each running in its own process and communicating with lightweight mechanisms, often an HTTP resource API. These services are built around business capabilities and independently deployable by fully automated deployment machinery. There is a bare minimum of centralized management of these services, which may be written in different programming languages and use different data storage technologies.——James Lewis and Martin Fowler (2014)</p>
-<span id="more"></span>
-<h1 id="Cloud组件停更和升级"><a href="#Cloud组件停更和升级" class="headerlink" title="Cloud组件停更和升级"></a>Cloud组件停更和升级</h1><p>停更引发的“升级惨案”</p>
-<p>停更不停用<br>被动修复bugs<br>不再接受合并请求<br>不再发布新版本<br>Cloud升级</p>
-<p>服务注册中心× Eureka√ Zookeeper√ Consul√ Nacos<br>服务调用√ Ribbon√ LoadBalancer<br>服务调用2× Feign√ OpenFeign<br>服务降级× Hystrix√ resilience4j√ sentienl<br>服务网关× Zuul! Zuul2√ gateway<br>服务配置× Config√ Nacos<br>服务总线× Bus√ Nacos<br>SpringCloud中文文档<br><a href="https://www.bookstack.cn/read/spring-cloud-docs/docs-index.md">https://www.bookstack.cn/read/spring-cloud-docs/docs-index.md</a><br>SpringCloud官方文档<br><a href="https://cloud.spring.io/spring-cloud-static/Hoxton.SR1/reference/htmlsingle/">https://cloud.spring.io/spring-cloud-static/Hoxton.SR1/reference/htmlsingle/</a></p>
-<h1 id="依赖引入"><a href="#依赖引入" class="headerlink" title="依赖引入"></a>依赖引入</h1><h2 id="父工程pom文件"><a href="#父工程pom文件" class="headerlink" title="父工程pom文件"></a>父工程pom文件</h2><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span> <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span>  </span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.lun<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>LearnCloud<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">packaging</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span><span class="comment">&lt;!-- 这里添加，注意不是jar或war --&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- 统一管理jar包版本 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">maven.compiler.source</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">maven.compiler.source</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">maven.compiler.target</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">maven.compiler.target</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">junit.version</span>&gt;</span>4.12<span class="tag">&lt;/<span class="name">junit.version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">log4j.version</span>&gt;</span>1.2.17<span class="tag">&lt;/<span class="name">log4j.version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">lombok.version</span>&gt;</span>1.16.18<span class="tag">&lt;/<span class="name">lombok.version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">mysql.version</span>&gt;</span>5.1.47<span class="tag">&lt;/<span class="name">mysql.version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">druid.version</span>&gt;</span>1.1.16<span class="tag">&lt;/<span class="name">druid.version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">mybatis.spring.boot.version</span>&gt;</span>1.3.0<span class="tag">&lt;/<span class="name">mybatis.spring.boot.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- 子模块继承之后，提供作用：</span></span><br><span class="line"><span class="comment">		锁定版本+子modlue不用写groupId和version --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!--spring boot 2.2.2--&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.2.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!--spring cloud Hoxton.SR1--&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>Hoxton.SR1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!--spring cloud alibaba 2.1.0.RELEASE--&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-alibaba-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1.0.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;mysql.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>druid<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;druid.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis.spring.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;mybatis.spring.boot.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;junit.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>log4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>log4j<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;log4j.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;lombok.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">fork</span>&gt;</span>true<span class="tag">&lt;/<span class="name">fork</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">addResources</span>&gt;</span>true<span class="tag">&lt;/<span class="name">addResources</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="DependencyManagement和Dependencies"><a href="#DependencyManagement和Dependencies" class="headerlink" title="DependencyManagement和Dependencies"></a>DependencyManagement和Dependencies</h2><p>Maven使用dependencyManagement元素来提供了一种管理依赖版本号的方式。  </p>
-<p>通常会在一个组织或者项目的最顶层的父POM中看到dependencyManagement元素。  </p>
-<p>使用pom.xml中的dependencyManagement元素能让所有在子项目中引用个依赖而不用显式的列出版本量。  </p>
-<p>Maven会沿着父子层次向上走，直到找到一个拥有dependencyManagement元素的项目，然后它就会使用这个<br>dependencyManagement元素中指定的版本号。  </p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysq1<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.1.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencyManagement</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>然后在子项目里就可以添加mysql-connector时可以不指定版本号，例如：  </p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysq1<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>这样做的好处就是：如果有多个子项目都引用同一样依赖，则可以避免在每个使用的子项目里都声明一个版本号，这样当想升级或切换到另一个版本时，只需要在顶层父容器里更新，而不需要一个一个子项目的修改；另外如果某个子项目需要另外的一个版本，只需要声明version就可。<br>dependencyManagement里只是声明依赖，并不实现引入，因此子项目需要显示的声明需要用的依赖。</p>
-<ul>
-<li>如果不在子项目中声明依赖，是不会从父项目中继承下来的；</li>
-<li>只有在子项目中写了该依赖项,并且没有指定具体版本，才会从父项目中继承该项，并且version和scope都读取自父pom。</li>
-<li>如果子项目中指定了版本号，那么会使用子项目中指定的jar版本。</li>
-</ul>
-<h2 id="Maven跳过单元测试"><a href="#Maven跳过单元测试" class="headerlink" title="Maven跳过单元测试"></a>Maven跳过单元测试</h2><p>IDEA右侧旁的Maven插件有Toggle ‘ Skip Tests’ Mode按钮，这样maven可以跳过单元测试<br>父工程创建完成执行mvn : install将父工程发布到仓库方便子工程继承。  </p>
-<h1 id="支付模块构建"><a href="#支付模块构建" class="headerlink" title="支付模块构建"></a>支付模块构建</h1><h2 id="基本流程"><a href="#基本流程" class="headerlink" title="基本流程"></a>基本流程</h2><ul>
-<li>1.建module</li>
-<li>2.改POM</li>
-<li>3.写YML</li>
-<li>4.主启动</li>
-<li>5.业务类</li>
-</ul>
-<p><img data-src="/images/pasted-200.png" alt="upload successful">  </p>
-<ul>
-<li>1.建名为cloud-provider-payment8001的Maven工程  </li>
-<li>2.修改子项目的pom  <figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>cloudLearn<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.ykx.springcloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>cloud-provider-payment8001<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--spring boot 2.2.2--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.2.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--spring cloud Hoxton.SR1--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>Hoxton.SR1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--spring cloud alibaba 2.1.0.RELEASE--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-alibaba-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1.0.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>8.0.28<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>druid<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;druid.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis.spring.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;junit.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>log4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>log4j<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;log4j.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;lombok.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
-<li>3.编写yml</li>
-</ul>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line">server:</span><br><span class="line">  port: 8001</span><br><span class="line"></span><br><span class="line">spring:</span><br><span class="line">  application:</span><br><span class="line">    name: cloud-payment-service</span><br><span class="line">  datasource:</span><br><span class="line">    type: com.alibaba.druid.pool.DruidDataSource</span><br><span class="line">    driver-class-name: com.mysql.cj.jdbc.Driver</span><br><span class="line">    url: jdbc:mysql://localhost:3306/takeout?serverTimezone=Asia/Shanghai&amp;useUnicode=true&amp;characterEncoding=utf-8&amp;zeroDateTimeBehavior=convertToNull&amp;useSSL=false&amp;allowPublicKeyRetrieval=true</span><br><span class="line">    username: root</span><br><span class="line">    password: abc123</span><br><span class="line">mybatis:</span><br><span class="line">  mapper-locations: classpath:mapper/*.xml</span><br><span class="line">  type-aliases-package: com.ykx.springcloud.entites</span><br></pre></td></tr></table></figure>
-<p>注意：一定要写项目的端口号和服务名   </p>
-<ul>
-<li>4.启动类<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PaymentMain8001</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        SpringApplication.run(PaymentMain8001.class , args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>5.业务类</li>
-</ul>
-<blockquote>
-<p>Entities:  </p>
-</blockquote>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.AllArgsConstructor;</span><br><span class="line"><span class="keyword">import</span> lombok.Data;</span><br><span class="line"><span class="keyword">import</span> lombok.NoArgsConstructor;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.Serializable;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Payment</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line">    <span class="keyword">private</span> String serial;</span><br><span class="line">&#125;</span><br><span class="line">```  </span><br><span class="line"></span><br><span class="line">&gt;CommonResult:    </span><br><span class="line"></span><br><span class="line">```java</span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CommonResult</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="comment">//404 not found</span></span><br><span class="line">    <span class="keyword">private</span> Integer code;</span><br><span class="line">    <span class="keyword">private</span> String message;</span><br><span class="line">    <span class="keyword">private</span> T data;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">CommonResult</span><span class="params">(Integer code , String message)</span>&#123;</span><br><span class="line">        <span class="built_in">this</span>(code , message , <span class="literal">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">```  </span><br><span class="line"></span><br><span class="line">&gt;Dao    </span><br><span class="line"></span><br><span class="line">```java</span><br><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">PaymentDao</span> &#123;</span><br><span class="line">     <span class="type">int</span> <span class="title function_">create</span><span class="params">(Payment payment)</span>;</span><br><span class="line">     Payment <span class="title function_">getPaymentById</span><span class="params">(<span class="meta">@Param(&quot;id&quot;)</span> Long id)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">```  </span><br><span class="line"></span><br><span class="line">&gt;Service   </span><br><span class="line"></span><br><span class="line">```java</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">PaymentService</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="title function_">create</span><span class="params">(Payment payment)</span>;</span><br><span class="line">    Payment <span class="title function_">getPaymentById</span><span class="params">(Long id)</span>;</span><br><span class="line">&#125;</span><br><span class="line">```  </span><br><span class="line"></span><br><span class="line">&gt;ServiceImpl    </span><br><span class="line"></span><br><span class="line">```java</span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PaymentServiceImpl</span> <span class="keyword">implements</span> <span class="title class_">PaymentService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> PaymentDao paymentDao;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">create</span><span class="params">(Payment payment)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> paymentDao.create(payment);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Payment <span class="title function_">getPaymentById</span><span class="params">(Long id)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> paymentDao.getPaymentById(id);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">```  </span><br><span class="line"></span><br><span class="line">&gt;controller  </span><br><span class="line"></span><br><span class="line">```java</span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PaymentController</span> &#123;</span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> PaymentService paymentService;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(value = &quot;/payment/create&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> CommonResult <span class="title function_">create</span><span class="params">( Payment payment)</span>&#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">res</span> <span class="operator">=</span> paymentService.create(payment);</span><br><span class="line">        log.info(<span class="string">&quot;****插入结果：&quot;</span> + res);</span><br><span class="line">        <span class="keyword">if</span> (res &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">CommonResult</span>(<span class="number">200</span>,<span class="string">&quot;插入数据库成功&quot;</span>,res);</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">CommonResult</span>(<span class="number">404</span>,<span class="string">&quot;插入数据库失败&quot;</span>,<span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(value = &quot;payment/get/&#123;id&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> CommonResult <span class="title function_">getPaymentById</span><span class="params">(<span class="meta">@PathVariable(&quot;id&quot;)</span> Long id)</span>&#123;</span><br><span class="line">        <span class="type">Payment</span> <span class="variable">payment</span> <span class="operator">=</span> paymentService.getPaymentById(id);</span><br><span class="line">        log.info(<span class="string">&quot;*****插入结果：&quot;</span>+payment);</span><br><span class="line">        <span class="keyword">if</span> (payment != <span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">CommonResult</span>(<span class="number">200</span>,<span class="string">&quot;查询成功&quot;</span>,payment);</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">CommonResult</span>(<span class="number">404</span>,<span class="string">&quot;查询失败&quot;</span>,<span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p><img data-src="/images/pasted-207.png" alt="upload successful">  </p>
-<h1 id="Devtools热部署-只能在开发过程使用"><a href="#Devtools热部署-只能在开发过程使用" class="headerlink" title="Devtools热部署(只能在开发过程使用)"></a>Devtools热部署(只能在开发过程使用)</h1><blockquote>
-<p>添加依赖进pom.xml  </p>
-</blockquote>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-devtools<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">```    </span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">&gt;下段配置复制到聚合父类总工程的pom.xml    </span><br><span class="line"></span><br><span class="line">```xml  </span><br><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">	&lt;finalName&gt;你的工程名&lt;/finalName&gt;（单一工程时添加）</span></span><br><span class="line"><span class="comment">    --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">fork</span>&gt;</span>true<span class="tag">&lt;/<span class="name">fork</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">addResources</span>&gt;</span>true<span class="tag">&lt;/<span class="name">addResources</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>idea设置  </p>
-</blockquote>
-<p><img data-src="/images/pasted-208.png" alt="upload successful">  </p>
-<blockquote>
-<p>使用commond+opt+shift+&#x2F; 进行如下设置勾选后重启idea  </p>
-</blockquote>
-<p><img data-src="/images/pasted-209.png" alt="upload successful">  </p>
-<p><img data-src="/images/pasted-210.png" alt="upload successful">  </p>
-<h1 id="消费者模块构建"><a href="#消费者模块构建" class="headerlink" title="消费者模块构建"></a>消费者模块构建</h1><h2 id="基本流程-1"><a href="#基本流程-1" class="headerlink" title="基本流程"></a>基本流程</h2><ul>
-<li><p>1.建MODULE<br>创建名为cloud-consumer-order80的maven工程。</p>
-</li>
-<li><p>2.改POM</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span> <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>LearnCloud<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.lun<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>cloud-consumer-order80<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven.compiler.source</span>&gt;</span>1.7<span class="tag">&lt;/<span class="name">maven.compiler.source</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven.compiler.target</span>&gt;</span>1.7<span class="tag">&lt;/<span class="name">maven.compiler.target</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-actuator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-devtools<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
-<li><p>3.写yml</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">80</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>4.主启动</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.boot.SpringApplication;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Hello world!</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OrderMain80</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">( String[] args )</span>&#123;</span><br><span class="line">        SpringApplication.run(OrderMain80.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
-<li><p>5.业务类</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> com.lun.springcloud.entities.CommonResult;</span><br><span class="line"><span class="keyword">import</span> com.lun.springcloud.entities.Payment;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.GetMapping;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.PathVariable;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RestController;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.client.RestTemplate;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.annotation.Resource;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OrderController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">PAYMENT_URL</span> <span class="operator">=</span> <span class="string">&quot;http://localhost:8001&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> RestTemplate restTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/consumer/payment/create&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> CommonResult&lt;Payment&gt; <span class="title function_">create</span><span class="params">(Payment payment)</span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> restTemplate.postForObject(PAYMENT_URL+<span class="string">&quot;/payment/create&quot;</span>, payment, CommonResult.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/consumer/payment/get/&#123;id&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> CommonResult&lt;Payment&gt; <span class="title function_">getPayment</span><span class="params">(<span class="meta">@PathVariable(&quot;id&quot;)</span> Long id)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> restTemplate.getForObject(PAYMENT_URL+<span class="string">&quot;/payment/get/&quot;</span>+id, CommonResult.class);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>配置类  </p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.client.RestTemplate;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ApplicationContextConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> RestTemplate <span class="title function_">getRestTemplate</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">RestTemplate</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
-</ul>
-<h2 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a>测试</h2><p><img data-src="/images/pasted-211.png" alt="upload successful"><br>需要注意的是要在服务端的Controller采用<code>@RequestBody</code>注解，因为<code>restTemplate</code>使用<code>post</code>方式发送的<code>json</code>数据格式的请求    </p>
-<h1 id="系统重构"><a href="#系统重构" class="headerlink" title="系统重构"></a>系统重构</h1><h2 id="解决系统的重复部分"><a href="#解决系统的重复部分" class="headerlink" title="解决系统的重复部分"></a>解决系统的重复部分</h2><p><img data-src="/images/pasted-212.png" alt="upload successful"><br>红框中的内容重复了，这是很没有必要的<br>因此需要将相同相似的代码放在一块，给其他用户使用  </p>
-<p>将entity的实体类放进<code>cloud-api-commons</code>中  </p>
-<p><img data-src="/images/pasted-213.png" alt="upload successful">  </p>
-]]></content>
-      <categories>
-        <category>微服务</category>
-      </categories>
   </entry>
   <entry>
     <title>Dubbo</title>
@@ -2052,7 +2077,374 @@ new LengthFieldBasedFrameDecoder(1024,12,4,0,0)对处理粘包半包现象是否
       </tags>
   </entry>
   <entry>
-    <title>微服务分布式架构-服务调用</title>
+    <title>微服务分布式架构-服务网关Gateway、Config配置中心</title>
+    <url>/2022/11/07/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84-%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/</url>
+    <content><![CDATA[<p>Gateway是在Spring生态系统之上构建的API网关服务，基于Spring 5，Spring Boot 2和Project Reactor等技术。Gateway旨在提供一种简单而有效的方式来对API进行路由，以及提供一些强大的过滤器功能，例如:熔断、限流、重试等。<span id="more"></span><br>SpringCloud Gateway是Spring Cloud的一个全新项目，基于Spring 5.0+Spring Boot 2.0和Project Reactor等技术开发的网关，它旨在为微服务架构提供—种简单有效的统一的API路由管理方式。</p>
+<p>SpringCloud Gateway作为Spring Cloud 生态系统中的网关，目标是替代Zuul，在Spring Cloud 2.0以上版本中，没有对新版本的Zul 2.0以上最新高性能版本进行集成，仍然还是使用的Zuul 1.x非Reactor模式的老版本。而为了提升网关的性能，SpringCloud Gateway是基于WebFlux框架实现的，而WebFlux框架底层则使用了高性能的Reactor模式通信框架Netty.<br>Spring Cloud Gateway的目标提供统一的路由方式且基于 Filter链的方式提供了网关基本的功能，例如:安全，监控&#x2F;指标，和限流。</p>
+<h1 id="微服务架构中网关的位置"><a href="#微服务架构中网关的位置" class="headerlink" title="微服务架构中网关的位置"></a>微服务架构中网关的位置</h1><p><img data-src="/images/pasted-267.png" alt="upload successful">  </p>
+<h1 id="GateWay非阻塞异步模型"><a href="#GateWay非阻塞异步模型" class="headerlink" title="GateWay非阻塞异步模型"></a>GateWay非阻塞异步模型</h1><blockquote>
+<p>有Zuull了怎么又出来Gateway？我们为什么选择Gateway?</p>
+</blockquote>
+<ul>
+<li><p>netflix不太靠谱，zuul2.0一直跳票，迟迟不发布。</p>
+<ul>
+<li>一方面因为Zuul1.0已经进入了维护阶段，而且Gateway是SpringCloud团队研发的，是亲儿子产品，值得信赖。而且很多功能Zuul都没有用起来也非常的简单便捷。</li>
+<li>Gateway是基于异步非阻塞模型上进行开发的，性能方面不需要担心。虽然Netflix早就发布了最新的Zuul 2.x，但Spring Cloud貌似没有整合计划。而且Netflix相关组件都宣布进入维护期；不知前景如何?</li>
+</ul>
+</li>
+</ul>
+<p>多方面综合考虑Gateway是很理想的网关选择。</p>
+<blockquote>
+<p>SpringCloud Gateway具有如下特性  </p>
+</blockquote>
+<ul>
+<li>基于Spring Framework 5，Project Reactor和Spring Boot 2.0进行构建；</li>
+<li>动态路由：能够匹配任何请求属性；</li>
+<li>可以对路由指定Predicate (断言)和Filter(过滤器)；</li>
+<li>集成Hystrix的断路器功能；</li>
+<li>集成Spring Cloud 服务发现功能；</li>
+<li>易于编写的Predicate (断言)和Filter (过滤器)；</li>
+<li>请求限流功能；</li>
+<li>支持路径重写。</li>
+</ul>
+<h2 id="Zuul1-x模型"><a href="#Zuul1-x模型" class="headerlink" title="Zuul1.x模型"></a>Zuul1.x模型</h2><p>Springcloud中所集成的Zuul版本，采用的是Tomcat容器，使用的是传统的Serviet IO处理模型。</p>
+<p>Servlet的生命周期？servlet由servlet container进行生命周期管理。</p>
+<p>container启动时构造servlet对象并调用servlet init()进行初始化；<br>container运行时接受请求，并为每个请求分配一个线程（一般从线程池中获取空闲线程）然后调用service)；<br>container关闭时调用servlet destory()销毁servlet。</p>
+<p><img data-src="/images/pasted-268.png" alt="upload successful">  </p>
+<blockquote>
+<p>上述模式的缺点：</p>
+</blockquote>
+<p>Servlet是一个简单的网络IO模型，当请求进入Servlet container时，Servlet container就会为其绑定一个线程，在并发不高的场景下这种模型是适用的。但是一旦高并发(如抽风用Jmeter压)，线程数量就会上涨，而线程资源代价是昂贵的（上线文切换，内存消耗大）严重影响请求的处理时间。在一些简单业务场景下，不希望为每个request分配一个线程，只需要1个或几个线程就能应对极大并发的请求，这种业务场景下servlet模型没有优势。</p>
+<p>所以Zuul 1.X是基于servlet之上的一个阻塞式处理模型，即Spring实现了处理所有request请求的一个servlet (DispatcherServlet)并由该servlet阻塞式处理处理。所以SpringCloud Zuul无法摆脱servlet模型的弊端。</p>
+<h2 id="Gateway工作流程"><a href="#Gateway工作流程" class="headerlink" title="Gateway工作流程"></a>Gateway工作流程</h2><h3 id="三大核心概念"><a href="#三大核心概念" class="headerlink" title="三大核心概念"></a>三大核心概念</h3><ul>
+<li>Route(路由) - 路由是构建网关的基本模块,它由ID,目标URI,一系列的断言和过滤器组成,如断言为true则匹配该路由；</li>
+<li>Predicate(断言) - 参考的是Java8的java.util.function.Predicate，开发人员可以匹配HTTP请求中的所有内容(例如请求头或请求参数),如果请求与断言相匹配则进行路由；</li>
+<li>Filter(过滤) - 指的是Spring框架中GatewayFilter的实例,使用过滤器,可以在请求被<code>路由</code>前或者之后对请求进行修改。</li>
+</ul>
+<p><img data-src="/images/pasted-269.png" alt="upload successful"><br>客户端向Spring Cloud Gateway发出请求。然后在Gateway Handler Mapping 中找到与请求相匹配的路由，将其发送到GatewayWeb Handler。</p>
+<p>Handler再通过指定的过滤器链来将请求发送到我们实际的服务执行业务逻辑，然后返回。</p>
+<p>过滤器之间用虚线分开是因为过滤器可能会在发送代理请求之前(“pre”)或之后(“post”）执行业务逻辑。</p>
+<p>Filter在“pre”类型的过滤器可以做参数校验、权限校验、流量监控、日志输出、协议转换等，在“post”类型的过滤器中可以做响应内容、响应头的修改，日志的输出，流量监控等有着非常重要的作用。</p>
+<p>核心逻辑：路由转发 + 执行过滤器链。</p>
+<h2 id="搭建Gateway"><a href="#搭建Gateway" class="headerlink" title="搭建Gateway"></a>搭建Gateway</h2><p>pom</p>
+<pre><code>&lt;dependencies&gt;
+        &lt;!--gateway--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-gateway&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;!--eureka-client--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;!-- 引入自己定义的api通用包，可以使用Payment支付Entity --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.ykx.springcloud&lt;/groupId&gt;
+            &lt;artifactId&gt;cloud-api-commons&lt;/artifactId&gt;
+            &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;!--一般基础配置类--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-devtools&lt;/artifactId&gt;
+            &lt;scope&gt;runtime&lt;/scope&gt;
+            &lt;optional&gt;true&lt;/optional&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+            &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+            &lt;optional&gt;true&lt;/optional&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+</code></pre>
+<p> yml</p>
+<pre><code> server:
+  port: 9257
+spring:
+  application:
+    name: cloud-gateway
+
+eureka:
+  instance:
+    hostname: cloud-gateway-service
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    defaultZone: http://eureka7001.com:7001/erueka
+</code></pre>
+<h3 id="gateway在配置文件yml配置"><a href="#gateway在配置文件yml配置" class="headerlink" title="gateway在配置文件yml配置"></a>gateway在配置文件yml配置</h3><pre><code>spring:
+  application:
+    name: cloud-gateway
+  #############################新增网关配置###########################
+  cloud:
+    gateway:
+      routes:
+        - id: payment_routh #payment_route    #路由的ID，没有固定规则但要求唯一，建议配合服务名
+          uri: http://localhost:8001          #匹配后提供服务的路由地址
+          #uri: lb://cloud-payment-service #匹配后提供服务的路由地址
+          predicates:
+            - Path=/payment/get/**         # 断言，路径相匹配的进行路由
+
+        - id: payment_routh2 #payment_route    #路由的ID，没有固定规则但要求唯一，建议配合服务名
+          uri: http://localhost:8001          #匹配后提供服务的路由地址
+          #uri: lb://cloud-payment-service #匹配后提供服务的路由地址
+          predicates:
+            - Path=/payment/cs/**         # 断言，路径相匹配的进行路由
+####################################################################
+</code></pre>
+<p><img data-src="/images/pasted-270.png" alt="upload successful">  </p>
+<h3 id="代码中注入RouteLocator的Bean"><a href="#代码中注入RouteLocator的Bean" class="headerlink" title="代码中注入RouteLocator的Bean"></a>代码中注入RouteLocator的Bean</h3><p>需求：通过9527访问外网的国内新闻</p>
+<pre><code>@Configuration
+public class GateWayConfig
+&#123;
+    @Bean
+    public RouteLocator customRouteLocator(RouteLocatorBuilder routeLocatorBuilder)
+    &#123;
+        RouteLocatorBuilder.Builder routes = routeLocatorBuilder.routes();
+
+        routes.route(&quot;path_route_atguigu&quot;,
+                r -&gt; r.path(&quot;/guonei&quot;)
+                        .uri(&quot;http://news.baidu.com/guonei&quot;)).build();
+
+        return routes.build();
+    &#125;
+&#125;
+</code></pre>
+<h2 id="GateWay配置动态路由"><a href="#GateWay配置动态路由" class="headerlink" title="GateWay配置动态路由"></a>GateWay配置动态路由</h2><p>配置yml<br>需要注意的是uri的协议为lb，表示启用Gateway的负载均衡功能。</p>
+<p>lb:&#x2F;&#x2F;serviceName是spring cloud gateway在微服务中自动为我们创建的负载均衡uri。</p>
+<pre><code>spring:
+  application:
+    name: cloud-gateway
+  #############################新增网关配置###########################
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true # 开启注册中心动态创建路由的功能，利用微服务名进行路由
+      routes:
+        - id: payment_routh #payment_route    #路由的ID，没有固定规则但要求唯一，建议配合服务名
+#          uri: http://localhost:8001          #匹配后提供服务的路由地址
+          uri: lb://cloud-payment-service #动态路由匹配后提供服务的路由地址
+          predicates:
+            - Path=/payment/get/**         # 断言，路径相匹配的进行路由
+
+        - id: payment_routh2 #payment_route    #路由的ID，没有固定规则但要求唯一，建议配合服务名
+#          uri: http://localhost:8001          #匹配后提供服务的路由地址
+          uri: lb://cloud-payment-service #动态路由匹配后提供服务的路由地址
+          predicates:
+            - Path=/payment/cs         # 断言，路径相匹配的进行路由
+####################################################################
+</code></pre>
+<h2 id="Route-Predicate-断言"><a href="#Route-Predicate-断言" class="headerlink" title="Route Predicate 断言"></a>Route Predicate 断言</h2><p>Spring Cloud Gateway将路由匹配作为Spring WebFlux HandlerMapping基础架构的一部分。</p>
+<p>Spring Cloud Gateway包括许多内置的Route Predicate工厂。所有这些Predicate都与HTTP请求的不同属性匹配。多个RoutePredicate工厂可以进行组合。</p>
+<p>Spring Cloud Gateway创建Route 对象时，使用RoutePredicateFactory 创建 Predicate对象，Predicate 对象可以赋值给Route。Spring Cloud Gateway包含许多内置的Route Predicate Factories。<br>所有这些谓词都匹配HTTP请求的不同属性。多种谓词工厂可以组合，并通过逻辑and。</p>
+<blockquote>
+<p>常用的Route Predicate Factory</p>
+</blockquote>
+<ul>
+<li><p>The After Route Predicate Factory</p>
+</li>
+<li><p>The Before Route Predicate Factory</p>
+</li>
+<li><p>The Between Route Predicate Factory</p>
+</li>
+<li><p>The Cookie Route Predicate Factory</p>
+</li>
+<li><p>The Header Route Predicate Factory</p>
+</li>
+<li><p>The Host Route Predicate Factory</p>
+</li>
+<li><p>The Method Route Predicate Factory</p>
+</li>
+<li><p>The Path Route Predicate Factory</p>
+</li>
+<li><p>The Query Route Predicate Factory</p>
+</li>
+<li><p>The RemoteAddr Route Predicate Factory</p>
+</li>
+<li><p>The weight Route Predicate Factory</p>
+<p>  spring:<br>cloud:<br>  gateway:<br>    routes:<br>    - id: after_route<br>      uri: <a href="https://example.org/">https://example.org</a><br>      predicates:<br>      # 这个时间后才能起效<br>      - After&#x3D;2017-01-20T17:42:47.789-07:00[America&#x2F;Denver]</p>
+</li>
+</ul>
+<p>配置cookie访问</p>
+<pre><code>spring:
+  cloud:
+    gateway:
+      routes:
+      - id: cookie_route
+        uri: lb://cloud-service-proveder
+        predicates:
+        - Path=/payment/get/**
+        - Cookie=username,zzyy
+</code></pre>
+<p><img data-src="/images/pasted-271.png" alt="upload successful">  </p>
+<h2 id="GateWay的Filter"><a href="#GateWay的Filter" class="headerlink" title="GateWay的Filter"></a>GateWay的Filter</h2><p>路由过滤器可用于修改进入的HTTP请求和返回的HTTP响应，路由过滤器只能指定路由进行使用。Spring Cloud Gateway内置了多种路由过滤器，他们都由GatewayFilter的工厂类来产生。  </p>
+<p>Spring Cloud Gateway的Filter:</p>
+<ul>
+<li><p>生命周期：</p>
+</li>
+<li><p>pre</p>
+</li>
+<li><p>post</p>
+</li>
+<li><p>种类（具体看官方文档）：</p>
+</li>
+<li><p>GatewayFilter - 有31种</p>
+</li>
+<li><p>GlobalFilter - 有10种</p>
+</li>
+</ul>
+<p>自定义过滤器。只要实现<code>GlobalFilter</code>,<code>Ordered</code>两个接口</p>
+<pre><code>import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+import java.util.Date;
+
+@Component
+@Slf4j
+public class MyLogGateWayFilter implements GlobalFilter,Ordered
+&#123;
+
+    @Override
+    public Mono&lt;Void&gt; filter(ServerWebExchange exchange, GatewayFilterChain chain)
+    &#123;
+        log.info(&quot;***********come in MyLogGateWayFilter:  &quot;+new Date());
+
+        String uname = exchange.getRequest().getQueryParams().getFirst(&quot;uname&quot;);
+
+        if(uname == null)
+        &#123;
+            log.info(&quot;*******用户名为null，非法用户，o(╥﹏╥)o&quot;);
+            exchange.getResponse().setStatusCode(HttpStatus.NOT_ACCEPTABLE);
+            return exchange.getResponse().setComplete();
+        &#125;
+
+        return chain.filter(exchange);
+    &#125;
+
+    @Override
+    public int getOrder()
+    &#123;
+        return 0;
+    &#125;
+&#125;
+</code></pre>
+<h1 id="Config配置中心"><a href="#Config配置中心" class="headerlink" title="Config配置中心"></a>Config配置中心</h1><p>分布式系统面临的配置问题</p>
+<p>微服务意味着要将单体应用中的业务拆分成一个个子服务，每个服务的粒度相对较小，因此系统中会出现大量的服务。由于每个服务都需要必要的配置信息才能运行，所以一套集中式的、动态的配置管理设施是必不可少的。</p>
+<p>SpringCloud提供了ConfigServer来解决这个问题，我们每一个微服务自己带着一个application.yml，上百个配置文件的管理.……</p>
+<p><img data-src="/images/pasted-272.png" alt="upload successful"><br>SpringCloud Config为微服务架构中的微服务提供集中化的外部配置支持，配置服务器为各个不同微服务应用的所有环境提供了一个中心化的外部配置。  </p>
+<blockquote>
+<p>怎么玩</p>
+</blockquote>
+<ul>
+<li><p>SpringCloud Config分为服务端和客户端两部分。</p>
+</li>
+<li><p>服务端也称为分布式配置中心，它是一个独立的<code>微服务应用</code>，用来连接配置服务器并为客户端提供获取配置信息，加密&#x2F;解密信息等访问接口。</p>
+</li>
+<li><p>客户端则是通过指定的配置中心来管理应用资源，以及与业务相关的配置内容，并在启动的时候从配置中心获取和加载配置信息配置服务器默认采用git来存储配置信息，这样就有助于对环境配置进行版本管理，并且可以通过git客户端工具来方便的管理和访问配置内容。</p>
+</li>
+</ul>
+<blockquote>
+<p>能干嘛</p>
+</blockquote>
+<ul>
+<li>集中管理配置文件</li>
+<li>不同环境不同配置，动态化的配置更新，分环境部署比如dev&#x2F;test&#x2F;prod&#x2F;beta&#x2F;release</li>
+<li>运行期间动态调整配置，不再需要在每个服务部署的机器上编写配置文件，服务会向配置中心统一拉取配置自己的信息</li>
+<li>当配置发生变动时，服务不需要重启即可感知到配置的变化并应用新的配置</li>
+<li>将配置信息以REST接口的形式暴露 - post&#x2F;crul访问刷新即可…</li>
+</ul>
+<h2 id="configserver的配置"><a href="#configserver的配置" class="headerlink" title="configserver的配置"></a>configserver的配置</h2><p>首先在github上创建三个测试用的yml文件</p>
+<p><img data-src="/images/pasted-273.png" alt="upload successful"><br>pom</p>
+<pre><code>&lt;dependencies&gt;
+        &lt;!--添加消息总线RabbitMQ支持--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-bus-amqp&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-config-server&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-devtools&lt;/artifactId&gt;
+            &lt;scope&gt;runtime&lt;/scope&gt;
+            &lt;optional&gt;true&lt;/optional&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+            &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+            &lt;optional&gt;true&lt;/optional&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+</code></pre>
+<p>yml </p>
+<pre><code>server:
+  port:
+    3344
+spring:
+  application:
+    name: cloud-config-center
+
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/KaiXuan-Y/springcloud-config.git
+          search-paths:
+            - springcloud-config #          搜索目录
+      label: main
+
+eureka:
+  client:
+    service-url: 
+      defaultZone: http://localhost:7001/eureka
+</code></pre>
+<p>主配置类</p>
+<pre><code>@SpringBootApplication
+@EnableConfigServer
+public class MainAppConfigCenter3344 &#123;
+    public static void main(String[] args) &#123;
+        SpringApplication.run(MainAppConfigCenter3344.class , args);
+    &#125;
+&#125;
+</code></pre>
+<p>能够成功获取配置内容<br><img data-src="/images/pasted-274.png" alt="upload successful">  </p>
+]]></content>
+  </entry>
+  <entry>
+    <title>微服务分布式架构-Ribbon、OpenFeign服务调用</title>
     <url>/2022/11/02/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84-%E6%9C%8D%E5%8A%A1%E8%B0%83%E7%94%A8/</url>
     <content><![CDATA[<p>Spring Cloud Ribbon是基于Netflix Ribbon实现的一套客户端负载均衡的工具。</p>
 <p>简单的说，Ribbon是Netflix发布的开源项目，主要功能是提供客户端的软件负载均衡算法和服务调用。Ribbon客户端组件提供一系列完善的配置项如连接超时，重试等。</p>
@@ -2163,7 +2555,496 @@ public class MySelfRule &#123;
 <blockquote>
 <p>List [0] instances &#x3D; 127.0.0.1:8002<br>List [1] instances &#x3D; 127.0.0.1:8001<br>8001+ 8002组合成为集群，它们共计2台机器，集群总数为2，按照轮询算法原理：</p>
 </blockquote>
-<p>当总请求数为1时:1%2&#x3D;1对应下标位置为1，则获得服务地址为127.0.0.1:8001<br>当总请求数位2时:2%2&#x3D;О对应下标位置为0，则获得服务地址为127.0.0.1:8002<br>当总请求数位3时:3%2&#x3D;1对应下标位置为1，则获得服务地址为127.0.0.1:8001<br>当总请求数位4时:4%2&#x3D;О对应下标位置为0，则获得服务地址为127.0.0.1:8002<br>如此类推…</p>
+<p>当总请求数为1时:1%2&#x3D;1对应下标位置为1，则获得服务地址为127.0.0.1:8001<br>当总请求数位2时:2%2&#x3D;О对应下标位置为0，则获得服务地址为127.0.0.1:8002<br>当总请求数位3时:3%2&#x3D;1对应下标位置为1，则获得服务地址为127.0.0.1:8001<br>当总请求数位4时:4%2&#x3D;О对应下标位置为0，则获得服务地址为127.0.0.1:8002<br>如此类推…  </p>
+<h3 id="RoundRibbonRule源码分析"><a href="#RoundRibbonRule源码分析" class="headerlink" title="RoundRibbonRule源码分析"></a>RoundRibbonRule源码分析</h3><p><img data-src="/images/pasted-252.png" alt="upload successful">  </p>
+<p><img data-src="/images/pasted-254.png" alt="upload successful">  </p>
+<p><img data-src="/images/pasted-253.png" alt="upload successful"><br>主要采用的就是CAS+自旋锁的方式，劲量避免了使用锁的结构，<code>next</code>为下一个服务器，使用CAS获取下一个<code>next</code>返回，最后返回需要的server。  </p>
+<h1 id="OpenFeign"><a href="#OpenFeign" class="headerlink" title="OpenFeign"></a>OpenFeign</h1><p><a href="https://cloud.spring.io/spring-cloud-static/Hoxton.SR1/reference/htmlsingle/#spring-cloud-openfeign">https://cloud.spring.io/spring-cloud-static/Hoxton.SR1/reference/htmlsingle/#spring-cloud-openfeign</a><br>Feign是一个声明式WebService客户端。使用Feign能让编写Web Service客户端更加简单。它的使用方法是定义一个服务接口然后在上面添加注解。Feign也支持可拔插式的编码器和解码器。Spring Cloud对Feign进行了封装，使其支持了Spring MVC标准注解和HttpMessageConverters。Feign可以与Eureka和Ribbon组合使用以支持负载均衡。  </p>
+<blockquote>
+<p>Feign旨在使编写Java Http客户端变得更容易。  </p>
+</blockquote>
+<p>前面在使用Ribbon+RestTemplate时，利用RestTemplate对http请求的封装处理，形成了一套模版化的调用方法。但是在实际开发中，由于对服务依赖的调用可能不止一处，往往一个接口会被多处调用，所以通常都会针对每个微服务自行封装一些客户端类来包装这些依赖服务的调用。所以，Feign在此基础上做了进一步封装，由他来帮助我们定义和实现依赖服务接口的定义。在Feign的实现下，我们只需创建一个接口并使用注解的方式来配置它(以前是Dao接口上面标注Mapper注解,现在是一个微服务接口上面标注一个Feign注解即可)，即可完成对服务提供方的接口绑定，简化了使用Spring cloud Ribbon时，自动封装服务调用客户端的开发量。</p>
+<blockquote>
+<p>Feign集成了Ribbon  </p>
+</blockquote>
+<p>利用Ribbon维护了Payment的服务列表信息，并且通过轮询实现了客户端的负载均衡。而与Ribbon不同的是，通过feign只需要定义服务绑定接口且以声明式的方法，优雅而简单的实现了服务调用。</p>
+<blockquote>
+<p>Feign和OpenFeign两者区别  </p>
+</blockquote>
+<p>Feign是Spring Cloud组件中的一个轻量级RESTful的HTTP服务客户端Feign内置了Ribbon，用来做客户端负载均衡，去调用服务注册中心的服务。Feign的使用方式是:使用Feign的注解定义接口，调用这个接口，就可以调用服务注册中心的服务。  </p>
+<h2 id="OpenFeign服务调用"><a href="#OpenFeign服务调用" class="headerlink" title="OpenFeign服务调用"></a>OpenFeign服务调用</h2><pre><code>&lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-openfeign&lt;/artifactId&gt;
+&lt;/dependency&gt;  
+</code></pre>
+<p>主启动类,添加<code>@EnableFeignClients</code>接口，开启OpenFeign</p>
+<pre><code>@SpringBootApplication
+@EnableFeignClients
+public class OrderFeign80 &#123;
+    public static void main(String[] args) &#123;
+        SpringApplication.run(OrderFeign80.class , args);
+    &#125;
+&#125;
+</code></pre>
+<p>编写Service接口，并且使用<code>@FeignClient</code>接口确定调用的是哪一个远程服务  </p>
+<pre><code>@Service
+@FeignClient(value = &quot;CLOUD-PAYMENT-SERVICE&quot;)
+public interface PaymentFeignService &#123;
+
+    @GetMapping(value = &quot;payment/get/&#123;id&#125;&quot;)
+    public CommonResult getPaymentById(@PathVariable(&quot;id&quot;) Long id);
+&#125;
+</code></pre>
+<p>调用远程服务  </p>
+<pre><code>@RestController
+@Slf4j
+public class OrderFeignController &#123;
+    @Resource
+    private PaymentFeignService paymentFeignService;
+
+    @GetMapping(value = &quot;/consumer/payment/get/&#123;id&#125;&quot;)
+    public CommonResult&lt;Payment&gt; getPaymentById(@PathVariable(&quot;id&quot;) Long id)&#123;
+        return paymentFeignService.getPaymentById(id);
+    &#125;
+
+&#125;
+</code></pre>
+<p><img data-src="/images/pasted-255.png" alt="upload successful"><br>测试成功  </p>
+<h2 id="OpenFeign超时控制"><a href="#OpenFeign超时控制" class="headerlink" title="OpenFeign超时控制"></a>OpenFeign超时控制</h2><h3 id="服务端处理超过默认时间1s"><a href="#服务端处理超过默认时间1s" class="headerlink" title="服务端处理超过默认时间1s"></a>服务端处理超过默认时间1s</h3><p>OpenFeign的等待响应时间默认为1s，超过后报错<br>在8001服务端添加暂停方法，4s的等待必定造成超时  </p>
+<pre><code> @GetMapping(value = &quot;/payment/feign/cs&quot;)
+    public String tooLate()&#123;
+        try &#123;
+            TimeUnit.SECONDS.sleep(4);
+        &#125; catch (InterruptedException e) &#123;
+            e.printStackTrace();
+        &#125;
+        return serverPort;
+    &#125;
+    
+</code></pre>
+<p>在FeignCLient标注的接口进行调用  </p>
+<pre><code>@Service
+@FeignClient(value = &quot;CLOUD-PAYMENT-SERVICE&quot;)
+public interface PaymentFeignService &#123;
+
+    @GetMapping(value = &quot;payment/get/&#123;id&#125;&quot;)
+    public CommonResult getPaymentById(@PathVariable(&quot;id&quot;) Long id);
+
+    @GetMapping(value = &quot;/payment/feign/cs&quot;)
+    public String tooLate();
+&#125;
+</code></pre>
+<p>调用该方法  </p>
+<pre><code>@GetMapping(value = &quot;/consumer/payment/feign/cs&quot;)
+    public String getTooLate()&#123;
+        return paymentFeignService.tooLate();
+    &#125;
+</code></pre>
+<p><img data-src="/images/pasted-256.png" alt="upload successful"><br>结果如图所示，超时了  </p>
+<blockquote>
+<p>设置feign客户端超时时间（OpenFeign默认支持ribbon)  </p>
+</blockquote>
+<pre><code>ribbon:
+  #指的是建立连接后从服务器读取到可用资源所需时间
+  ReadTimeout: 5000
+  #指的是建立连接所用的时间，适用于网络状况正常情况下，两端连接所用的时间
+  ConnectTimeOut: 5000  
+</code></pre>
+<p><img data-src="/images/pasted-257.png" alt="upload successful"><br>成功访问  </p>
+<h2 id="OpenFeign日志增强"><a href="#OpenFeign日志增强" class="headerlink" title="OpenFeign日志增强"></a>OpenFeign日志增强</h2><h3 id="日志打印功能"><a href="#日志打印功能" class="headerlink" title="日志打印功能"></a>日志打印功能</h3><p>Feign提供了日志打印功能，我们可以通过配置来调整日恙级别，从而了解Feign 中 Http请求的细节。</p>
+<p>说白了就是对Feign接口的调用情况进行监控和输出</p>
+<h3 id="日志级别"><a href="#日志级别" class="headerlink" title="日志级别"></a>日志级别</h3><p>NONE：默认的，不显示任何日志;<br>BASIC：仅记录请求方法、URL、响应状态码及执行时间;<br>HEADERS：除了BASIC中定义的信息之外，还有请求和响应的头信息;<br>FULL：除了HEADERS中定义的信息之外，还有请求和响应的正文及元数据。</p>
+<h3 id="开启日志功能"><a href="#开启日志功能" class="headerlink" title="开启日志功能"></a>开启日志功能</h3><p>配置配置类  </p>
+<pre><code>@Configuration
+public class FeignConfig &#123;
+    @Bean
+    Logger.Level feignLoggerLevel()&#123;
+        return Logger.Level.FULL;
+    &#125;
+&#125;
+</code></pre>
+<p>配置yml</p>
+<pre><code>logging:
+  level:
+    # feign日志以什么级别监控那个接口
+    com.ykx.springcloud.service.PaymentFeignService: debug  
+</code></pre>
+]]></content>
+  </entry>
+  <entry>
+    <title>微服务分布式架构-服务降级熔断限流</title>
+    <url>/2022/11/03/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84-%E6%9C%8D%E5%8A%A1%E9%99%8D%E7%BA%A7/</url>
+    <content><![CDATA[<p>学习服务降级之前首先要考虑的是分布式系统面临的问题，复杂分布式体系结构中的应用程序有数十个依赖关系，每个依赖关系在某些时候将不可避免地失败。多个微服务之间调用的时候，假设微服务A调用微服务B和微服务C，微服务B和微服务C又调用其它的微服务，这就是所谓的“扇出”。如果扇出的链路上某个微服务的调用响应时间过长或者不可用，对微服务A的调用就会占用越来越多的系统资源，进而引起系统崩溃，所谓的“雪崩效应”.所以，通常当你发现一个模块下的某个实例失败后，这时候这个模块依然还会接收流量，然后这个有问题的模块还调用了其他的模块，这样就会发生级联故障，或者叫雪崩。因此需要考虑服务降级<span id="more"></span>  </p>
+<h1 id="Hystrix"><a href="#Hystrix" class="headerlink" title="Hystrix"></a>Hystrix</h1><p>Hystrix是一个用于处理分布式系统的<code>延迟和容错</code>的开源库，在分布式系统里，许多依赖不可避免的会<code>调用失败</code>，比如超时、异常等，Hystrix能够保证在一个<code>依赖出问题</code>的情况下，不会导致整体服务失败，避免级联故障，以提高分布式系统的弹性。<br>“断路器”本身是一种开关装置，当某个服务单元发生故障之后，通过断路器的故障监控（类似熔断保险丝)，向调用方返回一个符合预期的、可处理的备选响应（FallBack)，而不是长时间的等待或者抛出调用方无法处理的异常，这样就保证了服务调用方的线程不会被长时间、不必要地占用，从而避免了故障在分布式系统中的蔓延，乃至雪崩。</p>
+<h2 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h2><ul>
+<li>服务降级</li>
+<li>服务熔断</li>
+<li>接近实时的监控<br><a href="https://github.com/Netflix/Hystrix/wiki/How-To-Use">https://github.com/Netflix/Hystrix/wiki/How-To-Use</a></li>
+</ul>
+<h2 id="Hystrix的服务降级熔断限流概念"><a href="#Hystrix的服务降级熔断限流概念" class="headerlink" title="Hystrix的服务降级熔断限流概念"></a>Hystrix的服务降级熔断限流概念</h2><h3 id="服务降级"><a href="#服务降级" class="headerlink" title="服务降级"></a>服务降级</h3><p>服务器忙，请稍后再试，不让客户端等待并立刻返回一个友好提示，fallback</p>
+<blockquote>
+<p>哪些情况会出发降级</p>
+</blockquote>
+<ul>
+<li>程序运行导常</li>
+<li>超时</li>
+<li>服务熔断触发服务降级</li>
+<li>线程池&#x2F;信号量打满也会导致服务降级</li>
+</ul>
+<h3 id="服务熔断"><a href="#服务熔断" class="headerlink" title="服务熔断"></a>服务熔断</h3><p>类比保险丝达到最大服务访问后，直接拒绝访问，拉闸限电，然后调用服务降级的方法并返回友好提示。</p>
+<blockquote>
+<p>服务的降级 -&gt; 进而熔断 -&gt; 恢复调用链路</p>
+</blockquote>
+<h3 id="服务限流"><a href="#服务限流" class="headerlink" title="服务限流"></a>服务限流</h3><blockquote>
+<p>秒杀高并发等操作，严禁一窝蜂的过来拥挤，大家排队，一秒钟N个，有序进行。</p>
+</blockquote>
+<h2 id="业务模拟（服务降级）"><a href="#业务模拟（服务降级）" class="headerlink" title="业务模拟（服务降级）"></a>业务模拟（服务降级）</h2><pre><code>@RestController
+@Slf4j
+public class PaymentController &#123;
+    @Resource
+    private PaymentService paymentService;
+
+    @Value(&quot;$&#123;server.port&#125;&quot;)
+    private String serverPort;
+
+    @GetMapping(&quot;/payment/hystrix/ok/&#123;id&#125;&quot;)
+    public String paymentInfo_Ok(@PathVariable(&quot;id&quot;)Integer id)&#123;
+        String res = paymentService.paymentInfo_Ok(id);
+        log.info(&quot;******result: &quot; + res);
+        return res;
+    &#125;
+
+    @GetMapping(&quot;/payment/hystrix/timeout/&#123;id&#125;&quot;)
+    public String paymentInfo_TimeOut(@PathVariable(&quot;id&quot;)Integer id)&#123;
+        String res = paymentService.paymentInfo_TimeOut(id);
+        log.info(&quot;******result: &quot; + res);
+        return res;
+    &#125;
+
+
+&#125;
+</code></pre>
+<p>其中，<code>paymentInfo_TimeOut</code>业务模拟一个需要长时间处理的复杂业务。  </p>
+<h3 id="高并发模拟"><a href="#高并发模拟" class="headerlink" title="高并发模拟"></a>高并发模拟</h3><p>开启Jmeter，来20000个并发压死8001，20000个请求都去访问paymentInfo_TimeOut服务</p>
+<p>1.测试计划中右键添加-》线程-》线程组（线程组202102，线程数：200，线程数：100，其他参数默认）</p>
+<p>2.刚刚新建线程组202102，右键它-》添加-》取样器-》Http请求-》基本 输入<a href="http://localhost:8001/payment/hystrix/ok/1">http://localhost:8001/payment/hystrix/ok/1</a></p>
+<p>3.点击绿色三角形图标启动。</p>
+<p>看演示结果：拖慢，原因：tomcat的默认的工作线程数被打满了，没有多余的线程来分解压力和处理。</p>
+<p>Jmeter压测结论</p>
+<p>上面还是服务提供者8001自己测试，假如此时外部的消费者80也来访问，那消费者只能干等，最终导致消费端80不满意，服务端8001直接被拖慢。</p>
+<p><img data-src="/images/pasted-258.png" alt="upload successful"><br>此时发现产生连坐效应， <code>paymentInfo_OK</code>这个不该等待的业务都被压慢了。因为<code>paymentInfo_TimeOut</code>和<code>paymentInfo_OK</code>为一个微服务资源。导致资源过多的倾斜给<code>paymentInfo_TimeOut</code>，造成<code>paymentInfo_Ok</code>没有多余的线程来处理。<br>如果此时80消费者来访问，消费者只能<code>干等</code>,最终被压死  </p>
+<blockquote>
+<p>消费者80类编写</p>
+</blockquote>
+<pre><code>@Service
+@FeignClient(value = &quot;http://CLOUD-HYXTRIX-PAYMENT-SERVICE&quot;)
+public interface PaymentHystrixService &#123;
+    @GetMapping(&quot;/payment/hystrix/ok/&#123;id&#125;&quot;)
+    public String paymentInfo_Ok(@PathVariable(&quot;id&quot;)Integer id);
+
+    @GetMapping(&quot;/payment/hystrix/timeout/&#123;id&#125;&quot;)
+    public String paymentInfo_TimeOut(@PathVariable(&quot;id&quot;)Integer id);
+&#125;
+</code></pre>
+<p>Controller类</p>
+<pre><code>@RestController
+@Slf4j
+public class PaymentHystrixController &#123;
+
+    @Resource
+    private PaymentHystrixService paymentHystrixService;
+
+    @GetMapping(&quot;/consumer/payment/hystrix/ok/&#123;id&#125;&quot;)
+    public String paymentInfo_Ok(@PathVariable(&quot;id&quot;)Integer id)&#123;
+        return paymentHystrixService.paymentInfo_Ok(id);
+    &#125;
+
+    @GetMapping(&quot;/consumer/payment/hystrix/timeout/&#123;id&#125;&quot;)
+    public String paymentInfo_TimeOut(@PathVariable(&quot;id&quot;)Integer id)&#123;
+        return paymentHystrixService.paymentInfo_TimeOut(id);
+    &#125;
+&#125;
+</code></pre>
+<p>此时压8001后，消费者80访问ok都会很慢<br>原因：8001同一层次的其它接口服务被困死，因为tomcat线程池里面的工作线程已经被挤占完毕。正因为有上述故障或不佳表现才有我们的降级&#x2F;容错&#x2F;限流等技术诞生  </p>
+<h3 id="降级容错解决的维度要求"><a href="#降级容错解决的维度要求" class="headerlink" title="降级容错解决的维度要求"></a>降级容错解决的维度要求</h3><p>超时导致服务器变慢(转圈) - 超时不再等待</p>
+<p>出错(宕机或程序运行出错) - 出错要有兜底</p>
+<p>对方服务(8001)超时了，调用者(80)不能一直卡死等待，必须有服务降级。<br>对方服务(8001)down机了，调用者(80)不能一直卡死等待，必须有服务降级。<br>对方服务(8001)OK，调用者(80)自己出故障或有自我要求(自己的等待时间小于服务提供者)，自己处理降级。</p>
+<h3 id="Hystrix之服务降级支付侧fallback"><a href="#Hystrix之服务降级支付侧fallback" class="headerlink" title="Hystrix之服务降级支付侧fallback"></a>Hystrix之服务降级支付侧fallback</h3><p>降级配置 - @HystrixCommand<br>设置自身调用超时时间的峰值，峰值内可以正常运行，超过了需要有兜底的方法处埋，作服务降级fallback。<br>—旦调用服务方法失败并抛出了错误信息，或者超时后，会自动调用@HystrixCommand标注好的fallbackMethod调用类中的指定方法  </p>
+<pre><code>//服务降级
+    @HystrixCommand(fallbackMethod = &quot;paymentInfo_TimeOutHandler&quot;,commandProperties = &#123;
+            @HystrixProperty(name = &quot;execution.isolation.thread.timeoutInMilliseconds&quot;,value = &quot;3000&quot;)
+    &#125;)
+    public String paymentInfo_TimeOut(Integer id)&#123;
+//        try &#123;
+//            TimeUnit.SECONDS.sleep(5);
+//        &#125; catch (InterruptedException e) &#123;
+//            e.printStackTrace();
+//        &#125;
+        int age = 10/0;
+        return &quot;线程池：&quot;+Thread.currentThread().getName() + &quot;paymentInfo_Timeout,id:&quot;+id +  &quot;  耗时5秒钟&quot;;
+    &#125;
+
+    public String paymentInfo_TimeOutHandler(Integer id)&#123;
+        return &quot;线程池：&quot;+Thread.currentThread().getName() + &quot;系统繁忙或者运行报错，请稍后再试,id:&quot;+id + &quot;：--0.0&quot;;
+    &#125;
+</code></pre>
+<p>主系统类激活  </p>
+<pre><code>@SpringBootApplication
+@EnableEurekaClient
+@EnableCircuitBreaker
+public class PaymentHystrixMain8001 &#123;
+
+    public static void main(String[] args) &#123;
+        SpringApplication.run(PaymentHystrixMain8001.class , args);
+    &#125;
+&#125;
+</code></pre>
+<h3 id="Hystrix之服务降级订单侧fallback"><a href="#Hystrix之服务降级订单侧fallback" class="headerlink" title="Hystrix之服务降级订单侧fallback"></a>Hystrix之服务降级订单侧fallback</h3><p>80订单微服务，也可以更好的保护自己，自己也依样画葫芦进行客户端降级保护</p>
+<p>题外话，切记 - 我们自己配置过的热部署方式对java代码的改动明显</p>
+<p>但对@HystrixCommand内属性的修改建议重启微服务  </p>
+<p>yml  </p>
+<pre><code>feign:
+  hystrix:
+    enabled: true
+</code></pre>
+<p>主启动类  </p>
+<pre><code>@SpringBootApplication
+@EnableFeignClients
+@EnableHystrix
+public class OrderHystrixMain80 &#123;
+    public static void main(String[] args) &#123;
+        SpringApplication.run(OrderHystrixMain80.class , args);
+    &#125;
+&#125;
+</code></pre>
+<p>业务类</p>
+<pre><code>@GetMapping(&quot;/consumer/payment/hystrix/timeout/&#123;id&#125;&quot;)
+    @HystrixCommand(fallbackMethod = &quot;paymentTimeOutFallbackMethod&quot;,commandProperties = &#123;
+            @HystrixProperty(name = &quot;execution.isolation.thread.timeoutInMilliseconds&quot;,value = &quot;1500&quot;)
+    &#125;)
+    public String paymentInfo_TimeOut(@PathVariable(&quot;id&quot;)Integer id)&#123;
+        return paymentHystrixService.paymentInfo_TimeOut(id);
+    &#125;
+
+    public String paymentTimeOutFallbackMethod(@PathVariable(&quot;id&quot;)Integer id)&#123;
+        return &quot;我是消费者80，对方服务器繁忙&quot;;
+    &#125;
+</code></pre>
+<h3 id="Hystrix之全局服务降级DefaultProperties"><a href="#Hystrix之全局服务降级DefaultProperties" class="headerlink" title="Hystrix之全局服务降级DefaultProperties"></a>Hystrix之全局服务降级DefaultProperties</h3><p>将通用的和独享的服务降级方法分开,避免代码膨胀的问题    </p>
+<pre><code>@RestController
+@Slf4j
+@DefaultProperties(defaultFallback = &quot;payment_Global_FallbackMethod&quot;)
+public class PaymentHystrixController &#123;
+
+    @Resource
+    private PaymentHystrixService paymentHystrixService;
+
+    @GetMapping(&quot;/consumer/payment/hystrix/ok/&#123;id&#125;&quot;)
+    public String paymentInfo_Ok(@PathVariable(&quot;id&quot;)Integer id)&#123;
+        return paymentHystrixService.paymentInfo_Ok(id);
+    &#125;
+
+    @GetMapping(&quot;/consumer/payment/hystrix/timeout/&#123;id&#125;&quot;)
+//    @HystrixCommand(fallbackMethod = &quot;paymentTimeOutFallbackMethod&quot;,commandProperties = &#123;
+//            @HystrixProperty(name = &quot;execution.isolation.thread.timeoutInMilliseconds&quot;,value = &quot;1500&quot;)
+//    &#125;)
+    @HystrixCommand
+    public String paymentInfo_TimeOut(@PathVariable(&quot;id&quot;)Integer id)&#123;
+        return paymentHystrixService.paymentInfo_TimeOut(id);
+    &#125;
+
+    public String paymentTimeOutFallbackMethod(@PathVariable(&quot;id&quot;)Integer id)&#123;
+        return &quot;我是消费者80，对方服务器繁忙&quot;;
+    &#125;
+
+    public String payment_Global_FallbackMethod()&#123;
+        return &quot;Global异常处理信息，请稍后重试&quot;;
+    &#125;
+&#125;
+</code></pre>
+<ul>
+<li>首先在Controller上添加<code>@DefaultProperties(defaultFallback = &quot;payment_Global_FallbackMethod&quot;)</code>添加全局的降级方法  </li>
+<li>编写全局的fallback方法  </li>
+<li>在默认使用的方法上添加<code>@HystrixCommand</code>注解，如果添加了<code>fallbackMethod</code>属性，那么就用指定的</li>
+</ul>
+<h3 id="Hystrix之通配服务降级FeignFallback"><a href="#Hystrix之通配服务降级FeignFallback" class="headerlink" title="Hystrix之通配服务降级FeignFallback"></a>Hystrix之通配服务降级FeignFallback</h3><p>服务降级，客户端去调用服务端，碰上服务端宕机或关闭</p>
+<p>本次案例服务降级处理是在客户端80实现完成的，与服务端8001没有关系，只需要为Feign客户端定义的接口添加一个服务降级处理的<code>实现类</code>即可实现解耦  </p>
+<p>PaymentFallbackService类实现PaymentHystrixService接口 </p>
+<pre><code>@Component
+public class PaymentFallbackService implements PaymentHystrixService&#123;
+    @Override
+    public String paymentInfo_Ok(Integer id) &#123;
+        return &quot;-----PaymentFallbackService fall back_info_Ok&quot;;
+    &#125;
+
+    @Override
+    public String paymentInfo_TimeOut(Integer id) &#123;
+        return &quot;-----PaymentFallbackService fall back_info_Timeout&quot;;
+    &#125;
+&#125;
+</code></pre>
+<p>YML  </p>
+<pre><code>...
+feign:
+  hystrix:
+    enabled: true  
+</code></pre>
+<p>PaymentHystrixService接口</p>
+<pre><code>@Service
+@FeignClient(value = &quot;http://CLOUD-HYXTRIX-PAYMENT-SERVICE&quot;,fallback = PaymentFallbackService.class)
+public interface PaymentHystrixService &#123;
+    @GetMapping(&quot;/payment/hystrix/ok/&#123;id&#125;&quot;)
+    public String paymentInfo_Ok(@PathVariable(&quot;id&quot;)Integer id);
+
+    @GetMapping(&quot;/payment/hystrix/timeout/&#123;id&#125;&quot;)
+    public String paymentInfo_TimeOut(@PathVariable(&quot;id&quot;)Integer id);
+&#125;
+</code></pre>
+<p>单个eureka先启动7001</p>
+<p>PaymentHystrixMain8001启动</p>
+<p>正常访问测试 - <a href="http://localhost/consumer/payment/hystrix/ok/1">http://localhost/consumer/payment/hystrix/ok/1</a></p>
+<p>故意关闭微服务8001</p>
+<p>客户端自己调用提示 - 此时服务端provider已经down了，但是我们做了服务降级处理，让客户端在<code>服务端不可用</code>时也会获得提示信息而不会挂起耗死服务器。</p>
+<h2 id="服务熔断-1"><a href="#服务熔断-1" class="headerlink" title="服务熔断"></a>服务熔断</h2><h3 id="Hystrix之服务熔断理论"><a href="#Hystrix之服务熔断理论" class="headerlink" title="Hystrix之服务熔断理论"></a>Hystrix之服务熔断理论</h3><p>断路器，相当于保险丝。</p>
+<h3 id="熔断机制概述"><a href="#熔断机制概述" class="headerlink" title="熔断机制概述"></a>熔断机制概述</h3><p>熔断机制是应对雪崩效应的一种微服务链路保护机制。当扇出链路的某个微服务出错不可用或者响应时间太长时，会进行服务的降级，进而熔断该节点微服务的调用，快速返回错误的响应信息。当检测到该节点微服务调用响应正常后，恢复调用链路。</p>
+<p>在Spring Cloud框架里，熔断机制通过Hystrix实现。Hystrix会监控微服务间调用的状况，当失败的调用到一定阈值，缺省是5秒内20次调用失败，就会启动熔断机制。熔断机制的注解是@HystrixCommand。</p>
+<p><img data-src="/images/pasted-259.png" alt="upload successful">  </p>
+<h3 id="熔断机制实例"><a href="#熔断机制实例" class="headerlink" title="熔断机制实例"></a>熔断机制实例</h3><pre><code>//服务熔断
+    @HystrixCommand(fallbackMethod = &quot;paymentCircuitBreaker_fallback&quot;,commandProperties = &#123;
+            @HystrixProperty(name=&quot;circuitBreaker.enabled&quot;,value = &quot;true&quot;),//是否开启断路器
+            @HystrixProperty(name = &quot;circuitBreaker.requestVolumeThreshold&quot;,value = &quot;10&quot;),//请求次数
+            @HystrixProperty(name = &quot;circuitBreaker.sleepWindowInMilliseconds&quot;,value = &quot;10000&quot;),//时间窗口期
+            @HystrixProperty(name = &quot;circuitBreaker.errorThresholdPercentage&quot;,value = &quot;60&quot;) //失败率达到多少后跳闸
+    &#125;)
+    public String paymentCircuitBreaker(@PathVariable(&quot;id&quot;)Integer id)&#123;
+        if (id &lt; 0)&#123;
+            throw new RuntimeException(&quot;***id不能为负数&quot;);
+        &#125;
+        String serialNUmber = IdUtil.simpleUUID();
+        return Thread.currentThread().getName() + &quot;\t&quot; + &quot;调用成功&quot;+serialNUmber;
+    &#125;
+
+    public String paymentCircuitBreaker_fallback(@PathVariable(&quot;id&quot;)Integer id)&#123;
+        return &quot;id 不能为负数,请稍后再试&quot;;
+    &#125;
+    
+    
+</code></pre>
+<p>The precise way that the circuit opening and closing occurs is as follows:</p>
+<p>Assuming the volume across a circuit meets a certain threshold : <code>HystrixCommandProperties.circuitBreakerRequestVolumeThreshold()</code><br>And assuming that the error percentage, as defined above exceeds the error percentage defined in :<br><code>HystrixCommandProperties.circuitBreakerErrorThresholdPercentage()</code><br>Then the circuit-breaker transitions from CLOSED to OPEN.  </p>
+<p>While it is open, it short-circuits all requests made against that circuit-breaker.  </p>
+<p>After some amount of time (<code>HystrixCommandProperties.circuitBreakerSleepWindowInMilliseconds()</code>), the next request is let through. If it fails, the command stays OPEN for the sleep window. If it succeeds, it transitions to CLOSED and the logic in 1) takes over again.</p>
+<p>具体配置类的属性可以看<code>HystrixCommandProperties</code>这个类的属性  </p>
+<p>Controller类</p>
+<pre><code>//服务熔断
+    @GetMapping(&quot;/payment/circuit/&#123;id&#125;&quot;)
+    public String paymentCircuitBreaker(@PathVariable(&quot;id&quot;) Integer id)&#123;
+        String res = paymentService.paymentCircuitBreaker(id);
+        log.info(&quot;*****result&quot;+res);
+        return res;
+    &#125;
+</code></pre>
+<p><img data-src="/images/pasted-260.png" alt="upload successful"><br>首先模拟10s内多次错误，触发断路器，引起服务熔断 </p>
+<p><img data-src="/images/pasted-261.png" alt="upload successful"><br>断路器触发后，所有的服务一律服务降级处理  </p>
+<p><img data-src="/images/pasted-262.png" alt="upload successful"><br>过段时间后就会恢复服务，类似于断路器从半开的状态。  </p>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>熔断类型有三种  </p>
+<ul>
+<li>熔断打开：请求不再进行调用当前服务，内部设置时钟一般为MTTR(平均故障处理时间)，当打开时长达到所设时钟则进入半熔断状态。</li>
+<li>熔断关闭：熔断关闭不会对服务进行熔断。</li>
+<li>熔断半开：部分请求根据规则调用当前服务，如果请求成功且符合规则则认为当前服务恢复正常，关闭熔断。</li>
+</ul>
+<p>涉及到断路器的三个重要参数：</p>
+<ul>
+<li>快照时间窗：断路器确定是否打开需要统计一些请求和错误数据，而统计的时间范围就是快照时间窗，默认为最近的10秒。</li>
+<li>请求总数阀值：在快照时间窗内，必须满足请求总数阀值才有资格熔断。默认为20，意味着在10秒内，如果该hystrix命令的调用次数不足20次,即使所有的请求都超时或其他原因失败，断路器都不会打开。</li>
+<li>错误百分比阀值：当请求总数在快照时间窗内超过了阀值，比如发生了30次调用，如果在这30次调用中，有15次发生了超时异常，也就是超过50%的错误百分比，在默认设定50%阀值情况下，这时候就会将断路器打开。</li>
+</ul>
+<p>到达以下阀值，断路器将会开启：</p>
+<ul>
+<li>当满足一定的阀值的时候（默认10秒内超过20个请求次数)</li>
+<li>当失败率达到一定的时候（默认10秒内超过50%的请求失败)</li>
+<li>当开启的时候，所有请求都不会进行转发</li>
+</ul>
+<p>一段时间之后（默认是5秒)，这个时候断路器是半开状态，会让其中一个请求进行转发。如果成功，断路器会关闭，若失败，继续开启。</p>
+<p>断路器打开之后</p>
+<ul>
+<li><p>1：再有请求调用的时候，将不会调用主逻辑，而是直接调用降级fallback。通过断路器，实现了自动地发现错误并将降级逻辑切换为主逻辑，减少响应延迟的效果。</p>
+</li>
+<li><p>2：原来的主逻辑要如何恢复呢？</p>
+</li>
+</ul>
+<p>对于这一问题，hystrix也为我们实现了自动恢复功能。</p>
+<p>当断路器打开，对主逻辑进行熔断之后，hystrix会启动一个休眠时间窗，在这个时间窗内，降级逻辑是临时的成为主逻辑，当休眠时间窗到期，断路器将进入半开状态，释放一次请求到原来的主逻辑上，如果此次请求正常返回，那么断路器将继续闭合，主逻辑恢复，如果这次请求依然有问题，断路器继续进入打开状态，休眠时间窗重新计时。</p>
+<h1 id="Hystrix-Dashboard"><a href="#Hystrix-Dashboard" class="headerlink" title="Hystrix-Dashboard"></a>Hystrix-Dashboard</h1><p>pom依赖  </p>
+<pre><code>&lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-netflix-hystrix-dashboard&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-devtools&lt;/artifactId&gt;
+            &lt;scope&gt;runtime&lt;/scope&gt;
+            &lt;optional&gt;true&lt;/optional&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+            &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+            &lt;optional&gt;true&lt;/optional&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+</code></pre>
+<p>所有Provider微服务提供类(8001&#x2F;8002&#x2F;8003)都需要监控依赖配置</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+<p>localhost:9001&#x2F;hystrix</p>
+<p><img data-src="/images/pasted-263.png" alt="upload successful">  </p>
+<p>修改cloud-provider-hystrix-payment8001</p>
+<p>注意：新版本Hystrix需要在主启动类PaymentHystrixMain8001中指定监控路径</p>
+<pre><code>@SpringBootApplication
+@EnableEurekaClient
+@EnableCircuitBreaker
+public class PaymentHystrixMain8001
+&#123;
+    public static void main(String[] args) &#123;
+            SpringApplication.run(PaymentHystrixMain8001.class, args);
+    &#125;
+
+
+    /**
+     *此配置是为了服务监控而配置，与服务容错本身无关，springcloud升级后的坑
+     *ServletRegistrationBean因为springboot的默认路径不是&quot;/hystrix.stream&quot;，
+     *只要在自己的项目里配置上下面的servlet就可以了
+     *否则，Unable to connect to Command Metric Stream 404
+     */
+    @Bean
+    public ServletRegistrationBean getServlet() &#123;
+        HystrixMetricsStreamServlet streamServlet = new HystrixMetricsStreamServlet();
+        ServletRegistrationBean registrationBean = new ServletRegistrationBean(streamServlet);
+        registrationBean.setLoadOnStartup(1);
+        registrationBean.addUrlMappings(&quot;/hystrix.stream&quot;);
+        registrationBean.setName(&quot;HystrixMetricsStreamServlet&quot;);
+        return registrationBean;
+    &#125;
+&#125;
+</code></pre>
+<p>监控localhost8001&#x2F;payment&#x2F;circuit&#x2F;1</p>
+<p><img data-src="/images/pasted-264.png" alt="upload successful"><br>此时断路器为绿色的，一直没有打开  </p>
+<p>多次访问localhost8001&#x2F;payment&#x2F;circuit&#x2F;-1</p>
+<p><img data-src="/images/pasted-265.png" alt="upload successful"><br>断路器开启</p>
 ]]></content>
   </entry>
 </search>
