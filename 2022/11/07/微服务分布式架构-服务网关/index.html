@@ -23,7 +23,7 @@
 
     <meta name="description" content="Gateway是在Spring生态系统之上构建的API网关服务，基于Spring 5，Spring Boot 2和Project Reactor等技术。Gateway旨在提供一种简单而有效的方式来对API进行路由，以及提供一些强大的过滤器功能，例如:熔断、限流、重试等。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="微服务分布式架构-服务网关Gateway、Config配置中心">
+<meta property="og:title" content="微服务分布式架构-Gateway服务网关、Config分布式配置中心、Bus消息总线、stream消息驱动">
 <meta property="og:url" content="https://ykxzyp0517.cn/2022/11/07/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84-%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/index.html">
 <meta property="og:site_name" content="Young&#39;s Land">
 <meta property="og:description" content="Gateway是在Spring生态系统之上构建的API网关服务，基于Spring 5，Spring Boot 2和Project Reactor等技术。Gateway旨在提供一种简单而有效的方式来对API进行路由，以及提供一些强大的过滤器功能，例如:熔断、限流、重试等。">
@@ -33,11 +33,40 @@
 <meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-269.png">
 <meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-270.png">
 <meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-271.png">
-<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-272.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-281.png">
 <meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-273.png">
 <meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-274.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-275.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-276.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-277.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-278.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-279.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-280.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-324.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-325.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-326.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-327.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-328.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-329.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-330.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-331.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-332.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-333.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-334.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-335.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-336.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-337.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-338.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-339.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-340.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-341.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-342.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-343.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-344.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-345.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-346.png">
 <meta property="article:published_time" content="2022-11-07T05:14:03.000Z">
-<meta property="article:modified_time" content="2022-11-07T14:32:57.313Z">
+<meta property="article:modified_time" content="2022-11-16T05:06:14.922Z">
 <meta property="article:author" content="KaiXuan Young">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://ykxzyp0517.cn/images/pasted-267.png">
@@ -47,10 +76,10 @@
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ykxzyp0517.cn/2022/11/07/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84-%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/","path":"2022/11/07/微服务分布式架构-服务网关/","title":"微服务分布式架构-服务网关Gateway、Config配置中心"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ykxzyp0517.cn/2022/11/07/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84-%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/","path":"2022/11/07/微服务分布式架构-服务网关/","title":"微服务分布式架构-Gateway服务网关、Config分布式配置中心、Bus消息总线、stream消息驱动"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>微服务分布式架构-服务网关Gateway、Config配置中心 | Young's Land</title>
+<title>微服务分布式架构-Gateway服务网关、Config分布式配置中心、Bus消息总线、stream消息驱动 | Young's Land</title>
   
 
 
@@ -98,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">12</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>分类<span class="badge">3</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签<span class="badge">3</span></a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">14</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>分类<span class="badge">2</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签<span class="badge">3</span></a></li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
         </a>
@@ -155,7 +184,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%AD%E7%BD%91%E5%85%B3%E7%9A%84%E4%BD%8D%E7%BD%AE"><span class="nav-text">微服务架构中网关的位置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GateWay%E9%9D%9E%E9%98%BB%E5%A1%9E%E5%BC%82%E6%AD%A5%E6%A8%A1%E5%9E%8B"><span class="nav-text">GateWay非阻塞异步模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Zuul1-x%E6%A8%A1%E5%9E%8B"><span class="nav-text">Zuul1.x模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Gateway%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-text">Gateway工作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E5%A4%A7%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-text">三大核心概念</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%90%AD%E5%BB%BAGateway"><span class="nav-text">搭建Gateway</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#gateway%E5%9C%A8%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6yml%E9%85%8D%E7%BD%AE"><span class="nav-text">gateway在配置文件yml配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E4%B8%AD%E6%B3%A8%E5%85%A5RouteLocator%E7%9A%84Bean"><span class="nav-text">代码中注入RouteLocator的Bean</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GateWay%E9%85%8D%E7%BD%AE%E5%8A%A8%E6%80%81%E8%B7%AF%E7%94%B1"><span class="nav-text">GateWay配置动态路由</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Route-Predicate-%E6%96%AD%E8%A8%80"><span class="nav-text">Route Predicate 断言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GateWay%E7%9A%84Filter"><span class="nav-text">GateWay的Filter</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Config%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83"><span class="nav-text">Config配置中心</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#configserver%E7%9A%84%E9%85%8D%E7%BD%AE"><span class="nav-text">configserver的配置</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%AD%E7%BD%91%E5%85%B3%E7%9A%84%E4%BD%8D%E7%BD%AE"><span class="nav-text">微服务架构中网关的位置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GateWay%E9%9D%9E%E9%98%BB%E5%A1%9E%E5%BC%82%E6%AD%A5%E6%A8%A1%E5%9E%8B"><span class="nav-text">GateWay非阻塞异步模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Zuul1-x%E6%A8%A1%E5%9E%8B"><span class="nav-text">Zuul1.x模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Gateway%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-text">Gateway工作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E5%A4%A7%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-text">三大核心概念</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%90%AD%E5%BB%BAGateway"><span class="nav-text">搭建Gateway</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#gateway%E5%9C%A8%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6yml%E9%85%8D%E7%BD%AE"><span class="nav-text">gateway在配置文件yml配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E4%B8%AD%E6%B3%A8%E5%85%A5RouteLocator%E7%9A%84Bean"><span class="nav-text">代码中注入RouteLocator的Bean</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GateWay%E9%85%8D%E7%BD%AE%E5%8A%A8%E6%80%81%E8%B7%AF%E7%94%B1"><span class="nav-text">GateWay配置动态路由</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Route-Predicate-%E6%96%AD%E8%A8%80"><span class="nav-text">Route Predicate 断言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GateWay%E7%9A%84Filter"><span class="nav-text">GateWay的Filter</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Config%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83"><span class="nav-text">Config配置中心</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#configServer%E9%85%8D%E7%BD%AE"><span class="nav-text">configServer配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E8%AF%BB%E5%8F%96%E8%A7%84%E5%88%99"><span class="nav-text">配置读取规则</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#configClient%E9%85%8D%E7%BD%AE"><span class="nav-text">configClient配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Config%E5%8A%A8%E6%80%81%E5%88%B7%E6%96%B0"><span class="nav-text">Config动态刷新</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E6%80%BB%E7%BA%BF"><span class="nav-text">消息总线</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Bus%E5%8A%A8%E6%80%81%E5%88%B7%E6%96%B0%E5%85%A8%E5%B1%80%E5%B9%BF%E6%92%AD%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3%E5%92%8C%E9%80%89%E5%9E%8B"><span class="nav-text">Bus动态刷新全局广播的设计思想和选型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%A4%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3"><span class="nav-text">两种设计思想</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%993344-3355-3366%E6%B7%BB%E5%8A%A0%E6%B6%88%E6%81%AF%E6%80%BB%E7%BA%BF%E7%9A%84%E6%94%AF%E6%8C%81"><span class="nav-text">给3344,3355,3366添加消息总线的支持</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Bus%E5%8A%A8%E6%80%81%E5%88%B7%E6%96%B0%E5%AE%9A%E7%82%B9%E9%80%9A%E7%9F%A5"><span class="nav-text">Bus动态刷新定点通知</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Stream%E6%B6%88%E6%81%AF%E9%A9%B1%E5%8A%A8"><span class="nav-text">Stream消息驱动</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Stream%E7%BC%96%E7%A0%81%E5%B8%B8%E7%94%A8%E6%B3%A8%E8%A7%A3%E7%AE%80%E4%BB%8B"><span class="nav-text">Stream编码常用注解简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E8%80%85"><span class="nav-text">生产者</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85"><span class="nav-text">消费者</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%E9%97%AE%E9%A2%98"><span class="nav-text">重复消费问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8802-x2F-8803%E9%83%BD%E5%8F%98%E6%88%90%E4%B8%8D%E5%90%8C%E7%BB%84%EF%BC%8Cgroup%E4%B8%A4%E4%B8%AA%E4%B8%8D%E5%90%8C"><span class="nav-text">8802&#x2F;8803都变成不同组，group两个不同</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Stream%E4%B9%8B%E6%B6%88%E6%81%AF%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-text">Stream之消息持久化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Sleuth%E4%B9%8Bzipkin%E6%90%AD%E5%BB%BA%E5%AE%89%E8%A3%85"><span class="nav-text">Sleuth之zipkin搭建安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Sleuth%E9%93%BE%E8%B7%AF%E7%9B%91%E6%8E%A7%E5%B1%95%E7%8E%B0"><span class="nav-text">Sleuth链路监控展现</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -170,13 +199,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-count">14</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">2</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -245,12 +274,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="微服务分布式架构-服务网关Gateway、Config配置中心 | Young's Land">
+      <meta itemprop="name" content="微服务分布式架构-Gateway服务网关、Config分布式配置中心、Bus消息总线、stream消息驱动 | Young's Land">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          微服务分布式架构-服务网关Gateway、Config配置中心
+          微服务分布式架构-Gateway服务网关、Config分布式配置中心、Bus消息总线、stream消息驱动
         </h1>
 
         <div class="post-meta-container">
@@ -260,9 +289,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2022-11-07 13:14:03 / 修改时间：22:32:57" itemprop="dateCreated datePublished" datetime="2022-11-07T13:14:03+08:00">2022-11-07</time>
+      <time title="创建时间：2022-11-07 13:14:03" itemprop="dateCreated datePublished" datetime="2022-11-07T13:14:03+08:00">2022-11-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-11-16 13:06:14" itemprop="dateModified" datetime="2022-11-16T13:06:14+08:00">2022-11-16</time>
     </span>
 
   
@@ -547,7 +582,7 @@ public class MyLogGateWayFilter implements GlobalFilter,Ordered
 <h1 id="Config配置中心"><a href="#Config配置中心" class="headerlink" title="Config配置中心"></a>Config配置中心</h1><p>分布式系统面临的配置问题</p>
 <p>微服务意味着要将单体应用中的业务拆分成一个个子服务，每个服务的粒度相对较小，因此系统中会出现大量的服务。由于每个服务都需要必要的配置信息才能运行，所以一套集中式的、动态的配置管理设施是必不可少的。</p>
 <p>SpringCloud提供了ConfigServer来解决这个问题，我们每一个微服务自己带着一个application.yml，上百个配置文件的管理.……</p>
-<p><img data-src="/images/pasted-272.png" alt="upload successful"><br>SpringCloud Config为微服务架构中的微服务提供集中化的外部配置支持，配置服务器为各个不同微服务应用的所有环境提供了一个中心化的外部配置。  </p>
+<p><img data-src="/images/pasted-281.png" alt="upload successful"><br>SpringCloud Config为微服务架构中的微服务提供集中化的外部配置支持，配置服务器为各个不同微服务应用的所有环境提供了一个中心化的外部配置。  </p>
 <blockquote>
 <p>怎么玩</p>
 </blockquote>
@@ -569,7 +604,7 @@ public class MyLogGateWayFilter implements GlobalFilter,Ordered
 <li>当配置发生变动时，服务不需要重启即可感知到配置的变化并应用新的配置</li>
 <li>将配置信息以REST接口的形式暴露 - post&#x2F;crul访问刷新即可…</li>
 </ul>
-<h2 id="configserver的配置"><a href="#configserver的配置" class="headerlink" title="configserver的配置"></a>configserver的配置</h2><p>首先在github上创建三个测试用的yml文件</p>
+<h2 id="configServer配置"><a href="#configServer配置" class="headerlink" title="configServer配置"></a>configServer配置</h2><p>首先在github上创建三个测试用的yml文件</p>
 <p><img data-src="/images/pasted-273.png" alt="upload successful"><br>pom</p>
 <pre><code>&lt;dependencies&gt;
         &lt;!--添加消息总线RabbitMQ支持--&gt;
@@ -643,7 +678,523 @@ public class MainAppConfigCenter3344 &#123;
     &#125;
 &#125;
 </code></pre>
-<p>能够成功获取配置内容<br><img data-src="/images/pasted-274.png" alt="upload successful">  </p>
+<p>能够成功获取配置内容<br><img data-src="/images/pasted-274.png" alt="upload successful"></p>
+<h3 id="配置读取规则"><a href="#配置读取规则" class="headerlink" title="配置读取规则"></a>配置读取规则</h3><p>配置读取规则  </p>
+<blockquote>
+<p>&#x2F;{label}&#x2F;{application}-{profile}.yml（推荐）  </p>
+</blockquote>
+<p><img data-src="/images/pasted-275.png" alt="upload successful">  </p>
+<h2 id="configClient配置"><a href="#configClient配置" class="headerlink" title="configClient配置"></a>configClient配置</h2><p>新建cloud-config-client-3355</p>
+<p>POM</p>
+<pre><code>&lt;dependencies&gt;
+        &lt;!--添加消息总线RabbitMQ支持--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-bus-amqp&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-config&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-devtools&lt;/artifactId&gt;
+            &lt;scope&gt;runtime&lt;/scope&gt;
+            &lt;optional&gt;true&lt;/optional&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+            &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+            &lt;optional&gt;true&lt;/optional&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+</code></pre>
+<blockquote>
+<p>bootstrap.yml</p>
+</blockquote>
+<p>applicaiton.yml是用户级的资源配置项</p>
+<p>bootstrap.yml是系统级的，优先级更加高</p>
+<p>Spring Cloud会创建一个Bootstrap Context，作为Spring应用的Application Context的<code>父上下文</code>。</p>
+<p>初始化的时候，BootstrapContext负责从外部源加载配置属性并解析配置。这两个上下文共享一个从外部获取的Environment。</p>
+<p>Bootstrap属性有高优先级，默认情况下，它们不会被本地配置覆盖。Bootstrap context和Application Context有着不同的约定，所以新增了一个bootstrap.yml文件，保证Bootstrap Context和Application Context配置的分离。</p>
+<p>要将Client模块下的application.yml文件改为bootstrap.yml,这是很关键的，因为bootstrap.yml是比application.yml先加载的。bootstrap.yml优先级高于application.yml。</p>
+<pre><code>server:
+  port: 3355
+spring:
+  application:
+    name: config-client
+  cloud:
+    config:
+      label: main
+      name: config
+      profile: dev
+      uri: http://localhost:3344  # http://localhost:3344/main/config-test.yml
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:7001/eureka
+</code></pre>
+<p>controller</p>
+<pre><code>@RestController
+public class ConfigClientController &#123;
+    @Value(&quot;$&#123;config.info&#125;&quot;)
+    private String configInfo;
+
+    @GetMapping(&quot;/configInfo&quot;)
+    public String getConfigInfo()&#123;
+        return configInfo;
+
+    &#125;
+&#125;
+</code></pre>
+<p>测试</p>
+<p><img data-src="/images/pasted-276.png" alt="upload successful">  </p>
+<h2 id="Config动态刷新"><a href="#Config动态刷新" class="headerlink" title="Config动态刷新"></a>Config动态刷新</h2><p>我们修改github上的版本号后发现，3344配置中心是能够获取到最新的版本的。但是3355客户端立刻响应无法获得最新的版本号。</p>
+<p><img data-src="/images/pasted-277.png" alt="upload successful">  </p>
+<p><img data-src="/images/pasted-278.png" alt="upload successful"><br>为了避免每次修改配置都需要重启客户端3355，从3344也就是github拉去最新的配置 进行如下配置  </p>
+<ul>
+<li><p>pom引入actuator,提供监控</p>
+<pre><code>  &lt;dependency&gt;
+              &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+              &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+          &lt;/dependency&gt;
+</code></pre>
+</li>
+<li><p>暴露监控端点</p>
+<p>  management:<br>endpoints:<br>  web:<br>    exposure:<br>      include: “*”
+      </p>
+</li>
+<li><p>@RefreshScope业务类Controller修改</p>
+<p>  @RestController<br>  @RefreshScope<br>  public class ConfigClientController {<br>  @Value(“${config.info}”)<br>  private String configInfo;<br><br>  @GetMapping(“&#x2F;configInfo”)<br>  public String getConfigInfo(){<br>      return configInfo;<br><br>  }<br>  }</p>
+</li>
+<li><p>此时3355还不能直接获取到最新的配置，需要运维人员发送POST请求激活3355</p>
+</li>
+</ul>
+<p><img data-src="/images/pasted-279.png" alt="upload successful"><br>激活后就能成功获取最新的配置</p>
+<p><img data-src="/images/pasted-280.png" alt="upload successful"></p>
+<h1 id="消息总线"><a href="#消息总线" class="headerlink" title="消息总线"></a>消息总线</h1><p>Spring Cloud Bus是用来将分布式系统的节点与轻量级消息系统链接起来的框架，它整合了Java的事件处理机制和消息中间件的功能。Spring Clud Bus目前支持RabbitMQ和Kafka。</p>
+<p>Spring Cloud Bus能管理和传播分布式系统间的消息，就像一个分布式执行器，可用于广播状态更改、事件推送等，也可以当作微服务间的通信通道。<br><img data-src="/images/pasted-324.png" alt="upload successful"><br>什么是总线  </p>
+<p>在微服务架构的系统中，通常会使用轻量级的消息代理来构建一个共用的消息主题，并让系统中所有微服务实例都连接上来。由于该主题中产生的消息会被所有实例监听和消费，所以称它为消息总线。在总线上的各个实例，都可以方便地广播一些需要让其他连接在该主题上的实例都知道的消息。  </p>
+<p>基本原理  </p>
+<p>ConfigClient实例都监听MQ中同一个topic(默认是Spring Cloud Bus)。当一个服务刷新数据的时候，它会把这个信息放入到Topic中，这样其它监听同一Topic的服务就能得到通知，然后去更新自身的配置。</p>
+<h2 id="Bus动态刷新全局广播的设计思想和选型"><a href="#Bus动态刷新全局广播的设计思想和选型" class="headerlink" title="Bus动态刷新全局广播的设计思想和选型"></a>Bus动态刷新全局广播的设计思想和选型</h2><p>必须先具备良好的RabbitMQ环境先</p>
+<p>演示广播效果，增加复杂度，再以3355为模板再制作一个3366  </p>
+<p>pom</p>
+<pre><code>&lt;dependencies&gt;
+        &lt;!--添加消息总线RabbitMQ支持--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-bus-amqp&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-config&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-devtools&lt;/artifactId&gt;
+            &lt;scope&gt;runtime&lt;/scope&gt;
+            &lt;optional&gt;true&lt;/optional&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+            &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+            &lt;optional&gt;true&lt;/optional&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+</code></pre>
+<p>yml  </p>
+<pre><code>server:
+  port: 3366
+
+spring:
+  application:
+    name: config-client
+  cloud:
+    #Config客户端配置
+    config:
+      label: master #分支名称
+      name: config #配置文件名称
+      profile: dev #读取后缀名称   上述3个综合：master分支上config-dev.yml的配置文件被读取http://config-3344.com:3344/master/config-dev.yml
+      uri: http://localhost:3344 #配置中心地址
+
+  #rabbitmq相关配置 15672是Web管理界面的端口；5672是MQ访问的端口
+  rabbitmq:
+    host: 192.168.200.160
+    port: 5672
+    username: admin
+    password: 123
+
+#服务注册到eureka地址
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:7001/eureka
+
+# 暴露监控端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: &quot;*&quot;
+</code></pre>
+<p>住启动类</p>
+<pre><code>    @SpringBootApplication
+@EnableEurekaClient
+public class ConfigClient3366 &#123;
+    public static void main(String[] args) &#123;
+        SpringApplication.run(ConfigClient3366.class , args);
+    &#125;
+&#125;
+</code></pre>
+<p>controller</p>
+<pre><code> */
+@RestController
+@RefreshScope
+public class ConfigClientController &#123;
+
+    @Value(&quot;$&#123;server.port&#125;&quot;)
+    private String serverPort;
+
+    @Value(&quot;$&#123;config.info&#125;&quot;)
+    private String configInfo;
+
+    @GetMapping(&quot;/configInfo&quot;)
+    public String configInfo()
+    &#123;
+        return &quot;serverPort: &quot;+serverPort+&quot;\t\n\n configInfo: &quot;+configInfo;
+    &#125;
+
+&#125;
+</code></pre>
+<h3 id="两种设计思想"><a href="#两种设计思想" class="headerlink" title="两种设计思想"></a>两种设计思想</h3><p><img data-src="/images/pasted-325.png" alt="upload successful"><br>利用消息总线触发一个客户端&#x2F;bus&#x2F;refresh,而刷新所有客户端的配置  </p>
+<p><img data-src="/images/pasted-326.png" alt="upload successful"><br>利用消息总线触发一个服务端ConfigServer的&#x2F;bus&#x2F;refresh端点，而刷新所有客户端的配置  </p>
+<blockquote>
+<p>图二的架构显然更加适合，图—不适合的原因如下：</p>
+</blockquote>
+<ul>
+<li><p>打破了微服务的职责单一性，因为微服务本身是业务模块，它本不应该承担配置刷新的职责。</p>
+</li>
+<li><p>破坏了微服务各节点的对等性。</p>
+</li>
+<li><p>有一定的局限性。例如，微服务在迁移时，它的网络地址常常会发生变化，此时如果想要做到自动刷新，那就会增加更多的修改。</p>
+</li>
+</ul>
+<h3 id="给3344-3355-3366添加消息总线的支持"><a href="#给3344-3355-3366添加消息总线的支持" class="headerlink" title="给3344,3355,3366添加消息总线的支持"></a>给3344,3355,3366添加消息总线的支持</h3><p>三个都是相同的，赋予rabbitmq的支持<br>pom</p>
+<pre><code>&lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-bus-amqp&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+</code></pre>
+<p>yml </p>
+<pre><code>  rabbitmq:
+    host: 192.168.200.160
+    port: 5672
+    username: admin
+    password: 123
+</code></pre>
+<p>其中需要注意的，因为采用技术的选型是通过server进行广播通知，所以3344的yml需要额外的配置，暴露’bus-refresh’  </p>
+<pre><code>management:
+  endpoints: #暴露bus刷新配置的端点
+    web:
+      exposure:
+        include: &#39;bus-refresh&#39;
+</code></pre>
+<p>此时3344得到版本号为5</p>
+<p><img data-src="/images/pasted-327.png" alt="upload successful">  </p>
+<p>3355,3366得到的版本号是5</p>
+<p><img data-src="/images/pasted-328.png" alt="upload successful">  </p>
+<p>此时，发送curl请求给3344进行全局广播  </p>
+<p><img data-src="/images/pasted-329.png" alt="upload successful"><br>此时，3344，3355,3366不需要重启都可以生效配置中心更新  </p>
+<p><img data-src="/images/pasted-330.png" alt="upload successful"><br>我们去rabbitmq的服务管理可以看到，生成了一个名为springCloudBus的topic交换机  </p>
+<p><img data-src="/images/pasted-331.png" alt="upload successful">  </p>
+<h2 id="Bus动态刷新定点通知"><a href="#Bus动态刷新定点通知" class="headerlink" title="Bus动态刷新定点通知"></a>Bus动态刷新定点通知</h2><p>简单一句话 - 指定具体某一个实例生效而不是全部  </p>
+<p>公式：<a target="_blank" rel="noopener" href="http://localhost:3344/actuator/bus-refresh/%7Bdestination%7D">http://localhost:3344/actuator/bus-refresh/{destination}</a></p>
+<p>&#x2F;bus&#x2F;refresh请求不再发送到具体的服务实例上，而是发给config server通过destination参数类指定需要更新配置的服务或实例</p>
+<p><img data-src="/images/pasted-332.png" alt="upload successful">  </p>
+<p><img data-src="/images/pasted-333.png" alt="upload successful"><br>此时3355是7  </p>
+<p><img data-src="/images/pasted-334.png" alt="upload successful"><br>3366是6，没有更新</p>
+<h1 id="Stream消息驱动"><a href="#Stream消息驱动" class="headerlink" title="Stream消息驱动"></a>Stream消息驱动</h1><blockquote>
+<p>什么是Spring Cloud Stream？</p>
+</blockquote>
+<p>官方定义Spring Cloud Stream是一个构建消息驱动微服务的框架。</p>
+<p>应用程序通过inputs或者 outputs 来与Spring Cloud Stream中binder对象交互。</p>
+<p>通过我们配置来binding(绑定)，而Spring Cloud Stream 的binder对象负责与消息中间件交互。所以，我们只需要搞清楚如何与Spring Cloud Stream交互就可以方便使用消息驱动的方式。</p>
+<p>通过使用Spring Integration来连接消息代理中间件以实现消息事件驱动。<br>Spring Cloud Stream为一些供应商的消息中间件产品提供了个性化的自动化配置实现，引用了发布-订阅、消费组、分区的三个核心概念。</p>
+<blockquote>
+<p>为什么使用Stream?  </p>
+</blockquote>
+<p><img data-src="/images/pasted-335.png" alt="upload successful"><br>比方说我们用到了RabbitMQ和Kafka，由于这两个消息中间件的架构上的不同，像RabbitMQ有exchange，kafka有Topic和Partitions分区。<br>这些中间件的差异性导致我们实际项目开发给我们造成了一定的困扰，我们如果用了两个消息队列的其中一种，后面的业务需求，我想往另外一种消息队列进行迁移，这时候无疑就是一个灾难性的，一大堆东西都要重新推倒重新做，因为它跟我们的系统耦合了，这时候Spring Cloud Stream给我们提供了—种解耦合的方式。</p>
+<blockquote>
+<p>Stream凭什么可以统一底层差异？</p>
+</blockquote>
+<p>在没有绑定器这个概念的情况下，我们的SpringBoot应用要直接与消息中间件进行信息交互的时候，由于各消息中间件构建的初衷不同，它们的实现细节上会有较大的差异性通过定义绑定器作为中间层，完美地实现了应用程序与消息中间件细节之间的隔离。通过向应用程序暴露统一的Channel通道，使得应用程序不需要再考虑各种不同的消息中间件实现。  </p>
+<p><strong>通过定义绑定器Binder作为中间层，实现了应用程序与消息中间件细节之间的隔离。</strong>  </p>
+<p><img data-src="/images/pasted-336.png" alt="upload successful">  </p>
+<h2 id="Stream编码常用注解简介"><a href="#Stream编码常用注解简介" class="headerlink" title="Stream编码常用注解简介"></a>Stream编码常用注解简介</h2><p><img data-src="/images/pasted-337.png" alt="upload successful">  </p>
+<p><img data-src="/images/pasted-338.png" alt="upload successful">  </p>
+<ul>
+<li><p>Binder - 很方便的连接中间件，屏蔽差异。</p>
+</li>
+<li><p>Channel - 通道，是队列Queue的一种抽象，在消息通讯系统中就是实现存储和转发的媒介，通过Channel对队列进行配置。</p>
+</li>
+<li><p>Source和Sink - 简单的可理解为参照对象是Spring Cloud Stream自身，从Stream发布消息就是输出，接受消息就是输入。</p>
+</li>
+</ul>
+<blockquote>
+<p>编码API和常用注解  </p>
+</blockquote>
+<p><img data-src="/images/pasted-339.png" alt="upload successful">  </p>
+<h2 id="生产者"><a href="#生产者" class="headerlink" title="生产者"></a>生产者</h2><p>pom</p>
+<pre><code>&lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-stream-rabbit&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;!--基础配置--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-devtools&lt;/artifactId&gt;
+            &lt;scope&gt;runtime&lt;/scope&gt;
+            &lt;optional&gt;true&lt;/optional&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+            &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+            &lt;optional&gt;true&lt;/optional&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+    
+</code></pre>
+<p> yml</p>
+<pre><code>     server:
+  port: 8801
+
+spring:
+  application:
+    name: cloud-stream-provider
+  cloud:
+      stream:
+        binders: # 在此处配置要绑定的rabbitmq的服务信息；
+          defaultRabbit: # 表示定义的名称，用于于binding整合
+            type: rabbit # 消息组件类型
+            environment: # 设置rabbitmq的相关的环境配置
+              spring:
+                rabbitmq:
+                  host: localhost
+                  port: 5672
+                  username: guest
+                  password: guest
+        bindings: # 服务的整合处理
+          output: # 这个名字是一个通道的名称
+            destination: studyExchange # 表示要使用的Exchange名称定义
+            content-type: application/json # 设置消息类型，本次为json，文本则设置“text/plain”
+            binder: defaultRabbit # 设置要绑定的消息服务的具体设置
+
+eureka:
+  client: # 客户端进行Eureka注册的配置
+    service-url:
+      defaultZone: http://localhost:7001/eureka
+  instance:
+    lease-renewal-interval-in-seconds: 2 # 设置心跳的时间间隔（默认是30秒）
+    lease-expiration-duration-in-seconds: 5 # 如果现在超过了5秒的间隔（默认是90秒）
+    instance-id: send-8801.com  # 在信息列表时显示主机名称
+    prefer-ip-address: true     # 访问的路径变为IP地址
+</code></pre>
+<p>service</p>
+<pre><code>@EnableBinding(Source.class)  //定义消息生产者的发送管道
+public class IMessageProviderImpl implements IMessageProvider &#123;
+
+    @Resource
+    private MessageChannel output;
+    @Override
+    public String send() &#123;
+        String serial = UUID.randomUUID().toString();
+        output.send(MessageBuilder.withPayload(serial).build());
+        System.out.println(&quot;*****serial:&quot; + serial);
+        return serial;
+
+    &#125;
+&#125;
+</code></pre>
+<p>controller</p>
+<pre><code>@RestController
+public class SendMessageController &#123;
+    @Resource
+    private IMessageProvider messageProvider;
+
+    @GetMapping(&quot;/sendMessage&quot;)
+    public String sendMessage()&#123;
+        return messageProvider.send();
+    &#125;
+&#125;
+</code></pre>
+<p>此时RabbitMQ中生成交换机<br><img data-src="/images/pasted-340.png" alt="upload successful">  </p>
+<p><img data-src="/images/pasted-341.png" alt="upload successful">  </p>
+<h2 id="消费者"><a href="#消费者" class="headerlink" title="消费者"></a>消费者</h2><pre><code>yml
+
+server:
+  port: 8001
+spring:
+  application:
+    name: cloud-stream-provider
+  rabbitmq:
+    port: 5672
+    host: 192.168.200.160
+    username: admin
+    password: 123
+
+  cloud:
+    stream:
+      binders:
+        defaultRabbit:
+          type: rabbit
+      bindings:
+        - output:
+          destination: studyExchange
+          content-type: application/json
+          binder: defaultRabbit
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:7001/eureka
+
+  instance:
+    lease-renewal-interval-in-seconds: 2
+    lease-expiration-duration-in-seconds: 5
+    instance-id: send-8001.com
+    prefer-ip-address: true
+    
+</code></pre>
+<p>controller</p>
+<pre><code>@Component
+@EnableBinding(Sink.class)
+public class ReceiveMessageStreamController &#123;
+    @Value(&quot;$&#123;server.port&#125;&quot;)
+    private String serverPort;
+
+    @StreamListener(Sink.INPUT)
+    public void input(Message&lt;String&gt; message)&#123;
+        System.out.println(&quot;消费者1号，---&gt;接受到消息：&quot;+message.getPayload()+&quot;\t port:&quot;+serverPort);
+
+    &#125;
+&#125;
+</code></pre>
+<h2 id="重复消费问题"><a href="#重复消费问题" class="headerlink" title="重复消费问题"></a>重复消费问题</h2><p>RabbitMQ</p>
+<ul>
+<li>服务注册 - 8801</li>
+<li>消息生产 - 8801</li>
+<li>消息消费 - 8802</li>
+<li>消息消费 - 8802</li>
+</ul>
+<p><strong>消费</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://localhost:8801/sendMessage">http://localhost:8801/sendMessage</a></li>
+<li>目前是8802&#x2F;8803同时都收到了，存在重复消费问题</li>
+<li>如何解决：分组和持久化属性group（重要）</li>
+</ul>
+<p><strong>生产实际案例</strong></p>
+<p>比如在如下场景中，订单系统我们做集群部署，都会从RabbitMQ中获取订单信息，那如果一个订单同时被两个服务获取到，那么就会造成数据错误，我们得避免这种情况。这时我们就可以使用Stream中的消息分组来解决。  </p>
+<p><img data-src="/images/pasted-342.png" alt="upload successful">  </p>
+<p>注意在Stream中处于同一个group中的多个消费者是竞争关系，就能够保证消息只会被其中一个应用消费一次。不同组是可以全面消费的(重复消费)。  </p>
+<blockquote>
+<p>默认分组group是不同的，组流水号是不一样的，被认为不同组，可以重复消费   </p>
+</blockquote>
+<p><strong>原理</strong><br>微服务应用放置于同一个group中，就能够保证消息只会被其中一个应用消费一次。不同的组是可以重复消费的，同一个组内会发生竞争关系，只有其中一个可以消费。</p>
+<h3 id="8802-x2F-8803都变成不同组，group两个不同"><a href="#8802-x2F-8803都变成不同组，group两个不同" class="headerlink" title="8802&#x2F;8803都变成不同组，group两个不同"></a>8802&#x2F;8803都变成不同组，group两个不同</h3><p>group: A_Group、B_Group</p>
+<p><img data-src="/images/pasted-343.png" alt="upload successful">  </p>
+<h2 id="Stream之消息持久化"><a href="#Stream之消息持久化" class="headerlink" title="Stream之消息持久化"></a>Stream之消息持久化</h2><p>通过上述，解决了重复消费问题，再看看持久化。</p>
+<p>停止8802&#x2F;8803并去除掉8802的分组group: A_Group，8803的分组group: A_Group没有去掉。</p>
+<p>8801先发送4条消息到RabbitMq。</p>
+<p>先启动8802，无分组属性配置，后台没有打出来消息。</p>
+<h1 id="Sleuth之zipkin搭建安装"><a href="#Sleuth之zipkin搭建安装" class="headerlink" title="Sleuth之zipkin搭建安装"></a>Sleuth之zipkin搭建安装</h1><p>新版本下载地址：<a target="_blank" rel="noopener" href="https://repo1.maven.org/maven2/io/zipkin/zipkin-server/">https://repo1.maven.org/maven2/io/zipkin/zipkin-server/</a></p>
+<pre><code>运行jar包 java -jar zipkin-server-2.12.9-exec.jar
+</code></pre>
+<p> 运行控制台</p>
+<p><a target="_blank" rel="noopener" href="http://localhost:9411/zipkin/">http://localhost:9411/zipkin/</a></p>
+<p>完整的调用链路</p>
+<p>表示一请求链路，一条链路通过Trace ld唯一标识，Span标识发起的请求信息，各span通过parent id关联起来  </p>
+<p><img data-src="/images/pasted-344.png" alt="upload successful"><br>—条链路通过Trace ld唯一标识，Span标识发起的请求信息，各span通过parent id关联起来。  </p>
+<p><img data-src="/images/pasted-345.png" alt="upload successful"><br>整个链路的依赖关系如下：  </p>
+<p><img data-src="/images/pasted-346.png" alt="upload successful">  </p>
+<h1 id="Sleuth链路监控展现"><a href="#Sleuth链路监控展现" class="headerlink" title="Sleuth链路监控展现"></a>Sleuth链路监控展现</h1><pre><code>&lt;!--包含了sleuth+zipkin--&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-starter-zipkin&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+<p>YML  </p>
+<pre><code>spring:
+  application:
+    name: cloud-payment-service
+
+  zipkin: #&lt;-------------------------------------关键 
+      base-url: http://localhost:9411
+  sleuth: #&lt;-------------------------------------关键
+    sampler:
+    #采样率值介于 0 到 1 之间，1 则表示全部采集
+    probability: 1
+
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource            # 当前数据源操作类型
+    driver-class-name: org.gjt.mm.mysql.Driver              # mysql驱动包
+    url: jdbc:mysql://localhost:3306/db2019?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false
+    username: root
+    password: 123456
+</code></pre>
 
     </div>
 
@@ -679,7 +1230,7 @@ public class MainAppConfigCenter3344 &#123;
   </li>
   <li class="post-copyright-link">
       <strong>本文链接：</strong>
-      <a href="https://ykxzyp0517.cn/2022/11/07/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84-%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/" title="微服务分布式架构-服务网关Gateway、Config配置中心">https://ykxzyp0517.cn/2022/11/07/微服务分布式架构-服务网关/</a>
+      <a href="https://ykxzyp0517.cn/2022/11/07/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84-%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/" title="微服务分布式架构-Gateway服务网关、Config分布式配置中心、Bus消息总线、stream消息驱动">https://ykxzyp0517.cn/2022/11/07/微服务分布式架构-服务网关/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -697,6 +1248,9 @@ public class MainAppConfigCenter3344 &#123;
                 </a>
             </div>
             <div class="post-nav-item">
+                <a href="/2022/11/16/SpringCloudAlibaba/" rel="next" title="SpringCloudAlibaba-Nacos(服务注册和配置中心)、Sentinel（实现熔断和限流）、Seata(处理分布式事务)">
+                  SpringCloudAlibaba-Nacos(服务注册和配置中心)、Sentinel（实现熔断和限流）、Seata(处理分布式事务) <i class="fa fa-chevron-right"></i>
+                </a>
             </div>
           </div>
     </footer>
