@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" integrity="sha256-xejo6yLi6vGtAjcMIsY8BHdKsLg7QynVlFMzdQgUuy8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ykxzyp0517.cn","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.12.3","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"default"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":true,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":true,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Spring Cloud Alibaba 致力于提供微服务开发的一站式解决方案。此项目包含开发分布式应用微服务的必需组件，方便开发者通过 Spring Cloud 编程模型轻松使用这些组件来开发分布式应用服务。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringCloudAlibaba-Nacos(服务注册和配置中心)、Sentinel（实现熔断和限流）、Seata(处理分布式事务)">
+<meta property="og:url" content="https://ykxzyp0517.cn/2022/11/16/SpringCloudAlibaba/index.html">
+<meta property="og:site_name" content="Young&#39;s Land">
+<meta property="og:description" content="Spring Cloud Alibaba 致力于提供微服务开发的一站式解决方案。此项目包含开发分布式应用微服务的必需组件，方便开发者通过 Spring Cloud 编程模型轻松使用这些组件来开发分布式应用服务。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-347.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-348.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-349.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-350.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-351.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-352.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-353.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-355.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-356.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-357.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-358.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-359.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-361.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-362.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-363.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-364.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-365.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-367.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-368.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-369.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-370.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-371.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-372.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-373.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-374.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-375.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-376.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-377.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-378.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-379.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-380.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-381.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-382.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-383.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-384.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-385.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-386.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-387.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-388.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-389.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-390.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-391.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-392.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-393.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-394.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-395.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-396.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-397.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-398.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-399.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-400.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-401.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-402.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-404.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-405.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-406.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-407.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-408.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-409.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-410.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-411.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-413.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-412.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-414.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-415.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-416.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-417.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-418.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-419.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-421.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-422.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-423.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-424.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-426.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-427.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-428.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-429.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-430.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-431.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-432.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-433.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-434.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-437.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-438.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-439.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-440.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-441.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-442.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-443.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-444.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-445.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-446.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-447.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-448.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-449.png">
+<meta property="og:image" content="https://ykxzyp0517.cn/images/pasted-450.png">
+<meta property="article:published_time" content="2022-11-16T05:12:12.000Z">
+<meta property="article:modified_time" content="2022-11-23T05:39:02.370Z">
+<meta property="article:author" content="KaiXuan Young">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ykxzyp0517.cn/images/pasted-347.png">
+
+
+<link rel="canonical" href="https://ykxzyp0517.cn/2022/11/16/SpringCloudAlibaba/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ykxzyp0517.cn/2022/11/16/SpringCloudAlibaba/","path":"2022/11/16/SpringCloudAlibaba/","title":"SpringCloudAlibaba-Nacos(服务注册和配置中心)、Sentinel（实现熔断和限流）、Seata(处理分布式事务)"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SpringCloudAlibaba-Nacos(服务注册和配置中心)、Sentinel（实现熔断和限流）、Seata(处理分布式事务) | Young's Land</title>
+  
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Young's Land" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Young's Land</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录学习和日常</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">16</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>分类<span class="badge">2</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签<span class="badge">3</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Nacos"><span class="nav-text">Nacos</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Nacos%E4%BD%9C%E4%B8%BA%E6%9C%8D%E5%8A%A1%E4%B8%AD%E5%BF%83"><span class="nav-text">Nacos作为服务中心</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Provider9001%E3%80%819002"><span class="nav-text">Provider9001、9002</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Consumer83"><span class="nav-text">Consumer83</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Nacos%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E5%AF%B9%E6%AF%94%E6%8F%90%E5%8D%87"><span class="nav-text">Nacos服务注册中心对比提升</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Nacos%E5%92%8CCAP"><span class="nav-text">Nacos和CAP</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Nacos%E4%BD%9C%E4%B8%BA%E6%9C%8D%E5%8A%A1%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83"><span class="nav-text">Nacos作为服务配置中心</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Nacos%E4%B9%8B%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4%E3%80%81%E5%88%86%E7%BB%84%E5%92%8CDataID%E4%B8%89%E8%80%85%E5%85%B3%E7%B3%BB"><span class="nav-text">Nacos之命名空间、分组和DataID三者关系</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E8%80%85%E5%85%B3%E7%B3%BB"><span class="nav-text">三者关系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DataId%E9%85%8D%E7%BD%AE"><span class="nav-text">DataId配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Group%E9%85%8D%E7%BD%AE"><span class="nav-text">Group配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NameSpace%E9%85%8D%E7%BD%AE"><span class="nav-text">NameSpace配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="nav-text">测试</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Nacos%E9%9B%86%E7%BE%A4%E5%92%8C%E6%8C%81%E4%B9%85%E5%8C%96%E9%85%8D%E7%BD%AE%EF%BC%88Important%EF%BC%89"><span class="nav-text">Nacos集群和持久化配置（Important）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E9%83%A8%E7%BD%B2%E6%9E%B6%E6%9E%84%E5%9B%BE"><span class="nav-text">集群部署架构图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nacos%E6%8C%81%E4%B9%85%E5%8C%96%E5%88%87%E6%8D%A2%E9%85%8D%E7%BD%AE"><span class="nav-text">Nacos持久化切换配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux%E7%89%88%E6%9C%ACnacos"><span class="nav-text">Linux版本nacos</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Mysql%E6%95%B0%E6%8D%AE%E5%BA%93%E9%85%8D%E7%BD%AE"><span class="nav-text">Mysql数据库配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#application-properties%E9%85%8D%E7%BD%AE"><span class="nav-text">application.properties配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cluster-conf%E9%85%8D%E7%BD%AE"><span class="nav-text">cluster.conf配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#startup-sh%E7%BC%96%E8%BE%91"><span class="nav-text">startup.sh编辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NGINX%E9%85%8D%E7%BD%AE"><span class="nav-text">NGINX配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E9%9B%86%E7%BE%A4"><span class="nav-text">测试集群</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Sentinel"><span class="nav-text">Sentinel</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E6%AD%A5%E9%AA%A4"><span class="nav-text">安装步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Sentinel%E5%88%9D%E5%A7%8B%E5%8C%96%E7%9B%91%E6%8E%A7"><span class="nav-text">Sentinel初始化监控</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E6%8E%A7%E8%A7%84%E5%88%99"><span class="nav-text">流控规则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%88%E5%80%BC%E7%B1%BB%E5%9E%8B"><span class="nav-text">阈值类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E6%8E%A7%E6%A8%A1%E5%BC%8F"><span class="nav-text">流控模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E6%8E%A7%E6%95%88%E6%9E%9C"><span class="nav-text">流控效果</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%99%8D%E7%BA%A7%E8%A7%84%E5%88%99"><span class="nav-text">降级规则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RT"><span class="nav-text">RT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%82%E5%B8%B8%E6%AF%94%E4%BE%8B"><span class="nav-text">异常比例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%82%E5%B8%B8%E6%95%B0"><span class="nav-text">异常数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%83%AD%E7%82%B9Key"><span class="nav-text">热点Key</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E4%BE%8B%E5%A4%96%E9%A1%B9"><span class="nav-text">参数例外项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F"><span class="nav-text">注意</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E8%A7%84%E5%88%99"><span class="nav-text">系统规则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SentinelResource%E9%85%8D%E7%BD%AE"><span class="nav-text">SentinelResource配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E5%85%9C%E5%BA%95%E6%96%B9%E6%A1%88%E7%9A%84%E9%97%AE%E9%A2%98%EF%BC%88%E8%86%A8%E8%83%80%E3%80%81%E8%80%A6%E5%90%88%EF%BC%89"><span class="nav-text">解决兜底方案的问题（膨胀、耦合）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%86%94%E6%96%AD%E5%8A%9F%E8%83%BD"><span class="nav-text">服务熔断功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Sentinel%E6%9C%8D%E5%8A%A1%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-text">Sentinel服务持久化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Seata"><span class="nav-text">Seata</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Seata%E5%AE%89%E8%A3%85"><span class="nav-text">Seata安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Seata%E4%B8%9A%E5%8A%A1%E6%95%B0%E6%8D%AE%E5%BA%93%E5%87%86%E5%A4%87"><span class="nav-text">Seata业务数据库准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#seata-order-service2001"><span class="nav-text">seata-order-service2001</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#domain"><span class="nav-text">domain</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dao%E6%8E%A5%E5%8F%A3%E5%8F%8A%E5%AE%9E%E7%8E%B0-SQL%E6%98%A0%E5%B0%84%E6%96%87%E4%BB%B6"><span class="nav-text">Dao接口及实现(SQL映射文件)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GlobalTransactional"><span class="nav-text">@GlobalTransactional</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E8%B6%85%E6%97%B6%E5%BC%82%E5%B8%B8%EF%BC%9A%E4%B8%8D%E5%8A%A0-GlobalTransactional"><span class="nav-text">测试超时异常：不加@GlobalTransactional</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E8%B6%85%E6%97%B6%E5%BC%82%E5%B8%B8%EF%BC%9A%E5%8A%A0-GlobalTransactional"><span class="nav-text">测试超时异常：加@GlobalTransactional</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Seata%E4%B9%8B%E5%8E%9F%E7%90%86%E7%AE%80%E4%BB%8B"><span class="nav-text">Seata之原理简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AT%E6%A8%A1%E5%BC%8F%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%89%E5%A6%82%E4%BD%95%E5%81%9A%E5%88%B0%E5%AF%B9%E4%B8%9A%E5%8A%A1%E7%9A%84%E6%97%A0%E4%BE%B5%E5%85%A5"><span class="nav-text">AT模式（默认）如何做到对业务的无侵入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E9%98%B6%E6%AE%B5%E5%8A%A0%E8%BD%BD"><span class="nav-text">一阶段加载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4"><span class="nav-text">二阶段提交</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E9%98%B6%E6%AE%B5%E5%9B%9E%E6%BB%9A"><span class="nav-text">二阶段回滚</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="KaiXuan Young"
+      src="/images/headimage.jpg">
+  <p class="site-author-name" itemprop="name">KaiXuan Young</p>
+  <div class="site-description" itemprop="description">NO PAIN , NO GAIN</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/KaiXuan-Y" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;KaiXuan-Y" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1730052751@qq.com" title="E-Mail → mailto:1730052751@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/KaiXuan-Y" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ykxzyp0517.cn/2022/11/16/SpringCloudAlibaba/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/headimage.jpg">
+      <meta itemprop="name" content="KaiXuan Young">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Young's Land">
+      <meta itemprop="description" content="NO PAIN , NO GAIN">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SpringCloudAlibaba-Nacos(服务注册和配置中心)、Sentinel（实现熔断和限流）、Seata(处理分布式事务) | Young's Land">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SpringCloudAlibaba-Nacos(服务注册和配置中心)、Sentinel（实现熔断和限流）、Seata(处理分布式事务)
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-11-16 13:12:12" itemprop="dateCreated datePublished" datetime="2022-11-16T13:12:12+08:00">2022-11-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-11-23 13:39:02" itemprop="dateModified" datetime="2022-11-23T13:39:02+08:00">2022-11-23</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>Spring Cloud Alibaba 致力于提供微服务开发的一站式解决方案。此项目包含开发分布式应用微服务的必需组件，方便开发者通过 Spring Cloud 编程模型轻松使用这些组件来开发分布式应用服务。<span id="more"></span><br>依托 Spring Cloud Alibaba，您只需要添加一些注解和少量配置，就可以将 Spring Cloud 应用接入阿里微服务解决方案，通过阿里中间件来迅速搭建分布式应用系统。</p>
+<p>诞生：2018.10.31，Spring Cloud Alibaba 正式入驻了Spring Cloud官方孵化器，并在Maven 中央库发布了第一个版本。<br><a target="_blank" rel="noopener" href="https://github.com/alibaba/spring-cloud-alibaba/blob/2.2.x/README-zh.md">https://github.com/alibaba/spring-cloud-alibaba/blob/2.2.x/README-zh.md</a>  </p>
+<pre><code>&lt;dependencyManagement&gt;
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-alibaba-dependencies&lt;/artifactId&gt;
+            &lt;version&gt;2.2.5.RELEASE&lt;/version&gt;
+            &lt;type&gt;pom&lt;/type&gt;
+            &lt;scope&gt;import&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/dependencyManagement&gt;
+</code></pre>
+<blockquote>
+<p>Spring Cloud Alibaba学习资料获取</p>
+</blockquote>
+<p>官网</p>
+<p><a target="_blank" rel="noopener" href="https://spring.io/projects/spring-cloud-alibaba#overview">https://spring.io/projects/spring-cloud-alibaba#overview</a><br>英文</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/alibaba/spring-cloud-alibaba">https://github.com/alibaba/spring-cloud-alibaba</a><br><a target="_blank" rel="noopener" href="https://spring-cloud-alibaba-group.github.io/github-pages/greenwich/spring-cloud-alibaba.html">https://spring-cloud-alibaba-group.github.io/github-pages/greenwich/spring-cloud-alibaba.html</a></p>
+<p>中文</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/alibaba/spring-cloud-alibaba/blob/master/README-zh.md">https://github.com/alibaba/spring-cloud-alibaba/blob/master/README-zh.md</a></p>
+<h1 id="Nacos"><a href="#Nacos" class="headerlink" title="Nacos"></a>Nacos</h1><p>Nacos 是一个易于使用的动态服务发现、配置和服务管理平台，用于构建云原生应用程序。</p>
+<p>借助Spring Cloud Alibaba Nacos Discovery，您可以快速接入基于Spring Cloud编程模型的Nacos服务注册功能。</p>
+<p>Nacos就是注册中心＋配置中心的组合 -&gt; Nacos &#x3D; Eureka+Config+Bus</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/alibaba/nacos">https://github.com/alibaba/nacos</a><br><a target="_blank" rel="noopener" href="https://nacos.io/zh-cn/">https://nacos.io/zh-cn/</a>  </p>
+<p>bin目录下执行命令 sh startup.sh -m standalone  </p>
+<p><img data-src="/images/pasted-347.png" alt="upload successful">  </p>
+<p>账号密码 nacos nacos</p>
+<p><img data-src="/images/pasted-348.png" alt="upload successful">  </p>
+<h1 id="Nacos作为服务中心"><a href="#Nacos作为服务中心" class="headerlink" title="Nacos作为服务中心"></a>Nacos作为服务中心</h1><h2 id="Provider9001、9002"><a href="#Provider9001、9002" class="headerlink" title="Provider9001、9002"></a>Provider9001、9002</h2><p>pom</p>
+<pre><code>&lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-alibaba-nacos-discovery&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+
+    &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+                &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
+    
+    
+</code></pre>
+<p>yml</p>
+<pre><code>server:
+  port: 9001
+spring:
+  application:
+    name: cloudalibaba-provider-9001
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+management:
+  endpoints:
+    web:
+      exposure:
+        include: *
+</code></pre>
+<p>主启动类 </p>
+<pre><code>@SpringBootApplication
+@EnableDiscoveryClient
+public class NacosProvider9001 &#123;
+    public static void main(String[] args) &#123;
+        SpringApplication.run(NacosProvider9001.class , args);
+    &#125;
+&#125;
+</code></pre>
+<p>简单编写一个业务类  </p>
+<pre><code>@RestController
+public class PaymentController &#123;
+    @Value(&quot;$&#123;server.port&#125;&quot;)
+    private String serverPort;
+
+    @GetMapping(&quot;/payment/nacos/&#123;id&#125;&quot;)
+    public String getPayment(@PathVariable(&quot;id&quot;)Integer id)&#123;
+        return &quot;nacos regitry , serverPort:&quot; + serverPort + &quot;\tid : &quot; + id;
+    &#125;
+&#125;
+</code></pre>
+<p>同时搭建一个服务端口9002的服务  </p>
+<p><img data-src="/images/pasted-349.png" alt="upload successful"><br>用来测试负载均衡  </p>
+<blockquote>
+<p>为什么nacos自带负载均衡？  </p>
+</blockquote>
+<p><img data-src="/images/pasted-350.png" alt="upload successful">  </p>
+<h2 id="Consumer83"><a href="#Consumer83" class="headerlink" title="Consumer83"></a>Consumer83</h2><p>POM相同不再赘述</p>
+<p>YMl </p>
+<pre><code>server:
+  port: 83
+
+spring:
+  application:
+    name: nacos-order-consumer
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+#消费者将要去访问的微服务名称（注册成功进nacos的微服务提供者）
+service-url:
+  nacos-user-service: http://cloudalibaba-provider
+</code></pre>
+<p>主启动类</p>
+<pre><code>@SpringBootApplication
+@EnableDiscoveryClient
+public class NacosConsumer83 &#123;
+    public static void main(String[] args) &#123;
+        SpringApplication.run(NacosConsumer83.class , args);
+    &#125;
+&#125;
+</code></pre>
+<p>业务类  </p>
+<pre><code>@RestController
+public class OrderNacosController &#123;
+
+    @Value(&quot;$&#123;service-url.nacos-user-service&#125;&quot;)
+    private String serverUrl;
+
+    @Resource
+    private RestTemplate restTemplate;
+
+    @GetMapping(&quot;/consumer/payment/nacos/&#123;id&#125;&quot;)
+    public String paymentIndo(@PathVariable(&quot;id&quot;) Long id)&#123;
+        return restTemplate.getForObject(serverUrl+ &quot;/payment/nacos/&quot;+id , String.class);
+    &#125;
+&#125;
+</code></pre>
+<p><img data-src="/images/pasted-351.png" alt="upload successful">  </p>
+<h1 id="Nacos服务注册中心对比提升"><a href="#Nacos服务注册中心对比提升" class="headerlink" title="Nacos服务注册中心对比提升"></a>Nacos服务注册中心对比提升</h1><p>Nacos全景图</p>
+<p><img data-src="/images/pasted-352.png" alt="upload successful">  </p>
+<h2 id="Nacos和CAP"><a href="#Nacos和CAP" class="headerlink" title="Nacos和CAP"></a>Nacos和CAP</h2><p>Nacos与其他注册中心特性对比  </p>
+<p><img data-src="/images/pasted-353.png" alt="upload successful">  </p>
+<blockquote>
+<p>Nacos支持AP和CP模式的切换  </p>
+</blockquote>
+<p>C是所有节点在同一时间看到的数据是一致的;而A的定义是所有的请求都会收到响应。  </p>
+<blockquote>
+<p>何时选择使用何种模式?</p>
+</blockquote>
+<p>—般来说，如果不需要<code>存储服务</code>级别的信息且服务实例是通过nacos-client注册，并能够保持心跳上报，那么就可以选择AP模式。当前主流的服务如Spring cloud和Dubbo服务，都适用于AP模式，AP模式为了服务的<code>可能性</code>而<code>减弱了一致性</code>，因此AP模式下只支持<code>注册临时实例</code>。</p>
+<p>如果需要在服务级别编辑或者存储配置信息，那么CP是必须，K8S服务和DNS服务则适用于CP模式。CP模式下则支持<code>注册持久化实例</code>，此时则是以Raft协议为集群运行模式，该模式下注册实例之前必须先注册服务，如果服务不存在，则会返回错误。</p>
+<p>切换命令：<br>curl -X PUT ‘$NACOS_SERVER:8848&#x2F;nacos&#x2F;v1&#x2F;ns&#x2F;operator&#x2F;switches?entry&#x3D;serverMode&amp;value&#x3D;CP</p>
+<h1 id="Nacos作为服务配置中心"><a href="#Nacos作为服务配置中心" class="headerlink" title="Nacos作为服务配置中心"></a>Nacos作为服务配置中心</h1><p>pom</p>
+<pre><code>&lt;dependencies&gt;
+        &lt;!--nacos-config--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-alibaba-nacos-config&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;!--nacos-discovery--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-alibaba-nacos-discovery&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;!--web + actuator--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;!--一般基础配置--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-devtools&lt;/artifactId&gt;
+            &lt;scope&gt;runtime&lt;/scope&gt;
+            &lt;optional&gt;true&lt;/optional&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+            &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+            &lt;optional&gt;true&lt;/optional&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+</code></pre>
+<p>yml -bootstrap</p>
+<pre><code>server:
+  port: 3377
+
+spring:
+  application:
+    name: nacos-config-client
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848  # Nacos服务注册中心地址
+
+      config:
+        server-addr: localhost:8848 # Nacos作为服务配置中心地址
+        file-extension: yaml # 指定yaml格式的配置
+</code></pre>
+<p>yml -application</p>
+<pre><code>spring:
+  profiles:
+    active: dev # 表示开发环境
+</code></pre>
+<p><img data-src="/images/pasted-355.png" alt="upload successful">  </p>
+<p>在Nacos配置中心中建立yml  </p>
+<p><img data-src="/images/pasted-356.png" alt="upload successful">  </p>
+<p>成功访问到了相应的配置文件信息  </p>
+<p><img data-src="/images/pasted-357.png" alt="upload successful">  </p>
+<p>使用<code>@RefreshScope</code>注解后，支持动态刷新  </p>
+<p><img data-src="/images/pasted-358.png" alt="upload successful">  </p>
+<h1 id="Nacos之命名空间、分组和DataID三者关系"><a href="#Nacos之命名空间、分组和DataID三者关系" class="headerlink" title="Nacos之命名空间、分组和DataID三者关系"></a>Nacos之命名空间、分组和DataID三者关系</h1><blockquote>
+<p>问题 - 多环境多项目管理  </p>
+</blockquote>
+<blockquote>
+<p>问题1:</p>
+</blockquote>
+<p>实际开发中，通常一个系统会准备</p>
+<p>dev开发环境<br>test测试环境<br>prod生产环境。<br>如何保证指定环境启动时服务能正确读取到Nacos上相应环境的配置文件呢?</p>
+<blockquote>
+<p>问题2:</p>
+</blockquote>
+<p>一个大型分布式微服务系统会有很多微服务子项目，每个微服务项目又都会有相应的开发环境、测试环境、预发环境、正式环境…那怎么对这些微服务配置进行管理呢?</p>
+<p><img data-src="/images/pasted-359.png" alt="upload successful">  </p>
+<h2 id="三者关系"><a href="#三者关系" class="headerlink" title="三者关系"></a>三者关系</h2><p><img data-src="/images/pasted-361.png" alt="upload successful">  </p>
+<ul>
+<li>默认情况：Namespace&#x3D;public，Group&#x3D;DEFAULT_GROUP，默认Cluster是DEFAULT</li>
+</ul>
+<ul>
+<li><p>Nacos默认的Namespace是public，Namespace主要用来实现隔离。  </p>
+</li>
+<li><p>比方说我们现在有三个环境：开发、测试、生产环境，我们就可以创建三个Namespace，不同的Namespace之间是隔离的。</p>
+</li>
+<li><p>Group默认是DEFAULT_GROUP，Group可以把不同的微服务划分到同一个分组里面去</p>
+</li>
+<li><p>Service就是微服务:一个Service可以包含多个Cluster (集群)</p>
+</li>
+<li><p>Nacos默认   Cluster是DEFAULT，Cluster是对指定微服务的一个虚拟划分。</p>
+</li>
+</ul>
+<p>比方说为了容灾，将Service微服务分别部署在了杭州机房和广州机房，这时就可以给杭州机房的Service微服务起一个集群名称(HZ) ，给广州机房的Service微服务起一个集群名称(GZ)，还可以尽量让同一个机房的微服务互相调用，以提升性能。</p>
+<ul>
+<li>最后是Instance，就是微服务的实例。</li>
+</ul>
+<h2 id="DataId配置"><a href="#DataId配置" class="headerlink" title="DataId配置"></a>DataId配置</h2><p><img data-src="/images/pasted-362.png" alt="upload successful"><br>在nacos配置中心中新建一个yaml，为测试环境实例  </p>
+<p><img data-src="/images/pasted-363.png" alt="upload successful"><br>修改application.yml文件内容，切换到测试环境，与DataID匹配后  </p>
+<p><img data-src="/images/pasted-364.png" alt="upload successful"><br>配置文件直接刷新  </p>
+<p><img data-src="/images/pasted-365.png" alt="upload successful">  </p>
+<h2 id="Group配置"><a href="#Group配置" class="headerlink" title="Group配置"></a>Group配置</h2><p>此时不同的Group有相同的配置文件  </p>
+<p><img data-src="/images/pasted-367.png" alt="upload successful"></p>
+<p>此时添加GROUP的配置内容<br><img data-src="/images/pasted-368.png" alt="upload successful">  </p>
+<p><img data-src="/images/pasted-369.png" alt="upload successful"> </p>
+<p>读取成功  </p>
+<p><img data-src="/images/pasted-370.png" alt="upload successful">  </p>
+<h2 id="NameSpace配置"><a href="#NameSpace配置" class="headerlink" title="NameSpace配置"></a>NameSpace配置</h2><p><img data-src="/images/pasted-371.png" alt="upload successful"><br>原始的命名空间只有public  </p>
+<p><img data-src="/images/pasted-372.png" alt="upload successful"><br>新建两个命名空间  </p>
+<p><img data-src="/images/pasted-373.png" alt="upload successful"><br>此时配置管理列表头部新增两个命名空间  </p>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>在DEV中创建不同分组的不同配置文件<br><img data-src="/images/pasted-374.png" alt="upload successful">    </p>
+<p>yml–bootstrap.yml  </p>
+<pre><code>server:
+  port: 3377
+
+spring:
+  application:
+    name: nacos-config-client
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848  # Nacos服务注册中心地址
+
+      config:
+        server-addr: localhost:8848 # Nacos作为服务配置中心地址
+        file-extension: yaml # 指定yaml格式的配置
+        group: DEV_GROUP
+        namespace: 96ba7452-bdaf-4b89-a1e5-b62fb08e2fc5
+        
+</code></pre>
+<p>yml–application.yml  </p>
+<pre><code>spring:
+  profiles:
+    active: test # 表示开发环境
+    
+</code></pre>
+<p>此时成功读取到相应的配置文件  </p>
+<p><img data-src="/images/pasted-375.png" alt="upload successful">  </p>
+<h1 id="Nacos集群和持久化配置（Important）"><a href="#Nacos集群和持久化配置（Important）" class="headerlink" title="Nacos集群和持久化配置（Important）"></a>Nacos集群和持久化配置（Important）</h1><h2 id="集群部署架构图"><a href="#集群部署架构图" class="headerlink" title="集群部署架构图"></a>集群部署架构图</h2><p><img data-src="/images/pasted-376.png" alt="upload successful">  </p>
+<p>实际架构  </p>
+<p><img data-src="/images/pasted-377.png" alt="upload successful">  </p>
+<p>默认Nacos使用<code>嵌入式</code>数据库<code>derby</code>实现数据的存储。所以，如果启动多个默认配置下的Nacos节点，数据存储是存在<code>一致性</code>问题的。为了解决这个问题，Nacos采用了<code>集中式存储</code>的方式来支持集群化部署，目前<code>只支持MySQL</code>的存储。</p>
+<p>Nacos支持三种部署模式</p>
+<ul>
+<li>单机模式-用于测试和单机试用。</li>
+<li>集群模式-用于生产环境，确保高可用。</li>
+<li>多集群模式-用于多数据中心场景。</li>
+</ul>
+<h2 id="Nacos持久化切换配置"><a href="#Nacos持久化切换配置" class="headerlink" title="Nacos持久化切换配置"></a>Nacos持久化切换配置</h2><p>Nacos默认自带的是嵌入式数据库derby，nacos的pom.xml中可以看出。</p>
+<p>derby到mysql切换配置步骤：</p>
+<ul>
+<li>nacos-server-1.1.4\nacos\conf录下找到nacos-mysql.sql文件，执行脚本。</li>
+<li>nacos-server-1.1.4\nacos\conf目录下找到application.properties，添加以下配置（按需修改对应值）。</li>
+</ul>
+<h2 id="Linux版本nacos"><a href="#Linux版本nacos" class="headerlink" title="Linux版本nacos"></a>Linux版本nacos</h2><p>将压缩包上传后，运行startup.sh。注意java_home的配置。  </p>
+<p><img data-src="/images/pasted-378.png" alt="upload successful">  </p>
+<p><img data-src="/images/pasted-379.png" alt="upload successful"><br>修改Nacos的启动脚本，设置不同的脚本  </p>
+<h2 id="Mysql数据库配置"><a href="#Mysql数据库配置" class="headerlink" title="Mysql数据库配置"></a>Mysql数据库配置</h2><p>可以通过navicat等工具远程执行sql文件。&#x2F;nacos&#x2F;conf&#x2F; nacos-mysql.sql<br>配置文件数据库为  </p>
+<p><img data-src="/images/pasted-380.png" alt="upload successful">  </p>
+<h2 id="application-properties配置"><a href="#application-properties配置" class="headerlink" title="application.properties配置"></a>application.properties配置</h2><p>备份application.properties  </p>
+<pre><code> cp application.properties application.properties.bk
+</code></pre>
+<p><img data-src="/images/pasted-381.png" alt="upload successful"><br>在application.properties中进行如下配置  </p>
+<p><img data-src="/images/pasted-382.png" alt="upload successful">  </p>
+<h2 id="cluster-conf配置"><a href="#cluster-conf配置" class="headerlink" title="cluster.conf配置"></a>cluster.conf配置</h2><p>通过hostname -i查看ip后配置端口<br><img data-src="/images/pasted-383.png" alt="upload successful">  </p>
+<h2 id="startup-sh编辑"><a href="#startup-sh编辑" class="headerlink" title="startup.sh编辑"></a>startup.sh编辑</h2><p>&#x2F;mynacos&#x2F;nacos&#x2F;bin目录下有startup.sh  </p>
+<p><img data-src="/images/pasted-384.png" alt="upload successful"><br>平时单机版的启动，都是.&#x2F;startup.sh即可</p>
+<p>但是，集群启动，我们希望可以类似其它软件的shell命令，传递不同的端口号启动不同的nacos实例。<br>命令: .&#x2F;startup.sh -p 3333表示启动端口号为3333的nacos服务器实例，和上一步的cluster.conf配置的一致。</p>
+<p>修改内容</p>
+<p><img data-src="/images/pasted-385.png" alt="upload successful">  </p>
+<p><img data-src="/images/pasted-386.png" alt="upload successful">  </p>
+<p><img data-src="/images/pasted-387.png" alt="upload successful">  </p>
+<h2 id="NGINX配置"><a href="#NGINX配置" class="headerlink" title="NGINX配置"></a>NGINX配置</h2><p><img data-src="/images/pasted-388.png" alt="upload successful"><br>监听端口1111，转发到集群cluster  </p>
+<h2 id="测试集群"><a href="#测试集群" class="headerlink" title="测试集群"></a>测试集群</h2><ul>
+<li><p>启动3个nacos注册中心</p>
+<ul>
+<li><p>startup.sh - p 3333</p>
+</li>
+<li><p>startup.sh - p 4444</p>
+</li>
+<li><p>startup.sh - p 5555</p>
+</li>
+</ul>
+</li>
+<li><p>查看nacos进程启动数ps -ef | grep nacos | grep -v grep | wc -l  </p>
+</li>
+<li><p>启动nginx</p>
+<ul>
+<li>.&#x2F;nginx -c &#x2F;usr&#x2F;local&#x2F;nginx&#x2F;conf&#x2F;nginx.conf</li>
+</ul>
+</li>
+<li><p>查看nginx进程ps - ef| grep nginx</p>
+</li>
+<li><p>测试通过nginx，访问nacos - <a target="_blank" rel="noopener" href="http://192.168.200.160:1111/nacos/#/login">http://192.168.200.160:1111/nacos/#/login</a></p>
+</li>
+</ul>
+<p><img data-src="/images/pasted-389.png" alt="upload successful"><br>新建后，可在linux服务器的mysql新插入一条记录  </p>
+<p><img data-src="/images/pasted-390.png" alt="upload successful"><br>让微服务cloudalibaba-provider-payment9002启动注册进nacos集群 - 修改配置文件<br><img data-src="/images/pasted-391.png" alt="upload successful"><br>成功注册<br><img data-src="/images/pasted-392.png" alt="upload successful">  </p>
+<h1 id="Sentinel"><a href="#Sentinel" class="headerlink" title="Sentinel"></a>Sentinel</h1><p><a target="_blank" rel="noopener" href="https://sentinelguard.io/zh-cn/docs/introduction.html">https://sentinelguard.io/zh-cn/docs/introduction.html</a>  </p>
+<p><img data-src="/images/pasted-393.png" alt="upload successful"><br>服务使用中的各种问题：</p>
+<ul>
+<li>服务雪崩</li>
+<li>服务降级</li>
+<li>服务熔断</li>
+<li>服务限流</li>
+</ul>
+<p>Sentinel 分为两个部分：</p>
+<ul>
+<li>核心库（Java 客户端）不依赖任何框架&#x2F;库，能够运行于所有 Java 运行时环境，同时对 Dubbo &#x2F; Spring Cloud 等框架也有较好的支持。</li>
+<li>控制台（Dashboard）基于 Spring Boot 开发，打包后可以直接运行，不需要额外的 Tomcat 等应用容器。</li>
+</ul>
+<h2 id="安装步骤"><a href="#安装步骤" class="headerlink" title="安装步骤"></a>安装步骤</h2><p>安装步骤：</p>
+<ul>
+<li>下载</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel/releases">https://github.com/alibaba/Sentinel/releases</a><br>下载到本地sentinel-dashboard-1.7.0.jar<br>运行命令</p>
+<ul>
+<li><p>前提<br>Java 8 环境<br>8080端口不能被占用</p>
+</li>
+<li><p>命令 <code>java -jar sentinel-dashboard-1.7.0.jar</code><br>访问Sentinel管理界面</p>
+</li>
+<li><p>localhost:8080<br>登录账号密码均为sentinel</p>
+</li>
+</ul>
+<p><img data-src="/images/pasted-394.png" alt="upload successful">  </p>
+<h2 id="Sentinel初始化监控"><a href="#Sentinel初始化监控" class="headerlink" title="Sentinel初始化监控"></a>Sentinel初始化监控</h2><p>新建工程cloudalibaba-sentinel-service8401<br>pom</p>
+<pre><code>&lt;dependencies&gt;
+        &lt;dependency&gt;&lt;!-- 引入自己定义的api通用包，可以使用Payment支付Entity --&gt;
+            &lt;groupId&gt;com.atguigu.springcloud&lt;/groupId&gt;
+            &lt;artifactId&gt;cloud-api-commons&lt;/artifactId&gt;
+            &lt;version&gt;$&#123;project.version&#125;&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;!--SpringCloud ailibaba nacos --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-alibaba-nacos-discovery&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;!--SpringCloud ailibaba sentinel-datasource-nacos 后续做持久化用到--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.alibaba.csp&lt;/groupId&gt;
+            &lt;artifactId&gt;sentinel-datasource-nacos&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;!--SpringCloud ailibaba sentinel --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-alibaba-sentinel&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;!--openfeign--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-openfeign&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;!-- SpringBoot整合Web组件+actuator --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;!--日常通用jar包配置--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-devtools&lt;/artifactId&gt;
+            &lt;scope&gt;runtime&lt;/scope&gt;
+            &lt;optional&gt;true&lt;/optional&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;cn.hutool&lt;/groupId&gt;
+            &lt;artifactId&gt;hutool-all&lt;/artifactId&gt;
+            &lt;version&gt;4.6.3&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+            &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+            &lt;optional&gt;true&lt;/optional&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+
+    &lt;/dependencies&gt;
+</code></pre>
+<p>yml</p>
+<pre><code>server:
+  port: 8401
+
+
+spring:
+  application:
+    name: cloudalibaba-sentinel-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+    sentinel:
+      transport:
+        #配置sentinel dashboard的地址
+        dashboard: localhost:8080
+        port: 8719
+management:
+  endpoints:
+    web:
+      exposure:
+        include: &#39;*&#39;
+</code></pre>
+<p>controller</p>
+<pre><code>@RestController
+public class FlowLimitController &#123;
+    @GetMapping(&quot;/testA&quot;)
+    public String testA()&#123;
+        return &quot;-----testA&quot;;
+    &#125;
+
+    @GetMapping(&quot;/testB&quot;)
+    public String testB()&#123;
+        return &quot;-----testB&quot;;
+    &#125;
+&#125;
+</code></pre>
+<p>住启动类  </p>
+<pre><code>@EnableDiscoveryClient
+@SpringBootApplication
+public class MainApp8401 &#123;
+    public static void main(String[] args) &#123;
+        SpringApplication.run(MainApp8401.class , args);
+    &#125;
+&#125;
+</code></pre>
+<p><img data-src="/images/pasted-395.png" alt="upload successful"><br>发现空空的，因为sentinel采用懒加载机制，需要一次访问进行激活才行。  </p>
+<p><img data-src="/images/pasted-396.png" alt="upload successful">  </p>
+<h2 id="流控规则"><a href="#流控规则" class="headerlink" title="流控规则"></a>流控规则</h2><p><img data-src="/images/pasted-397.png" alt="upload successful"><br>进一步解释说明：</p>
+<ul>
+<li>资源名：唯一名称，默认请求路径。</li>
+<li>针对来源：Sentinel可以针对调用者进行限流，填写微服务名，默认default（不区分来源）。</li>
+<li>阈值类型&#x2F;单机阈值：<ul>
+<li>QPS(每秒钟的请求数量)︰当调用该API的QPS达到阈值的时候，进行限流。</li>
+<li>线程数：当调用该API的线程数达到阈值的时候，进行限流。</li>
+</ul>
+</li>
+<li>是否集群：不需要集群。</li>
+<li>流控模式：<ul>
+<li>直接：API达到限流条件时，直接限流。</li>
+<li>关联：当关联的资源达到阈值时，就限流自己。</li>
+<li>链路：只记录指定链路上的流量（指定资源从入口资源进来的流量，如果达到阈值，就进行限流)【API级别的针对来源】。</li>
+</ul>
+</li>
+<li>流控效果：<ul>
+<li>快速失败：直接失败，抛异常。</li>
+<li>Warm up：根据Code Factor（冷加载因子，默认3）的值，从阈值&#x2F;codeFactor，经过预热时长，才达到设置的QPS阈值。</li>
+<li>排队等待：匀速排队，让请求以匀速的速度通过，阈值类型必须设置为QPS，否则无效。</li>
+</ul>
+</li>
+</ul>
+<h3 id="阈值类型"><a href="#阈值类型" class="headerlink" title="阈值类型"></a>阈值类型</h3><blockquote>
+<p>新建QPS为1 ， 其中资源名默认为请求路径  </p>
+</blockquote>
+<p><img data-src="/images/pasted-398.png" alt="upload successful"><br>多次访问后直接返回错误<br><img data-src="/images/pasted-399.png" alt="upload successful">  </p>
+<blockquote>
+<p>思考</p>
+</blockquote>
+<p>直接调用默认报错信息，技术方面OK，但是，是否应该有我们自己的后续处理？类似有个fallback的兜底方法?  </p>
+<blockquote>
+<p>线程数为1<br>线程数：当调用该API的线程数达到阈值的时候，进行限流。</p>
+</blockquote>
+<h3 id="流控模式"><a href="#流控模式" class="headerlink" title="流控模式"></a>流控模式</h3><p>关联是什么？</p>
+<ul>
+<li><p>当自己关联的资源达到阈值时，就限流自己</p>
+</li>
+<li><p>当与A关联的资源B达到阀值后，就限流A自己（B惹事，A挂了）</p>
+</li>
+</ul>
+<p><img data-src="/images/pasted-400.png" alt="upload successful">  </p>
+<p>使用postman压力测试&#x2F;testB,20个线程3s的频率去测试</p>
+<p><img data-src="/images/pasted-401.png" alt="upload successful"><br>此时再去访问关联的&#x2F;testA，直接挂了  </p>
+<p><img data-src="/images/pasted-402.png" alt="upload successful">  </p>
+<h3 id="流控效果"><a href="#流控效果" class="headerlink" title="流控效果"></a>流控效果</h3><p><img data-src="/images/pasted-404.png" alt="upload successful">  </p>
+<blockquote>
+<p>Warm Up</p>
+</blockquote>
+<p>Warm Up（RuleConstant.CONTROL_BEHAVIOR_WARM_UP）方式，即预热&#x2F;冷启动方式。当系统长期处于低水位的情况下，当流量突然增加时，直接把系统拉升到高水位可能瞬间把系统压垮。通过”冷启动”，让通过的流量缓慢增加，在一定时间内逐渐增加到阈值上限，给冷系统一个预热的时间，避免冷系统被压垮。详细文档可以参考 流量控制 - Warm Up 文档，具体的例子可以参见 WarmUpFlowDemo。</p>
+<p>通常冷启动的过程系统允许通过的 QPS 曲线如下图所示：</p>
+<p><img data-src="/images/pasted-405.png" alt="upload successful">  </p>
+<p>下图的意思是，阈值的QPS为10，但是一开始不必要一下子为10，冷因子默认为3，一开始的QPS为10&#x2F;3，但是经过warmup的时间后，需要达到10  </p>
+<blockquote>
+<p>默认coldFactor为3，即请求QPS 从 threshold &#x2F; 3开始，经预热时长逐渐升至设定的QPS阈值。</p>
+</blockquote>
+<p><img data-src="/images/pasted-406.png" alt="upload successful">  </p>
+<blockquote>
+<p>排队等待  </p>
+</blockquote>
+<p>匀速排队，让请求以均匀的速度通过，阀值类型必须设成QPS，否则无效。 </p>
+<p><img data-src="/images/pasted-407.png" alt="upload successful">  </p>
+<h2 id="降级规则"><a href="#降级规则" class="headerlink" title="降级规则"></a>降级规则</h2><p><a target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel/wiki/%E7%86%94%E6%96%AD%E9%99%8D%E7%BA%A7">https://github.com/alibaba/Sentinel/wiki/%E7%86%94%E6%96%AD%E9%99%8D%E7%BA%A7</a></p>
+<p><img data-src="/images/pasted-408.png" alt="upload successful">  </p>
+<ul>
+<li><p>RT（平均响应时间，秒级）</p>
+<ul>
+<li>平均响应时间 超出阈值 且 在时间窗口内通过的请求&gt;&#x3D;5，两个条件同时满足后触发降级。</li>
+</ul>
+</li>
+</ul>
+<p>窗口期过后关闭断路器。RT最大4900（更大的需要通过-Dcsp.sentinel.statistic.max.rt&#x3D;XXXX才能生效）。</p>
+<ul>
+<li><p>异常比列（秒级）</p>
+<ul>
+<li>QPS &gt;&#x3D; 5且异常比例（秒级统计）超过阈值时，触发降级;时间窗口结束后，关闭降级 。</li>
+</ul>
+</li>
+<li><p>异常数(分钟级)</p>
+<ul>
+<li>异常数(分钟统计）超过阈值时，触发降级;时间窗口结束后，关闭降级</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>Sentinel熔断降级会在调用链路中某个资源出现不稳定状态时（例如调用超时或异常比例升高)，对这个资源的调用进行限制，让请求快速失败，避免影响到其它的资源而导致级联错误。</p>
+</blockquote>
+<blockquote>
+<p>当资源被降级后，在接下来的降级时间窗口之内，对该资源的调用都自动熔断（默认行为是抛出 DegradeException）。</p>
+</blockquote>
+<blockquote>
+<p>Sentinei的断路器是没有类似Hystrix半开状态的。(Sentinei 1.8.0 已有半开状态)</p>
+</blockquote>
+<blockquote>
+<p>半开的状态系统自动去检测是否请求有异常，没有异常就关闭断路器恢复使用，有异常则继续打开断路器不可用。</p>
+</blockquote>
+<h3 id="RT"><a href="#RT" class="headerlink" title="RT"></a>RT</h3><p>平均响应时间(DEGRADE_GRADE_RT)：当1s内持续进入5个请求，对应时刻的平均响应时间（秒级）均超过阈值（ count，以ms为单位），那么在接下的时间窗口（DegradeRule中的timeWindow，以s为单位）之内，对这个方法的调用都会自动地熔断(抛出DegradeException )。注意Sentinel 默认统计的RT上限是4900 ms，超出此阈值的都会算作4900ms，若需要变更此上限可以通过启动配置项-Dcsp.sentinel.statistic.max.rt&#x3D;xxx来配置。</p>
+<p><img data-src="/images/pasted-409.png" alt="upload successful">  </p>
+<pre><code>@GetMapping(&quot;/testD&quot;)
+    public String testD() &#123;
+        try &#123;
+            TimeUnit.SECONDS.sleep(1);
+        &#125; catch (InterruptedException e) &#123;
+            e.printStackTrace();
+        &#125;
+        return  &quot;---testD&quot;;
+    &#125;
+</code></pre>
+<p><img data-src="/images/pasted-410.png" alt="upload successful"><br>使用Jmemter压测 </p>
+<p><img data-src="/images/pasted-411.png" alt="upload successful"><br>按照上述配置，永远一秒钟打进来10个线程（大于5个了）调用testD，我们希望200毫秒处理完本次任务，如果超过200毫秒还没处理完，在未来1秒钟的时间窗口内，断路器打开（保险丝跳闸）微服务不可用，保险丝跳闸断电了后续我停止jmeter，没有这么大的访问量了，断路器关闭（保险丝恢复），微服务恢复OK。</p>
+<h3 id="异常比例"><a href="#异常比例" class="headerlink" title="异常比例"></a>异常比例</h3><p><img data-src="/images/pasted-413.png" alt="upload successful"><br>异常比例(DEGRADE_GRADE_EXCEPTION_RATIO)：当资源的每秒请求量 &gt;&#x3D; 5，并且每秒异常总数占通过量的比值超过阈值（ DegradeRule中的 count）之后，资源进入降级状态，即在接下的时间窗口( DegradeRule中的timeWindow，以s为单位）之内，对这个方法的调用都会自动地返回。异常比率的阈值范围是[0.0, 1.0]，代表0% -100%。</p>
+<blockquote>
+<p>注意，与Sentinel 1.8.0相比，有些不同（Sentinel 1.8.0才有的半开状态），Sentinel 1.8.0的如下：</p>
+</blockquote>
+<p>异常比例 (ERROR_RATIO)：当单位统计时长（statIntervalMs）内请求数目大于设置的最小请求数目，并且异常的比例大于阈值，则接下来的熔断时长内请求会自动被熔断。经过熔断时长后熔断器会进入探测恢复状态（HALF-OPEN 状态），若接下来的一个请求成功完成（没有错误）则结束熔断，否则会再次被熔断。异常比率的阈值范围是 [0.0, 1.0]，代表 0% - 100%。</p>
+<p>controller</p>
+<pre><code> @GetMapping(&quot;/testD&quot;)
+    public String testD() &#123;
+        int i = 10/0;
+        return  &quot;---testD&quot;;
+    &#125;
+    
+</code></pre>
+<p><img data-src="/images/pasted-412.png" alt="upload successful"><br>按照上述配置，单独访问一次，必然来一次报错一次(int age &#x3D; 10&#x2F;0)，调一次错一次。</p>
+<p>开启jmeter后，直接高并发发送请求，多次调用达到我们的配置条件了。断路器开启(保险丝跳闸)，微服务不可用了，不再报错error而是服务降级了。  </p>
+<h3 id="异常数"><a href="#异常数" class="headerlink" title="异常数"></a>异常数</h3><p>异常数( DEGRADE_GRADF_EXCEPTION_COUNT )：当资源近1分钟的异常数目超过阈值之后会进行熔断。注意由于统计时间窗口是分钟级别的，若timeWindow小于60s，则结束熔断状态后马上可能再进入熔断状态。  </p>
+<blockquote>
+<p>注意，与Sentinel 1.8.0相比，有些不同（Sentinel 1.8.0才有的半开状态），Sentinel 1.8.0的如下：  </p>
+</blockquote>
+<p>异常数 (ERROR_COUNT)：当单位统计时长内的异常数目超过阈值之后会自动进行熔断。经过熔断时长后熔断器会进入探测恢复状态（HALF-OPEN 状态），若接下来的一个请求成功完成（没有错误）则结束熔断，否则会再次被熔断。</p>
+<p>controller</p>
+<pre><code> @GetMapping(&quot;/testD&quot;)
+    public String testD() &#123;
+        int i = 10/0;
+        return  &quot;---testD&quot;;
+    &#125;
+</code></pre>
+<p><img data-src="/images/pasted-414.png" alt="upload successful">  </p>
+<h2 id="热点Key"><a href="#热点Key" class="headerlink" title="热点Key"></a>热点Key</h2><p><a target="_blank" rel="noopener" href="https://sentinelguard.io/zh-cn/docs/parameter-flow-control.html?spm=sentinel-github.wiki.0.0.0">https://sentinelguard.io/zh-cn/docs/parameter-flow-control.html?spm=sentinel-github.wiki.0.0.0</a><br><img data-src="/images/pasted-415.png" alt="upload successful">  </p>
+<p>兜底方法，分为系统默认和客户自定义，两种</p>
+<p>之前的case，限流出问题后，都是用sentinel系统默认的提示: Blocked by Sentinel (flow limiting)</p>
+<p>我们能不能自定？类似hystrix，某个方法出问题了，就找对应的兜底降级方法?</p>
+<blockquote>
+<p>结论 - 从HystrixCommand到@SentinelResource  </p>
+</blockquote>
+<p>在Controller中方法，其中SentinelResource就是配置fallBack的注解。</p>
+<pre><code>@GetMapping(&quot;/testHotKey&quot;)
+    @SentinelResource(value = &quot;testHotKey&quot; , blockHandler = &quot;deal_testHotKey&quot;)
+    public String testHotKey(@RequestParam(value = &quot;p1&quot;,required = false) String p1 ,
+                             @RequestParam(value = &quot;p2&quot; , required = false)  String p2)&#123;
+        return &quot;-------testHotKey&quot;;
+    &#125;
+
+    public String deal_testHotKey(String p1 , String p2 , BlockException exception)&#123;
+        return &quot;-------deal_testHotKey&quot;;
+    &#125;
+</code></pre>
+<p>编写相应热点key的QPS，超过阈值后跳转到fallback方法</p>
+<p><img data-src="/images/pasted-416.png" alt="upload successful">  </p>
+<h3 id="参数例外项"><a href="#参数例外项" class="headerlink" title="参数例外项"></a>参数例外项</h3><p><img data-src="/images/pasted-417.png" alt="upload successful"><br>我们期望p1参数当它是某个特殊值的时候，它的限流和平时不一样  </p>
+<p><img data-src="/images/pasted-418.png" alt="upload successful"><br>上图配置表示针对参数0，当其值为5的时候，QPS可以容忍到200  </p>
+<p><img data-src="/images/pasted-419.png" alt="upload successful"><br>此时重复访问后也不会跳转到<code>blockHandler</code>方法 </p>
+<h3 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h3><p>在controller中添加运行时异常  </p>
+<pre><code>@GetMapping(&quot;/testHotKey&quot;)
+    @SentinelResource(value = &quot;testHotKey&quot; , blockHandler = &quot;deal_testHotKey&quot;)
+    public String testHotKey(@RequestParam(value = &quot;p1&quot;,required = false) String p1 ,
+                             @RequestParam(value = &quot;p2&quot; , required = false)  String p2)&#123;
+        int i = 10 / 0;
+        return &quot;-------testHotKey&quot;;
+    &#125;
+</code></pre>
+<p>发现并不会跳转到<code>blockHandler</code>方法，因为<code>@SentinelResource</code>只负责<code>Sentinel配置平台</code>的配置错误，不会管理运行时异常。</p>
+<h2 id="系统规则"><a href="#系统规则" class="headerlink" title="系统规则"></a>系统规则</h2><p>Sentinel 系统自适应限流从整体维度对应用入口流量进行控制，结合应用的 Load、CPU 使用率、总体平均 RT、入口 QPS 和并发线程数等几个维度的监控指标，通过自适应的流控策略，让系统的入口流量和系统的负载达到一个平衡，让系统尽可能跑在最大吞吐量的同时保证系统整体的稳定性<br><a target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel/wiki/%E7%B3%BB%E7%BB%9F%E8%87%AA%E9%80%82%E5%BA%94%E9%99%90%E6%B5%81">https://github.com/alibaba/Sentinel/wiki/%E7%B3%BB%E7%BB%9F%E8%87%AA%E9%80%82%E5%BA%94%E9%99%90%E6%B5%81</a>  </p>
+<p>系统保护规则是从应用级别的入口流量进行控制，从单台机器的 load、CPU 使用率、平均 RT、入口 QPS 和并发线程数等几个维度监控应用指标，让系统尽可能跑在最大吞吐量的同时保证系统整体的稳定性。</p>
+<p>系统保护规则是应用整体维度的，而不是资源维度的，并且仅对入口流量生效。入口流量指的是进入应用的流量（EntryType.IN），比如 Web 服务或 Dubbo 服务端接收的请求，都属于入口流量。</p>
+<p>系统规则支持以下的模式：  </p>
+<p>Load 自适应（仅对 Linux&#x2F;Unix-like 机器生效）：系统的 load1 作为启发指标，进行自适应系统保护。当系统 load1 超过设定的启发值，且系统当前的并发线程数超过估算的系统容量时才会触发系统保护（BBR 阶段）。系统容量由系统的 maxQps * minRt 估算得出。设定参考值一般是 CPU cores X 2.5。<br>CPU usage（1.5.0+ 版本）：当系统 CPU 使用率超过阈值即触发系统保护（取值范围 0.0-1.0），比较灵敏。<br>平均 RT：当单台机器上所有入口流量的平均 RT 达到阈值即触发系统保护，单位是毫秒。<br>并发线程数：当单台机器上所有入口流量的并发线程数达到阈值即触发系统保护。<br>入口 QPS：当单台机器上所有入口流量的 QPS 达到阈值即触发系统保护。  </p>
+<h2 id="SentinelResource配置"><a href="#SentinelResource配置" class="headerlink" title="SentinelResource配置"></a>SentinelResource配置</h2><p>pom 引入自定义pom  </p>
+<pre><code>&lt;dependency&gt;
+            &lt;groupId&gt;com.ykx.springcloud&lt;/groupId&gt;
+            &lt;artifactId&gt;cloud-api-commons&lt;/artifactId&gt;
+            &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+        &lt;/dependency&gt;
+        
+</code></pre>
+<p><img data-src="/images/pasted-421.png" alt="upload successful">  </p>
+<p>Controller  </p>
+<pre><code>@RestController
+public class RateLimitController &#123;
+    @GetMapping(&quot;/byResource&quot;)
+    @SentinelResource(value = &quot;byResource&quot; , blockHandler = &quot;handleException&quot;)
+    public CommonResult byResource()&#123;
+        return new CommonResult(200 , &quot;按资源名称限流测试0&quot;,new Payment(2020L ,&quot;serial001&quot;));
+    &#125;
+    public CommonResult handleException(BlockException exception)&#123;
+        return new CommonResult(444 , exception.getClass().getCanonicalName() + &quot;\t服务不可用&quot;);
+    &#125;
+&#125;
+</code></pre>
+<p>结果表明，超过流控配置后 ， 要是有blockHandler的配置，那么就是用配置的。<br>如果没有配置就是用系统默认的，其中，通过资源名和SentinelResource的value都可以配置。  </p>
+<h3 id="解决兜底方案的问题（膨胀、耦合）"><a href="#解决兜底方案的问题（膨胀、耦合）" class="headerlink" title="解决兜底方案的问题（膨胀、耦合）"></a>解决兜底方案的问题（膨胀、耦合）</h3><p>编写自定义限流方法  </p>
+<pre><code>public class CustomerBlockHandler &#123;
+    public static CommonResult handlerException(BlockException exception)&#123;
+        return new CommonResult(444 , exception.getClass().getCanonicalName() + &quot;\t1号服务不可用&quot;);
+    &#125;
+
+    public static CommonResult handlerException2(BlockException exception)&#123;
+        return new CommonResult(445 , exception.getClass().getCanonicalName() + &quot;\t2号服务不可用&quot;);
+    &#125;
+&#125;
+</code></pre>
+<p>配置@SentinelResource的限流规则  </p>
+<pre><code>@GetMapping(&quot;/rateLimit/customerBlockHandler&quot;)
+    @SentinelResource(value = &quot;rateLimit/customerBlockHandler&quot;,
+            blockHandlerClass = CustomerBlockHandler.class,
+            blockHandler = &quot;handlerException2&quot;)
+    public CommonResult byUrl()&#123;
+        return new CommonResult(200 , &quot;按资源名称限流测试0&quot;,new Payment(2020L ,&quot;serial001&quot;));
+    &#125;
+    
+</code></pre>
+<p>这里按照SentinelResource配置添加流控规则</p>
+<p><img data-src="/images/pasted-422.png" alt="upload successful">    </p>
+<p>成功调用2号流控方法<br><img data-src="/images/pasted-423.png" alt="upload successful">  </p>
+<p>@SentinelResource 注解<br>注意：注解方式埋点不支持 private 方法。</p>
+<p>@SentinelResource 用于定义资源，并提供可选的异常处理和 fallback 配置项。 @SentinelResource 注解包含以下属性：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel/wiki/%E6%B3%A8%E8%A7%A3%E6%94%AF%E6%8C%81#sentinelresource-%E6%B3%A8%E8%A7%A3">https://github.com/alibaba/Sentinel/wiki/%E6%B3%A8%E8%A7%A3%E6%94%AF%E6%8C%81#sentinelresource-%E6%B3%A8%E8%A7%A3</a>  </p>
+<h2 id="服务熔断功能"><a href="#服务熔断功能" class="headerlink" title="服务熔断功能"></a>服务熔断功能</h2><p>@fallback作为java异常的降级方法<br>@blockhandler未做sentinel配置异常的降级方法<br>两个都配置的情况下，使用blockHandler配置的方法<br>@exceptionToIgnore   </p>
+<p><img data-src="/images/pasted-424.png" alt="upload successful"><br>忽略异常  </p>
+<p>见官网，so easy  </p>
+<h2 id="Sentinel服务持久化"><a href="#Sentinel服务持久化" class="headerlink" title="Sentinel服务持久化"></a>Sentinel服务持久化</h2><blockquote>
+<p>每次重启微服务后，所有的规则都会消失，如何进行配置规则的持久化？   </p>
+</blockquote>
+<p>将限流配置规则持久化进Nacos保存，只要刷新8401某个rest地址，sentinel控制台的流控规则就能看到，只要Nacos里面的配置不删除，针对8401上sentinel上的流控规则持续有效。    </p>
+<p>pom  </p>
+<pre><code>&lt;!--SpringCloud ailibaba sentinel-datasource-nacos 后续做持久化用到--&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba.csp&lt;/groupId&gt;
+    &lt;artifactId&gt;sentinel-datasource-nacos&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+<p>xml</p>
+<pre><code>spring:
+  application:
+    name: cloudalibaba-sentinel-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+    sentinel:
+      transport:
+        #配置sentinel dashboard的地址
+        dashboard: localhost:8080
+        port: 8719
+      datasource:
+        ds1:
+          nacos:
+            server-addr: localhost:8848
+            dataId: cloudalibaba-sentinel-service
+            groupId: DEFAULT_GROUP
+            data-type: json
+            rule-type: flow
+            
+</code></pre>
+<p> 在nacos中编写流控规则</p>
+<p><img data-src="/images/pasted-426.png" alt="upload successful"><br>resource：资源名称；<br>limitApp：来源应用；<br>grade：阈值类型，0表示线程数, 1表示QPS；<br>count：单机阈值；<br>strategy：流控模式，0表示直接，1表示关联，2表示链路；<br>controlBehavior：流控效果，0表示快速失败，1表示Warm Up，2表示排队等待；<br>clusterMode：是否集群。</p>
+<h1 id="Seata"><a href="#Seata" class="headerlink" title="Seata"></a>Seata</h1><p>分布式前  </p>
+<ul>
+<li>单机单库没这个问题</li>
+<li>从1:1 -&gt; 1:N -&gt; N:N<br>单体应用被拆分成微服务应用，原来的三个模块被拆分成三个独立的应用,分别使用三个独立的数据源，业务操作需要调用三个服务来完成。此时每个服务内部的数据一致性由本地事务来保证， 但是<code>全局的数据一致性</code>问题没法保证。</li>
+</ul>
+<p><img data-src="/images/pasted-427.png" alt="upload successful">  </p>
+<blockquote>
+<p>一句话：一次业务操作需要跨多个数据源或需要跨多个系统进行远程调用，就会产生分布式事务问题。  </p>
+</blockquote>
+<p>**Seata是一款开源的分布式事务解决方案，致力于在微服务架构下提供高性能和简单易用的分布式事务服务。  **</p>
+<p><a target="_blank" rel="noopener" href="http://seata.io/zh-cn/">http://seata.io/zh-cn/</a>  </p>
+<p>分布式事务处理过程的一ID+三组件模型：  </p>
+<ul>
+<li>Transaction ID XID 全局唯一的事务ID<br>三组件概念  </li>
+<li>TC (Transaction Coordinator) - 事务协调者：维护全局和分支事务的状态，驱动全局事务提交或回滚。  </li>
+<li>TM (Transaction Manager) - 事务管理器：定义全局事务的范围：开始全局事务、提交或回滚全局事务。   </li>
+<li>RM (Resource Manager) - 资源管理器：管理分支事务处理的资源，与TC交谈以注册分支事务和报告分支事务的状态，并驱动分支事务提交或回滚。</li>
+</ul>
+<p><img data-src="/images/pasted-428.png" alt="upload successful">  </p>
+<h2 id="Seata安装"><a href="#Seata安装" class="headerlink" title="Seata安装"></a>Seata安装</h2><p><a target="_blank" rel="noopener" href="https://github.com/seata/seata/releases">https://github.com/seata/seata/releases</a>  </p>
+<p>先备份原始file.conf文件  </p>
+<p>主要修改:自定义事务组名称+事务日志存储模式为db +数据库连接信息  </p>
+<p>file.conf<br>-Service模块  </p>
+<p><img data-src="/images/pasted-429.png" alt="upload successful"><br>-store模块  </p>
+<p><img data-src="/images/pasted-430.png" alt="upload successful">  </p>
+<p><img data-src="/images/pasted-431.png" alt="upload successful">  </p>
+<p>运行db_store.sql  </p>
+<p><img data-src="/images/pasted-432.png" alt="upload successful">  </p>
+<p><img data-src="/images/pasted-433.png" alt="upload successful"><br>修改registry.conf 修改出厂默认的注册方式为<code>nacos</code>  </p>
+<p><img data-src="/images/pasted-434.png" alt="upload successful"><br>在java8环境下运行seataserver.sh  </p>
+<p><img data-src="/images/pasted-437.png" alt="upload successful">  </p>
+<h2 id="Seata业务数据库准备"><a href="#Seata业务数据库准备" class="headerlink" title="Seata业务数据库准备"></a>Seata业务数据库准备</h2><p><img data-src="/images/pasted-438.png" alt="upload successful">    </p>
+<p>sql</p>
+<pre><code>CREATE DATABASE seata_order;
+CREATE DATABASE seata_storage;
+CREATE DATABASE seata_account;
+</code></pre>
+<p>每个数据库下创建对应的表</p>
+<p>按照上述3库分别建对应的回滚日志表  \seata-server-0.9.0\seata\conf目录下的db_ undo_ log.sql  </p>
+<h2 id="seata-order-service2001"><a href="#seata-order-service2001" class="headerlink" title="seata-order-service2001"></a>seata-order-service2001</h2><p>pom  </p>
+<pre><code>&lt;dependencies&gt;
+        &lt;!--nacos--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-alibaba-nacos-discovery&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;!--seata--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-alibaba-seata&lt;/artifactId&gt;
+            &lt;exclusions&gt;
+                &lt;exclusion&gt;
+                    &lt;artifactId&gt;seata-all&lt;/artifactId&gt;
+                    &lt;groupId&gt;io.seata&lt;/groupId&gt;
+                &lt;/exclusion&gt;
+            &lt;/exclusions&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;io.seata&lt;/groupId&gt;
+            &lt;artifactId&gt;seata-all&lt;/artifactId&gt;
+            &lt;version&gt;0.9.0&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;!--feign--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-starter-openfeign&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;!--web-actuator--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;!--mysql-druid--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;mysql&lt;/groupId&gt;
+            &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+            &lt;version&gt;5.1.37&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
+            &lt;artifactId&gt;druid-spring-boot-starter&lt;/artifactId&gt;
+            &lt;version&gt;1.1.10&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.mybatis.spring.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;mybatis-spring-boot-starter&lt;/artifactId&gt;
+            &lt;version&gt;2.0.0&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+            &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+            &lt;optional&gt;true&lt;/optional&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+</code></pre>
+<p>application.yml  </p>
+<pre><code>server:
+  port: 2001
+
+spring:
+  application:
+    name: seata-order-service
+  cloud:
+    alibaba:
+      seata:
+        #自定义事务组名称需要与seata-server中file.conf中配置的事务组ID对应
+        #vgroup_mapping.my_test_tx_group = &quot;my_group&quot;
+        tx-service-group: my_group
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/seata_order?useUnicode=true&amp;characterEncoding=UTF-8&amp;useSSL=false&amp;serverTimezone=UTC
+    username: root
+    password: 10086
+
+feign:
+  hystrix:
+    enabled: false
+
+logging:
+  level:
+    io:
+      seata: info
+
+mybatis:
+  mapperLocations: classpath:mapper/*.xml
+  
+</code></pre>
+<p>file.conf   </p>
+<p>程序中依赖的是 seata-all，对应于 *.conf 文件，所以需要在resource新建.conf文件，高版本的支持yml、properties配置。这里仅仅是seata-order-service2001模块的file.conf（配置2001的分布式事务），seata软件那里配置的是总控file.conf。  </p>
+<p><img data-src="/images/pasted-439.png" alt="upload successful">  </p>
+<p>几个配置文件对应关系  </p>
+<p><img data-src="/images/pasted-440.png" alt="upload successful"><br>registry.conf  </p>
+<p><img data-src="/images/pasted-441.png" alt="upload successful">    </p>
+<h3 id="domain"><a href="#domain" class="headerlink" title="domain"></a>domain</h3><p>domain 就是entity（pojo，bean），对应数据库的表，不同公司习惯不一样。<br>新建Order类与CommonResult类  </p>
+<pre><code>package com.atguigu.cloudalibaba.domain;
+
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Order &#123;
+    private Long id;
+
+    private Long userId;
+
+    private Long productId;
+
+    private Integer count;
+
+    private BigDecimal money;
+
+    /**
+     * 订单状态：0：创建中；1：已完结
+     */
+    private Integer status;
+&#125;
+</code></pre>
+<h3 id="Dao接口及实现-SQL映射文件"><a href="#Dao接口及实现-SQL映射文件" class="headerlink" title="Dao接口及实现(SQL映射文件)"></a>Dao接口及实现(SQL映射文件)</h3><p> dao中至少要有两个方法，一个是创建订单，一个是修改订单状态  </p>
+<pre><code> package com.atguigu.cloudalibaba.dao;
+
+import com.atguigu.cloudalibaba.domain.Order;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+
+@Mapper
+public interface OrderDao &#123;
+    /**
+     * 创建订单
+     */
+    void create(Order order);
+
+    /**
+     * 修改订单状态，从0改为1
+     */
+    void update(@Param(&quot;userId&quot;) Long userId, @Param(&quot;status&quot;) Integer status);
+&#125;
+</code></pre>
+<p>OrderMapper.xml  </p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+&lt;!DOCTYPE mapper PUBLIC &quot;-//mybatis.org//DTD Mapper 3.0//EN&quot; &quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot; &gt;
+
+&lt;mapper namespace=&quot;com.atguigu.cloudalibaba.dao.OrderDao&quot;&gt;
+    &lt;!--定义一个结果集和实体类的映射表--&gt;
+    &lt;resultMap id=&quot;BaseResultMap&quot; type=&quot;com.atguigu.cloudalibaba.domain.Order&quot;&gt;
+        &lt;id column=&quot;id&quot; property=&quot;id&quot; jdbcType=&quot;BIGINT&quot;/&gt;
+        &lt;result column=&quot;user_id&quot; property=&quot;userId&quot; jdbcType=&quot;BIGINT&quot;/&gt;
+        &lt;result column=&quot;product_id&quot; property=&quot;productId&quot; jdbcType=&quot;BIGINT&quot;/&gt;
+        &lt;result column=&quot;count&quot; property=&quot;count&quot; jdbcType=&quot;INTEGER&quot;/&gt;
+        &lt;result column=&quot;money&quot; property=&quot;money&quot; jdbcType=&quot;DECIMAL&quot;/&gt;
+        &lt;result column=&quot;status&quot; property=&quot;status&quot; jdbcType=&quot;INTEGER&quot;/&gt;
+    &lt;/resultMap&gt;
+
+    &lt;insert id=&quot;create&quot;&gt;
+        INSERT INTO `t_order` (`id`, `user_id`, `product_id`, `count`, `money`, `status`)
+        VALUES (NULL, #&#123;userId&#125;, #&#123;productId&#125;, #&#123;count&#125;, #&#123;money&#125;, 0);
+    &lt;/insert&gt;
+
+    &lt;update id=&quot;update&quot;&gt;
+        UPDATE `t_order`
+        SET status = 1
+        WHERE user_id = #&#123;userId&#125; AND status = #&#123;status&#125;;
+    &lt;/update&gt;
+&lt;/mapper&gt;
+</code></pre>
+<p>AccountService  </p>
+<pre><code>package com.atguigu.cloudalibaba.service;
+
+import com.atguigu.cloudalibaba.domain.CommonResult;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.math.BigDecimal;
+
+//通过OpenFeign远程调用账号微服务
+@FeignClient(value = &quot;seata-account-service&quot;)
+public interface AccountService &#123;
+    //扣减账户余额，需要传入用户ID跟扣除的金额
+    //@RequestMapping(value = &quot;/account/decrease&quot;, method = RequestMethod.POST, produces = &quot;application/json; charset=UTF-8&quot;)
+    @PostMapping(&quot;/account/decrease&quot;)
+    CommonResult decrease(@RequestParam(&quot;userId&quot;) Long userId, @RequestParam(&quot;money&quot;) BigDecimal money);
+&#125;
+</code></pre>
+<p>StorageService  </p>
+<pre><code>package com.atguigu.cloudalibaba.service;
+
+import com.atguigu.cloudalibaba.domain.CommonResult;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+//通过OpenFeign远程调用库存的微服务
+@FeignClient(value = &quot;seata-storage-service&quot;)
+public interface StorageService &#123;
+    //扣减库存，比如买了5个1号商品：对1号商品库存减5
+    @PostMapping(value = &quot;/storage/decrease&quot;)
+    CommonResult decrease(@RequestParam(&quot;productId&quot;) Long productId, @RequestParam(&quot;count&quot;) Integer count);
+&#125;
+</code></pre>
+<p>OrderService  </p>
+<pre><code>package com.atguigu.cloudalibaba.service;
+
+import com.atguigu.cloudalibaba.domain.Order;
+
+public interface OrderService &#123;
+    // 创建订单
+    void create(Order order);
+&#125;
+</code></pre>
+<p>OrderServiceIMpl  </p>
+<pre><code>package com.atguigu.cloudalibaba.service.Impl;
+
+import com.atguigu.cloudalibaba.dao.OrderDao;
+import com.atguigu.cloudalibaba.domain.Order;
+import com.atguigu.cloudalibaba.service.AccountService;
+import com.atguigu.cloudalibaba.service.OrderService;
+import com.atguigu.cloudalibaba.service.StorageService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+
+@Service
+@Slf4j
+public class OrderServiceImpl implements OrderService &#123;
+    @Resource
+    private OrderDao orderDao;
+
+    @Resource
+    private StorageService storageService;
+
+    @Resource
+    private AccountService accountService;
+
+    /**
+     * 创建订单-&gt;调用库存服务扣减库存-&gt;调用账户服务扣减账户余额-&gt;修改订单状态
+     * 简单说：
+     * 下订单-&gt;减库存-&gt;减余额-&gt;改状态
+     */
+    @Override
+    public void create(Order order) &#123;
+        log.info(&quot;-------&gt;下单开始&quot;);
+        //本应用创建订单
+        orderDao.create(order);
+
+        //远程调用库存服务扣减库存
+        log.info(&quot;-------&gt;订单微服务调用库存微服务，扣减库存开始&quot;);
+        storageService.decrease(order.getProductId(),order.getCount());
+        log.info(&quot;-------&gt;订单微服务调用库存微服务，扣减库存结束&quot;);
+
+        //远程调用账户服务扣减余额
+        log.info(&quot;-------&gt;订单微服务调用账户微服务，扣减余额开始&quot;);
+        accountService.decrease(order.getUserId(),order.getMoney());
+        log.info(&quot;-------&gt;订单微服务调用账户微服务，减余额结束&quot;);
+
+        //修改订单状态为已完成
+        log.info(&quot;-------&gt;order-service中修改订单状态开始&quot;);
+        // 这里的话是不是应该是orderId？
+        orderDao.update(order.getUserId(),0);
+        log.info(&quot;-------&gt;order-service中修改订单状态结束&quot;);
+
+        log.info(&quot;-------&gt;下单结束&quot;);
+    &#125;
+&#125;
+</code></pre>
+<p> controller  </p>
+<pre><code>import com.atguigu.cloudalibaba.domain.CommonResult;
+import com.atguigu.cloudalibaba.domain.Order;
+import com.atguigu.cloudalibaba.service.OrderService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class OrderController &#123;
+    @Autowired
+    private OrderService orderService;
+
+    //创建订单
+    @GetMapping(value = &quot;/order/create&quot;)
+    public CommonResult create(Order order) &#123;
+        orderService.create(order);
+        return new CommonResult(200, &quot;订单创建成功!&quot;);
+    &#125;
+&#125;
+</code></pre>
+<p> DataSourceProxyConfig  </p>
+<p> DataSouce的包是sql下的，DataSourceProxy是seata下的，不要搞错了。  </p>
+<p><img data-src="/images/pasted-442.png" alt="upload successful">  </p>
+<pre><code>package com.atguigu.cloudalibaba.config;
+
+import com.alibaba.druid.pool.DruidDataSource;
+import io.seata.rm.datasource.DataSourceProxy;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.transaction.SpringManagedTransactionFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+
+import javax.sql.DataSource;
+
+//使用Seata对数据源进行代理
+@Configuration
+public class DataSourceProxyConfig &#123;
+    @Value(&quot;$&#123;mybatis.mapperLocations&#125;&quot;)
+    private String mapperLocations;
+
+    @Bean
+    @ConfigurationProperties(prefix = &quot;spring.datasource&quot;)
+    public DataSource druidDataSource()&#123;
+        return new DruidDataSource();
+    &#125;
+
+    @Bean
+//    @Primary
+    //DataSourceProxy方法上标注@Primary就可以了，这样就自动用的代理的DataSource(DS的子类)，
+    // 而不是Druid的, 否则就需要自己构造sqlSessionFactory
+    public DataSourceProxy dataSourceProxy(DataSource dataSource) &#123;
+        return new DataSourceProxy(dataSource);
+    &#125;
+
+    @Bean
+    public SqlSessionFactory sqlSessionFactoryBean(DataSourceProxy dataSourceProxy) throws Exception &#123;
+        SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
+        sqlSessionFactoryBean.setDataSource(dataSourceProxy);
+        sqlSessionFactoryBean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources(mapperLocations));
+        sqlSessionFactoryBean.setTransactionFactory(new SpringManagedTransactionFactory());
+        return sqlSessionFactoryBean.getObject();
+    &#125;
+&#125;
+</code></pre>
+<h2 id="GlobalTransactional"><a href="#GlobalTransactional" class="headerlink" title="@GlobalTransactional"></a>@GlobalTransactional</h2><p><img data-src="/images/pasted-443.png" alt="upload successful">   </p>
+<h3 id="测试超时异常：不加-GlobalTransactional"><a href="#测试超时异常：不加-GlobalTransactional" class="headerlink" title="测试超时异常：不加@GlobalTransactional"></a>测试超时异常：不加@GlobalTransactional</h3><p><img data-src="/images/pasted-444.png" alt="upload successful"><br>数据库情况  </p>
+<p><img data-src="/images/pasted-445.png" alt="upload successful">  </p>
+<p>当库存和账户金额扣减后，订单状态并没有设置为已经完成，没有从零改为1；而且由于feign的重试机制，账户余额还有可能被多次扣减。  </p>
+<h3 id="测试超时异常：加-GlobalTransactional"><a href="#测试超时异常：加-GlobalTransactional" class="headerlink" title="测试超时异常：加@GlobalTransactional"></a>测试超时异常：加@GlobalTransactional</h3><p>OrderServiceImpl添加@GlobalTransactional注解，注意改注解只能用在方法上！  </p>
+<pre><code>package com.atguigu.cloudalibaba.service.Impl;
+
+import com.atguigu.cloudalibaba.dao.OrderDao;
+import com.atguigu.cloudalibaba.domain.Order;
+import com.atguigu.cloudalibaba.service.AccountService;
+import com.atguigu.cloudalibaba.service.OrderService;
+import com.atguigu.cloudalibaba.service.StorageService;
+import io.seata.spring.annotation.GlobalTransactional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+
+@Service
+@Slf4j
+public class OrderServiceImpl implements OrderService &#123;
+    @Resource
+    private OrderDao orderDao;
+
+    @Resource
+    private StorageService storageService;
+
+    @Resource
+    private AccountService accountService;
+
+    /**
+     * 创建订单-&gt;调用库存服务扣减库存-&gt;调用账户服务扣减账户余额-&gt;修改订单状态
+     * 简单说：
+     * 下订单-&gt;减库存-&gt;减余额-&gt;改状态
+     */
+    @Override
+    //全局事务，发生异常进行回滚
+    @GlobalTransactional(name = &quot;lsp-create-order&quot;, rollbackFor = Exception.class)
+    public void create(Order order) &#123;
+        log.info(&quot;-------&gt;下单开始&quot;);
+        //本应用创建订单
+        orderDao.create(order);
+
+        //远程调用库存服务扣减库存
+        log.info(&quot;-------&gt;订单微服务调用库存微服务，扣减库存开始&quot;);
+        storageService.decrease(order.getProductId(),order.getCount());
+        log.info(&quot;-------&gt;订单微服务调用库存微服务，扣减库存结束&quot;);
+
+        //远程调用账户服务扣减余额
+        log.info(&quot;-------&gt;订单微服务调用账户微服务，扣减余额开始&quot;);
+        accountService.decrease(order.getUserId(),order.getMoney());
+        log.info(&quot;-------&gt;订单微服务调用账户微服务，减余额结束&quot;);
+
+        //修改订单状态为已完成
+        log.info(&quot;-------&gt;order-service中修改订单状态开始&quot;);
+        // 这里的话是不是应该是orderId？
+        orderDao.update(order.getUserId(),0);
+        log.info(&quot;-------&gt;order-service中修改订单状态结束&quot;);
+
+        log.info(&quot;-------&gt;下单结束&quot;);
+    &#125;
+&#125;
+</code></pre>
+<p><img data-src="/images/pasted-446.png" alt="upload successful"><br>● name：给定全局事务实例的名称，随便取，唯一即可<br>● rollbackFor：当发生什么样的异常时，进行回滚<br>● noRollbackFor：发生什么样的异常不进行回滚。    </p>
+<h2 id="Seata之原理简介"><a href="#Seata之原理简介" class="headerlink" title="Seata之原理简介"></a>Seata之原理简介</h2><p><img data-src="/images/pasted-447.png" alt="upload successful">  </p>
+<ul>
+<li>TC：seata服务器； （我们电脑上启动的seata ）</li>
+<li>TM：事物的发起者，业务的入口。 哪个微服务使用了@GlobalTransactional哪个就是TM</li>
+<li>RM：事务的参与者，一个数据库就是一个RM。</li>
+</ul>
+<p>分布式事务的执行流程：</p>
+<ol>
+<li>TM 开启分布式事务（TM 向 TC 注册全局事务记录）；  </li>
+<li>按业务场景，编排数据库、服务等事务内资源（RM 向 TC 汇报资源准备状态 ）；  </li>
+<li>TM 结束分布式事务，事务一阶段结束（TM 通知 TC 提交&#x2F;回滚分布式事务）；  </li>
+<li>TC 汇总事务信息，决定分布式事务是提交还是回滚；  </li>
+<li>TC 通知所有 RM 提交&#x2F;回滚 资源，事务二阶段结束。</li>
+</ol>
+<h3 id="AT模式（默认）如何做到对业务的无侵入"><a href="#AT模式（默认）如何做到对业务的无侵入" class="headerlink" title="AT模式（默认）如何做到对业务的无侵入"></a>AT模式（默认）如何做到对业务的无侵入</h3><p>Seata有四大模式：AT（默认）、TCC、SAGA、XA。（阿里云上的AT叫做GTS，收费）<br>AT模式<br>AT模式两阶段提交协议的演变：<br>● 一阶段：业务数据和回滚日志记录在同一个本地事务中提交，释放本地锁和连接资源。<br>● 二阶段：<br>  ○ 提交异步化，非常快速地完成。<br>  ○ 回滚通过一阶段的回滚日志进行反向补偿（前面insert，后面回滚时就delete）。  </p>
+<p>每个数据库除了自身存储数据的表以外，都会有一个事务回滚表：undo_log<br>Seata库中存在：branch_table\global_table\lock_table\distributed_lock(高版本才有)这样一些表</p>
+<h3 id="一阶段加载"><a href="#一阶段加载" class="headerlink" title="一阶段加载"></a>一阶段加载</h3><p>在一阶段，Seata 会拦截“业务 SQL”，<br>1  解析 SQL 语义，找到“业务 SQL”要更新的业务数据，在业务数据被更新前，将其保存成“before image”（前置镜像）<br>2  执行“业务 SQL”更新业务数据，在业务数据更新之后，<br>3  其保存成“after image”，最后生成行锁。<br>以上操作全部在一个数据库事务内完成，这样保证了一阶段操作的原子性。  </p>
+<p><img data-src="/images/pasted-448.png" alt="upload successful">  </p>
+<h3 id="二阶段提交"><a href="#二阶段提交" class="headerlink" title="二阶段提交"></a>二阶段提交</h3><p>因为“业务 SQL”在一阶段已经提交至数据库，二阶段如果顺利提交的话，那么Seata框架只需将一阶段保存的快照数据和行锁删掉，完成数据清理即可。  </p>
+<p><img data-src="/images/pasted-449.png" alt="upload successful">  </p>
+<h3 id="二阶段回滚"><a href="#二阶段回滚" class="headerlink" title="二阶段回滚"></a>二阶段回滚</h3><p>二阶段如果是回滚的话，Seata 就需要回滚一阶段已经执行的“业务 SQL”，还原业务数据。<br>回滚方式便是用“before image”还原业务数据；但在还原前要首先要校验脏写，对比“数据库当前业务数据”和 “after image”。如果两份数据完全一致就说明没有脏写，可以还原业务数据，如果不一致就说明有脏写，出现脏写就需要转人工处理。  </p>
+<p><img data-src="/images/pasted-450.png" alt="upload successful">  </p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>拿来吧你🍗</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.JPG" alt="KaiXuan Young 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibabapay.PNG" alt="KaiXuan Young 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>原作者： </strong>KaiXuan Young
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://ykxzyp0517.cn/2022/11/16/SpringCloudAlibaba/" title="SpringCloudAlibaba-Nacos(服务注册和配置中心)、Sentinel（实现熔断和限流）、Seata(处理分布式事务)">https://ykxzyp0517.cn/2022/11/16/SpringCloudAlibaba/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/11/07/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84-%E6%9C%8D%E5%8A%A1%E7%BD%91%E5%85%B3/" rel="prev" title="微服务分布式架构-Gateway服务网关、Config分布式配置中心、Bus消息总线、stream消息驱动">
+                  <i class="fa fa-chevron-left"></i> 微服务分布式架构-Gateway服务网关、Config分布式配置中心、Bus消息总线、stream消息驱动
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/03/16/Feign%E8%BF%9C%E7%A8%8B%E8%B0%83%E7%94%A8%E4%B8%A2%E5%A4%B1%E8%AF%B7%E6%B1%82%E4%BF%A1%E6%81%AF/" rel="next" title="Feign远程调用丢失请求信息\上下文">
+                  Feign远程调用丢失请求信息\上下文 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">KaiXuan Young</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script size="300" alpha="0.6" zIndex="-2" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pangu/4.0.7/pangu.min.js" integrity="sha256-j+yj56cdEY2CwkVtGyz18fNybFGpMGJ8JxG3GSyO2+I=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.0/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"neutral","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/9.1.3/mermaid.min.js","integrity":"sha256-TIYL00Rhw/8WaoUhYTLX9SKIEFdXxg+yMWSLVUbhiLg="}}</script>
+  <script src="/js/third-party/tags/mermaid.js"></script>
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.7.2/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"KaiXuan-Y# GitHub repo owner","repo":"comments# Repository name to store issues","client_id":"54e5333f9ff5623b13af# GitHub Application Client ID","client_secret":"ff6f684d7a27df62d564197b2f2907b7aef4cae1# GitHub Application Client Secret","admin_user":"KaiXuan-Y# GitHub repo owner and collaborators, only these guys can initialize gitHub issues","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.7.2/gitalk.min.js","integrity":"sha256-Pmj85ojLaPOWwRtlMJwmezB/Qg8BzvJp5eTzvXaYAfA="},"path_md5":"ecb6773857a4528d138b46a2d13af9c8"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>
